@@ -1,0 +1,717 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+#game-container {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+}
+
+.screen {
+    display: none;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ボタン共通 */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* タイトル画面 */
+#title-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#title-screen h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#title-screen .subtitle {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 50px;
+}
+
+/* パーティ編成画面 */
+#party-screen h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#character-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.character-card {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.character-card:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.character-card.selected {
+    background: rgba(102, 126, 234, 0.5);
+    border: 2px solid #667eea;
+}
+
+.character-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #333;
+}
+
+.character-card .char-name {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.character-card .char-type {
+    font-size: 10px;
+    color: #aaa;
+}
+
+#party-slots {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.party-slot {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed #555;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    min-height: 100px;
+}
+
+.party-slot.filled {
+    border-style: solid;
+    border-color: #667eea;
+}
+
+.position-label {
+    font-size: 10px;
+    color: #888;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.slot-content {
+    font-size: 14px;
+}
+
+#start-run-btn {
+    margin-top: auto;
+}
+
+/* ノードマップ画面 */
+#map-screen {
+    padding: 10px;
+}
+
+#map-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+#node-map {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 15px;
+    padding: 20px 10px;
+    overflow-y: auto;
+}
+
+.node-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.node.available {
+    background: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+    animation: pulse 1.5s infinite;
+}
+
+.node.completed {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.node.current {
+    border: 3px solid #f5af19;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#party-status-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.party-member-status {
+    text-align: center;
+    font-size: 12px;
+}
+
+.party-member-status .name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.hp-bar, .mp-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin: 2px 0;
+    overflow: hidden;
+}
+
+.hp-bar {
+    background: #333;
+}
+
+.hp-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+    transition: width 0.3s;
+}
+
+.mp-bar {
+    background: #333;
+}
+
+.mp-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+    transition: width 0.3s;
+}
+
+/* 戦闘画面 */
+#battle-screen {
+    padding: 10px;
+}
+
+#enemy-area {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    min-height: 150px;
+}
+
+#ally-area {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    min-height: 150px;
+}
+
+.battle-unit {
+    text-align: center;
+    position: relative;
+}
+
+.battle-unit img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #333;
+}
+
+.battle-unit .unit-name {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.battle-unit .unit-hp-bar {
+    width: 70px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    margin-top: 3px;
+    overflow: hidden;
+}
+
+.battle-unit .unit-hp-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+    transition: width 0.3s;
+}
+
+.battle-unit .unit-mp-bar {
+    width: 70px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    margin-top: 2px;
+    overflow: hidden;
+}
+
+.battle-unit .unit-mp-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+    transition: width 0.3s;
+}
+
+.battle-unit.selected {
+    outline: 3px solid #f5af19;
+    border-radius: 10px;
+}
+
+.battle-unit.target {
+    outline: 3px solid #ff6b6b;
+    border-radius: 10px;
+}
+
+.battle-unit.dead {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+.status-effects {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    margin-top: 3px;
+    flex-wrap: wrap;
+}
+
+.status-effect {
+    font-size: 10px;
+    background: rgba(0,0,0,0.5);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+#battle-log {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 10px;
+    height: 80px;
+    overflow-y: auto;
+    font-size: 12px;
+    margin: 10px 0;
+}
+
+#battle-log p {
+    margin: 3px 0;
+}
+
+#command-area {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+#character-commands {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+
+.char-command-slot {
+    text-align: center;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.char-command-slot.active {
+    background: rgba(102, 126, 234, 0.5);
+}
+
+.char-command-slot .cmd-name {
+    font-weight: bold;
+}
+
+.char-command-slot .cmd-action {
+    color: #aaa;
+    font-size: 10px;
+}
+
+#action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.action-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #555;
+    color: #fff;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.action-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#target-selection, #skill-selection, #item-selection {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+#target-selection h4, #skill-selection h4, #item-selection h4 {
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.target-btn, .skill-btn, .item-btn {
+    display: block;
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #555;
+    color: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.target-btn:hover, .skill-btn:hover, .item-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.skill-btn .skill-name {
+    font-weight: bold;
+}
+
+.skill-btn .skill-cost {
+    float: right;
+    color: #4ecdc4;
+}
+
+.skill-btn .skill-desc {
+    font-size: 11px;
+    color: #aaa;
+    display: block;
+    margin-top: 3px;
+}
+
+#execute-turn-btn {
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* 報酬画面 */
+#reward-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+#reward-screen h2 {
+    margin-bottom: 10px;
+}
+
+#reward-character-name {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #f5af19;
+}
+
+#reward-options {
+    width: 100%;
+    max-width: 350px;
+}
+
+.reward-option {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.reward-option:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(5px);
+}
+
+.reward-option .reward-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.reward-option .reward-desc {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* 休憩画面 */
+#rest-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+#rest-screen h2 {
+    margin-bottom: 30px;
+}
+
+#rest-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.rest-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #555;
+    color: #fff;
+    padding: 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rest-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* イベント画面 */
+#event-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#event-screen h2 {
+    margin-bottom: 15px;
+}
+
+#event-description {
+    margin-bottom: 30px;
+    color: #ccc;
+}
+
+#event-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.event-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #555;
+    color: #fff;
+    padding: 15px;
+    font-size: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.event-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* 宝箱画面 */
+#treasure-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+#treasure-screen h2 {
+    margin-bottom: 30px;
+}
+
+#treasure-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.treasure-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #f5af19;
+    color: #fff;
+    padding: 20px;
+    font-size: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.treasure-btn:hover {
+    background: rgba(245, 175, 25, 0.2);
+}
+
+/* ゲームオーバー・クリア画面 */
+#gameover-screen, #clear-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#gameover-screen h2 {
+    color: #ff6b6b;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#clear-screen h2 {
+    color: #f5af19;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#gameover-message {
+    margin-bottom: 30px;
+    color: #aaa;
+}
+
+/* ダメージ表示 */
+.damage-popup {
+    position: absolute;
+    font-weight: bold;
+    font-size: 20px;
+    color: #ff6b6b;
+    animation: damageFloat 1s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.damage-popup.heal {
+    color: #4ecdc4;
+}
+
+.damage-popup.critical {
+    color: #f5af19;
+    font-size: 26px;
+}
+
+@keyframes damageFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
