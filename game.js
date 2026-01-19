@@ -495,17 +495,22 @@ class Game {
         document.getElementById('node-progress').textContent =
             `階層 ${this.state.currentLayer + 1}/10`;
 
-        // SVGコンテナ作成（線描画用）
+        // layersContainerを基準点として作成し、その中にSVGを配置
+        const layersContainer = document.createElement('div');
+        layersContainer.className = 'layers-container';
+        layersContainer.style.position = 'relative';
+        mapEl.appendChild(layersContainer);
+
         const svgNamespace = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(svgNamespace, "svg");
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("height", "100%");
         svg.style.position = "absolute";
         svg.style.top = "0";
         svg.style.left = "0";
+        svg.style.width = "100%";
+        svg.style.height = "100%";
         svg.style.pointerEvents = "none";
         svg.style.zIndex = "0";
-        mapEl.appendChild(svg);
+        layersContainer.appendChild(svg);
 
         // マップを逆順（BOSSが上、STARTが下）で表示するためにflex-direction: column-reverseを使用するか、
         // DOMの追加順序を工夫する。ここではDOMは上から下（Layer 9 -> 0）へ追加し、
@@ -517,9 +522,7 @@ class Game {
         // 線を描画するために、ノードの座標が必要。
         // 一旦ノードを配置してから、座標を計算して線を描く。
 
-        const layersContainer = document.createElement('div');
-        layersContainer.className = 'layers-container';
-        mapEl.appendChild(layersContainer);
+
 
         // 全ノード要素への参照を保持
         const nodeElements = {};
@@ -541,7 +544,8 @@ class Game {
                 `;
 
                 if (node.completed) nodeEl.classList.add('completed');
-                if (node.status === 'available') {
+                // 現在の階層のみ選択可能にする（並列移動・戻り防止）
+                if (node.status === 'available' && node.layer === this.state.currentLayer) {
                     nodeEl.classList.add('available');
                     nodeEl.onclick = () => this.enterNode(node);
                 }
@@ -558,36 +562,45 @@ class Game {
             layersContainer.appendChild(row);
         });
 
-        // 少し待ってから線を引く（レイアウト確定後）
+        // レイアウト確定後に線を描画し、現在地にスクロール（2段階で確実に）
         requestAnimationFrame(() => {
-            this.drawMapConnections(svg, nodeElements);
-            // 初期表示位置を一番下（スタート地点）に合わせる
-            mapEl.scrollTop = mapEl.scrollHeight;
+            requestAnimationFrame(() => {
+                this.drawMapConnections(svg, nodeElements, layersContainer);
+                // 利用可能なノード（現在地）まで自動スクロール
+                const activeNode = mapEl.querySelector('.map-node.available');
+                if (activeNode) {
+                    activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    mapEl.scrollTop = mapEl.scrollHeight;
+                }
+            });
         });
     }
 
     // ノード間の接続線を描画
-    drawMapConnections(svg, nodeElements) {
-        const svgRect = svg.getBoundingClientRect();
+    drawMapConnections(svg, nodeElements, container) {
+        // SVGのサイズを明示的に設定
+        const containerRect = container.getBoundingClientRect();
+        svg.setAttribute('width', containerRect.width);
+        svg.setAttribute('height', containerRect.height);
 
         this.state.nodeMap.forEach(layer => {
             layer.forEach(node => {
                 const startEl = nodeElements[node.id];
                 if (!startEl) return;
-                const startRect = startEl.getBoundingClientRect();
 
-                // 中心座標 (SVG座標系)
-                const x1 = startRect.left + startRect.width / 2 - svgRect.left;
-                const y1 = startRect.top + startRect.height / 2 - svgRect.top;
+                // containerを基準とした絶対座標を取得
+                const startRect = startEl.getBoundingClientRect();
+                const x1 = startRect.left - containerRect.left + startRect.width / 2;
+                const y1 = startRect.top - containerRect.top + startRect.height / 2;
 
                 node.nextNodes.forEach(nextIdx => {
-                    // 次の階層のノードID（generateMapで id: `${l}-${i}` としている）
                     const nextNodeId = `${node.layer + 1}-${nextIdx}`;
                     const endEl = nodeElements[nextNodeId];
                     if (endEl) {
                         const endRect = endEl.getBoundingClientRect();
-                        const x2 = endRect.left + endRect.width / 2 - svgRect.left;
-                        const y2 = endRect.top + endRect.height / 2 - svgRect.top;
+                        const x2 = endRect.left - containerRect.left + endRect.width / 2;
+                        const y2 = endRect.top - containerRect.top + endRect.height / 2;
 
                         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
                         line.setAttribute("x1", x1);
@@ -595,19 +608,20 @@ class Game {
                         line.setAttribute("x2", x2);
                         line.setAttribute("y2", y2);
 
-                        // 線の色：有効なパスなら明るく、そうでなければ暗く
-                        let strokeColor = "#444";
+                        // 線の配色：清潔感のある白系に変更
+                        let strokeColor = "rgba(255, 255, 255, 0.1)"; // 未開放
+                        let strokeWidth = "1.5";
+
                         if (node.completed && this.isNodeAvailable(node.layer + 1, nextIdx)) {
-                            strokeColor = "#ffd700"; // 通った道、あるいは選択可能な道
+                            strokeColor = "rgba(255, 255, 255, 0.9)"; // 攻略ルート（くっきり白）
+                            strokeWidth = "3";
                         } else if (node.status === 'available') {
-                            strokeColor = "#888"; // これから選べる道の候補
+                            strokeColor = "rgba(255, 255, 255, 0.4)"; // 選択可能候補（薄い白）
+                            strokeWidth = "2";
                         }
 
-                        // 太さ
                         line.setAttribute("stroke", strokeColor);
-                        line.setAttribute("stroke-width", "2");
-                        line.setAttribute("stroke-dasharray", "4"); // 点線
-
+                        line.setAttribute("stroke-width", strokeWidth);
                         svg.appendChild(line);
                     }
                 });

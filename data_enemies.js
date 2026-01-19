@@ -4,223 +4,777 @@
 
 // 敵キャラクター
 const ENEMIES = {
-    // 第1幕 雑魚
-    slime: {
-        id: 'wadorudo',
-        name: 'ワドルドゥ',
-        displayName: 'ワドルドゥ',
-        type: 'balance',
-        baseStats: {
-            hp: 90, mp: 65, physicalAttack: 53, magicAttack: 34,
-            physicalDefense: 54, magicDefense: 55, speed: 55, luck: 41
-        },
-        skills: ['focus'],
-        image: { full: 'img/enemy/wadorudo.png' },
-        rank: 'normal'
-    },
-    goblin: {
-        id: 'goblin',
-        name: 'スライム',
-        displayName: 'スライム',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 95, mp: 60, physicalAttack: 60, magicAttack: 30,
-            physicalDefense: 50, magicDefense: 45, speed: 60, luck: 45
-        },
-        skills: ['strong_attack'],
-        image: { full: 'img/enemy/slime.png' },
-        rank: 'normal'
-    },
-    wolf: {
-        id: 'wolf',
-        name: 'アーボ',
-        displayName: 'アーボ',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 85, mp: 50, physicalAttack: 65, magicAttack: 25,
-            physicalDefense: 45, magicDefense: 40, speed: 75, luck: 50
-        },
-        skills: ['double_attack'],
-        image: { full: 'img/enemy/abo.png' },
-        rank: 'normal'
-    },
-        wolf: {
-        id: 'wolf',
-        name: 'クリボー',
-        displayName: 'アーボ',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 85, mp: 50, physicalAttack: 65, magicAttack: 25,
-            physicalDefense: 45, magicDefense: 40, speed: 75, luck: 50
-        },
-        skills: ['double_attack'],
-        image: { full: 'img/enemy/abo.png' },
-        rank: 'normal'
-    },
-        wolf: {
-        id: 'wolf',
-        name: 'ブルファンゴ',
-        displayName: 'アーボ',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 85, mp: 50, physicalAttack: 65, magicAttack: 25,
-            physicalDefense: 45, magicDefense: 40, speed: 75, luck: 50
-        },
-        skills: ['double_attack'],
-        image: { full: 'img/enemy/abo.png' },
-        rank: 'normal'
-    },
-            wolf: {
-        id: 'wolf',
-        name: 'カメック',
-        displayName: 'アーボ',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 85, mp: 50, physicalAttack: 65, magicAttack: 25,
-            physicalDefense: 45, magicDefense: 40, speed: 75, luck: 50
-        },
-        skills: ['double_attack'],
-        image: { full: 'img/enemy/abo.png' },
-        rank: 'normal'
-    },
+// ========================================
+// 1幕 通常敵（5種類）
+// ========================================
 
-    // 第1幕 エリート
-    orc: {
-        id: 'orc',
-        name: 'バギー',
-        displayName: 'バギー',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 195, mp: 108, physicalAttack: 88, magicAttack: 40,
-            physicalDefense: 90, magicDefense: 70, speed: 70, luck: 55
-        },
-        skills: ['strong_attack', 'double_attack'],
-        image: { full: 'img/enemy_orc.png' },
-        rank: 'elite'
+slime: {
+    id: 'slime',
+    name: 'スライム',
+    displayName: 'スライム',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 95, mp: 60, physicalAttack: 60, magicAttack: 30,
+        physicalDefense: 50, magicDefense: 45, speed: 60, luck: 45
     },
-    dark_mage: {
-        id: 'dark_mage',
-        name: '闇の魔術師',
-        displayName: '闇魔術師',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 150, mp: 150, physicalAttack: 40, magicAttack: 100,
-            physicalDefense: 60, magicDefense: 100, speed: 85, luck: 70
-        },
-        skills: ['strong_magic_shot', 'magic_explosion'],
-        image: { full: 'img/enemy_dark_mage.png' },
-        rank: 'elite'
+    skills: ['strong_attack'],
+    uniqueSkill: {
+        id: 'body_slam',
+        displayName: '体当たり',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 30,
+        description: '単体に物理攻撃（威力160%）'
     },
+    image: { full: 'img/enemy/slime.png' },
+    rank: 'normal'
+},
 
-    // 中ボス
-    dragon_knight: {
-        id: 'dragon_knight',
-        name: 'ギギネブラ',
-        displayName: '竜騎士',
-        type: 'balance',
-        baseStats: {
-            hp: 220, mp: 130, physicalAttack: 106, magicAttack: 68,
-            physicalDefense: 108, magicDefense: 110, speed: 90, luck: 75
-        },
-        skills: ['strong_attack', 'wide_attack', 'iron_wall'],
-        image: { full: 'img/enemy/giginebura.png' },
-        rank: 'boss'
+kuribo: {
+    id: 'kuribo',
+    name: 'クリボー',
+    displayName: 'クリボー',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 90, mp: 55, physicalAttack: 62, magicAttack: 28,
+        physicalDefense: 48, magicDefense: 42, speed: 58, luck: 43
     },
-    demon_lord: {
-        id: 'demon_lord',
-        name: 'シャドウ',
-        displayName: '魔王',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 200, mp: 180, physicalAttack: 80, magicAttack: 120,
-            physicalDefense: 90, magicDefense: 130, speed: 100, luck: 80
-        },
-        skills: ['magic_storm', 'strong_magic_shot', 'heal'],
-        image: { full: 'img/enemy_demon_lord.png' },
-        rank: 'boss'
+    skills: ['strong_attack'],
+    uniqueSkill: {
+        id: 'headbutt',
+        displayName: '頭突き',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 30,
+        description: '単体に物理攻撃（威力160%）'
     },
-    demon_lord: {
-        id: 'demon_lord',
-        name: 'アーボック',
-        displayName: '魔王',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 200, mp: 180, physicalAttack: 80, magicAttack: 120,
-            physicalDefense: 90, magicDefense: 130, speed: 100, luck: 80
-        },
-        skills: ['magic_storm', 'strong_magic_shot', 'heal'],
-        image: { full: 'img/enemy/arboc.png' },
-        rank: 'boss'
-    },
+    image: { full: 'img/enemy/kuribo.png' },
+    rank: 'normal'
+},
 
-    // 第2幕 雑魚
-    golem: {
-        id: 'golem',
-        name: 'ゴーレム',
-        displayName: 'ゴーレム',
-        type: 'tank',
-        baseStats: {
-            hp: 250, mp: 80, physicalAttack: 100, magicAttack: 40,
-            physicalDefense: 130, magicDefense: 100, speed: 50, luck: 40
-        },
-        skills: ['iron_wall'],
-        image: { full: 'img/enemy_golem.png' },
-        rank: 'normal'
+abo: {
+    id: 'abo',
+    name: 'アーボ',
+    displayName: 'アーボ',
+    type: 'debuffer',
+    baseStats: {
+        hp: 85, mp: 70, physicalAttack: 55, magicAttack: 35,
+        physicalDefense: 45, magicDefense: 48, speed: 70, luck: 50
     },
-    dark_knight: {
-        id: 'dark_knight',
-        name: '暗黒騎士',
-        displayName: '暗黒騎士',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 200, mp: 100, physicalAttack: 120, magicAttack: 50,
-            physicalDefense: 110, magicDefense: 90, speed: 90, luck: 60
-        },
-        skills: ['ultra_attack'],
-        image: { full: 'img/enemy_dark_knight.png' },
-        rank: 'normal'
+    skills: ['weaken'],
+    uniqueSkill: {
+        id: 'toxic',
+        displayName: 'どくどく',
+        type: 'debuff',
+        target: 'single_enemy',
+        basePower: 0,
+        mpCost: 25,
+        effects: [
+            { type: 'status', status: 'poison', chance: 100, duration: 5 }
+        ],
+        description: '単体に毒付与（確定）'
     },
+    image: { full: 'img/enemy/abo.png' },
+    rank: 'normal'
+},
 
-    // 第2幕 エリート
-    tyranitar: {
-        id: 'tyranitar',
-        name: 'バンギラス',
-        displayName: 'バンギラス',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 280, mp: 200, physicalAttack: 50, magicAttack: 150,
-            physicalDefense: 80, magicDefense: 150, speed: 100, luck: 90
-        },
-        skills: ['magic_storm', 'heal', 'poison_fog'],
-        image: { full: 'img/enemy/tyranitar.png' },
-        rank: 'elite'
+wadorudo: {
+    id: 'wadorudo',
+    name: 'ワドルドゥ',
+    displayName: 'ワドルドゥ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 88, mp: 75, physicalAttack: 45, magicAttack: 58,
+        physicalDefense: 50, magicDefense: 52, speed: 55, luck: 48
     },
-    giant: {
-        id: 'giant',
-        name: '巨人',
-        displayName: '巨人',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 400, mp: 80, physicalAttack: 160, magicAttack: 40,
-            physicalDefense: 140, magicDefense: 80, speed: 60, luck: 50
-        },
-        skills: ['ultra_attack', 'wide_attack'],
-        image: { full: 'img/enemy_giant.png' },
-        rank: 'elite'
+    skills: ['magic_shot'],
+    uniqueSkill: {
+        id: 'beam_shot',
+        displayName: 'ビームショット',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 30,
+        description: '単体に魔法攻撃（威力160%）'
     },
+    image: { full: 'img/enemy/wadorudo.png' },
+    rank: 'normal'
+},
 
-    // ラスボス
-    chaos_lord: {
-        id: 'dio',
-        name: 'ディオ・ブランドー',
-        displayName: 'ディオ',
-        type: 'balance',
-        baseStats: {
-            hp: 400, mp: 250, physicalAttack: 176, magicAttack: 150,
-            physicalDefense: 180, magicDefense: 184, speed: 120, luck: 100
-        },
-        skills: ['ultra_attack', 'magic_storm', 'heal_all', 'all_boost'],
-        image: { full: 'img/enemy/dio.png' },
-        rank: 'last_boss'
-    }
+kamec: {
+    id: 'kamec',
+    name: 'カメック',
+    displayName: 'カメック',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 82, mp: 80, physicalAttack: 40, magicAttack: 60,
+        physicalDefense: 46, magicDefense: 55, speed: 52, luck: 46
+    },
+    skills: ['magic_shot'],
+    uniqueSkill: {
+        id: 'magic_wand',
+        displayName: '魔法の杖',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 30,
+        description: '単体に魔法攻撃（威力160%）'
+    },
+    image: { full: 'img/enemy/kamec.png' },
+    rank: 'normal'
+},
+
+// ========================================
+// 1幕 エリート（4種類）
+// ========================================
+
+arboc: {
+    id: 'arboc',
+    name: 'アーボック',
+    displayName: 'アーボック',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 180, mp: 100, physicalAttack: 85, magicAttack: 45,
+        physicalDefense: 75, magicDefense: 70, speed: 82, luck: 60
+    },
+    skills: ['double_attack', 'weaken'],
+    uniqueSkill: {
+        id: 'toxic_fang',
+        displayName: 'どくどくのキバ',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 165,
+        mpCost: 35,
+        effects: [
+            { type: 'status', status: 'poison', chance: 100, duration: 5 }
+        ],
+        description: '単体に物理攻撃（威力165%）+ 毒付与（確定）'
+    },
+    image: { full: 'img/enemy/arboc.png' },
+    rank: 'elite'
+},
+
+buggy: {
+    id: 'buggy',
+    name: 'バギー',
+    displayName: 'バギー',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 195, mp: 95, physicalAttack: 88, magicAttack: 40,
+        physicalDefense: 80, magicDefense: 68, speed: 75, luck: 58
+    },
+    skills: ['strong_attack', 'critical_attack'],
+    uniqueSkill: {
+        id: 'bara_bara_attack',
+        displayName: 'バラバラアタック',
+        type: 'physical_attack',
+        target: 'all_enemies',
+        basePower: 115,
+        mpCost: 55,
+        description: '全体に物理攻撃（威力115%）'
+    },
+    image: { full: 'img/enemy/buggy.png' },
+    rank: 'elite'
+},
+
+shadow: {
+    id: 'shadow',
+    name: 'シャドウ',
+    displayName: 'シャドウ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 170, mp: 120, physicalAttack: 55, magicAttack: 95,
+        physicalDefense: 65, magicDefense: 85, speed: 105, luck: 70
+    },
+    skills: ['magic_impact', 'speed_down'],
+    uniqueSkill: {
+        id: 'chaos_lance',
+        displayName: 'カオスランス',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 48,
+        effects: [
+            { type: 'debuff', stat: 'speed', value: -0.25, duration: 2 }
+        ],
+        description: '単体に魔法攻撃（威力160%）+ 速度-25% 2ターン'
+    },
+    image: { full: 'img/enemy/shadow.png' },
+    rank: 'elite'
+},
+
+kabaton: {
+    id: 'kabaton',
+    name: 'カバトン',
+    displayName: 'カバトン',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 210, mp: 90, physicalAttack: 92, magicAttack: 38,
+        physicalDefense: 85, magicDefense: 65, speed: 68, luck: 55
+    },
+    skills: ['strong_attack', 'iron_wall'],
+    uniqueSkill: {
+        id: 'tackle',
+        displayName: 'タックル',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 170,
+        mpCost: 35,
+        description: '単体に物理攻撃（威力170%）'
+    },
+    image: { full: 'img/enemy/kabaton.png' },
+    rank: 'elite'
+},
+
+// ========================================
+// 1幕 ボス（5種類）
+// ========================================
+
+baikinman: {
+    id: 'baikinman',
+    name: 'ばいきんまん',
+    displayName: 'ばいきんまん',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 280, mp: 140, physicalAttack: 115, magicAttack: 60,
+        physicalDefense: 95, magicDefense: 85, speed: 88, luck: 70
+    },
+    skills: ['ultra_attack', 'wide_attack', 'attack_boost'],
+    uniqueSkill: {
+        id: 'baikin_punch',
+        displayName: 'バイキンパンチ',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 270,
+        mpCost: 65,
+        effects: [
+            { type: 'self_debuff', stat: 'physicalDefense', value: -0.2, duration: 1 }
+        ],
+        description: '単体に強力な物理攻撃（威力270%）'
+    },
+    image: { full: 'img/enemy/baikinman.png' },
+    rank: 'boss'
+},
+
+giginebura: {
+    id: 'giginebura',
+    name: 'ギギネブラ',
+    displayName: 'ギギネブラ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 260, mp: 180, physicalAttack: 70, magicAttack: 120,
+        physicalDefense: 80, magicDefense: 110, speed: 78, luck: 65
+    },
+    skills: ['magic_storm', 'strong_magic_shot', 'weaken'],
+    uniqueSkill: {
+        id: 'poison_spray',
+        displayName: '毒液噴射',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        basePower: 120,
+        mpCost: 60,
+        effects: [
+            { type: 'status', status: 'poison', chance: 30, duration: 4 }
+        ],
+        description: '全体に魔法攻撃（威力120%）+ 毒付与30%'
+    },
+    image: { full: 'img/enemy/giginebura.png' },
+    rank: 'boss'
+},
+
+geto: {
+    id: 'geto',
+    name: '夏油傑',
+    displayName: '夏油傑',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 270, mp: 190, physicalAttack: 65, magicAttack: 125,
+        physicalDefense: 85, magicDefense: 115, speed: 82, luck: 72
+    },
+    skills: ['strong_magic_shot', 'magic_storm', 'defense_boost'],
+    uniqueSkill: {
+        id: 'cursed_spirit_manipulation',
+        displayName: '呪霊操術',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 220,
+        mpCost: 55,
+        description: '単体に強力な魔法攻撃（威力220%）'
+    },
+    image: { full: 'img/enemy/geto.png' },
+    rank: 'boss'
+},
+
+bangiras: {
+    id: 'bangiras',
+    name: 'バンギラス',
+    displayName: 'バンギラス',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 320, mp: 130, physicalAttack: 130, magicAttack: 70,
+        physicalDefense: 110, magicDefense: 90, speed: 72, luck: 65
+    },
+    skills: ['ultra_attack', 'wide_attack', 'iron_wall'],
+    uniqueSkill: {
+        id: 'stone_edge',
+        displayName: 'ストーンエッジ',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 270,
+        mpCost: 65,
+        critBonus: 20,
+        description: '単体に強力な物理攻撃（威力270%、クリ率+20%）'
+    },
+    image: { full: 'img/enemy/tyranitar.png' },
+    rank: 'boss'
+},
+
+orochimaru: {
+    id: 'orochimaru',
+    name: '大蛇丸',
+    displayName: '大蛇丸',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 250, mp: 200, physicalAttack: 60, magicAttack: 130,
+        physicalDefense: 75, magicDefense: 120, speed: 90, luck: 75
+    },
+    skills: ['strong_magic_shot', 'magic_storm', 'heal'],
+    uniqueSkill: {
+        id: 'kusanagi_sword',
+        displayName: '草薙の剣',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 220,
+        mpCost: 58,
+        effects: [
+            { type: 'status', status: 'heal_block', duration: 2 }
+        ],
+        description: '単体に強力な魔法攻撃（威力220%）+ 回復無効2ターン'
+    },
+    image: { full: 'img/enemy/orochimaru.png' },
+    rank: 'boss'
+},
+
+// ========================================
+// 2幕 通常敵（5種類）
+// ========================================
+
+bullfango: {
+    id: 'bullfango',
+    name: 'ブルファンゴ',
+    displayName: 'ブルファンゴ',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 140, mp: 70, physicalAttack: 95, magicAttack: 40,
+        physicalDefense: 70, magicDefense: 55, speed: 75, luck: 52
+    },
+    skills: ['strong_attack'],
+    uniqueSkill: {
+        id: 'charge',
+        displayName: '突進',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 165,
+        mpCost: 32,
+        description: '単体に物理攻撃（威力165%）'
+    },
+    image: { full: 'img/enemy/fango.png' },
+    rank: 'normal'
+},
+
+metroid: {
+    id: 'metroid',
+    name: 'メトロイド',
+    displayName: 'メトロイド',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 120, mp: 100, physicalAttack: 50, magicAttack: 92,
+        physicalDefense: 60, magicDefense: 75, speed: 68, luck: 58
+    },
+    skills: ['magic_shot'],
+    uniqueSkill: {
+        id: 'energy_drain',
+        displayName: 'エネルギードレイン',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 35,
+        effects: [
+            { type: 'mp_drain', value: 0.1 }
+        ],
+        description: '単体に魔法攻撃（威力160%）+ MP吸収10%'
+    },
+    image: { full: 'img/enemy/metoroid.png' },
+    rank: 'normal'
+},
+
+redead: {
+    id: 'redead',
+    name: 'リーデッド',
+    displayName: 'リーデッド',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 145, mp: 75, physicalAttack: 88, magicAttack: 45,
+        physicalDefense: 65, magicDefense: 60, speed: 55, luck: 50
+    },
+    skills: ['strong_attack'],
+    uniqueSkill: {
+        id: 'strangle',
+        displayName: '絞殺',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 165,
+        mpCost: 35,
+        effects: [
+            { type: 'status', status: 'stun', chance: 15, duration: 1 }
+        ],
+        description: '単体に物理攻撃（威力165%）+ スタン15%'
+    },
+    image: { full: 'img/enemy/redead.png' },
+    rank: 'normal'
+},
+
+bombhei: {
+    id: 'bombhei',
+    name: 'ボム兵',
+    displayName: 'ボム兵',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 110, mp: 60, physicalAttack: 100, magicAttack: 35,
+        physicalDefense: 55, magicDefense: 50, speed: 50, luck: 45
+    },
+    skills: ['strong_attack'],
+    uniqueSkill: {
+        id: 'countdown',
+        displayName: 'カウントダウン',
+        type: 'special',
+        target: 'all_enemies',
+        basePower: 280,
+        mpCost: 0,
+        effects: [
+            { type: 'countdown', turns: 2, action: 'explode' },
+            { type: 'self_ko' }
+        ],
+        description: '2ターン後に全体に大ダメージ（威力280%）、自分は戦闘不能'
+    },
+    image: { full: 'img/enemy/bombhei.png' },
+    rank: 'normal'
+},
+
+toxtricity: {
+    id: 'toxtricity',
+    name: 'ストリンダー',
+    displayName: 'ストリンダー',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 135, mp: 95, physicalAttack: 55, magicAttack: 90,
+        physicalDefense: 62, magicDefense: 68, speed: 82, luck: 60
+    },
+    skills: ['magic_storm'],
+    uniqueSkill: {
+        id: 'overdrive',
+        displayName: 'オーバードライブ',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        basePower: 120,
+        mpCost: 60,
+        effects: [
+            { type: 'status', status: 'stun', chance: 20, duration: 1 }
+        ],
+        description: '全体に魔法攻撃（威力120%）+ スタン20%'
+    },
+    image: { full: 'img/enemy/toxtricity.png' },
+    rank: 'normal'
+},
+
+// ========================================
+// 2幕 エリート（4種類）
+// ========================================
+
+koopajr: {
+    id: 'koopajr',
+    name: 'クッパJr.',
+    displayName: 'クッパJr.',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 240, mp: 160, physicalAttack: 75, magicAttack: 115,
+        physicalDefense: 90, magicDefense: 105, speed: 85, luck: 68
+    },
+    skills: ['strong_magic_shot', 'magic_storm', 'defense_boost'],
+    uniqueSkill: {
+        id: 'clown_blaster',
+        displayName: 'クラウンブラスター',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 220,
+        mpCost: 55,
+        description: '単体に強力な魔法攻撃（威力220%）'
+    },
+    image: { full: 'img/enemy/koopajr.png' },
+    rank: 'elite'
+},
+
+metaknight: {
+    id: 'metaknight',
+    name: 'メタナイト',
+    displayName: 'メタナイト',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 220, mp: 130, physicalAttack: 110, magicAttack: 50,
+        physicalDefense: 85, magicDefense: 80, speed: 115, luck: 75
+    },
+    skills: ['double_attack', 'critical_attack', 'speed_boost'],
+    uniqueSkill: {
+        id: 'mach_tornado',
+        displayName: 'マッハトルネイド',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 95,
+        hits: 2,
+        mpCost: 45,
+        description: '単体に2回攻撃（威力95%×2）'
+    },
+    image: { full: 'img/enemy/metaknight.png' },
+    rank: 'elite'
+},
+
+hisoka: {
+    id: 'hisoka',
+    name: 'ヒソカ',
+    displayName: 'ヒソカ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 230, mp: 150, physicalAttack: 70, magicAttack: 120,
+        physicalDefense: 75, magicDefense: 95, speed: 100, luck: 80
+    },
+    skills: ['magic_impact', 'speed_down', 'attack_boost'],
+    uniqueSkill: {
+        id: 'bungee_gum',
+        displayName: '伸縮自在の愛（バンジーガム）',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 160,
+        mpCost: 50,
+        effects: [
+            { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
+        ],
+        description: '単体に魔法攻撃（威力160%）+ 速度-30% 3ターン'
+    },
+    image: { full: 'img/enemy/hisoka.png' },
+    rank: 'elite'
+},
+
+darkprecure: {
+    id: 'darkprecure',
+    name: 'ダークプリキュア',
+    displayName: 'ダークプリキュア',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 260, mp: 140, physicalAttack: 125, magicAttack: 60,
+        physicalDefense: 95, magicDefense: 85, speed: 95, luck: 70
+    },
+    skills: ['ultra_attack', 'wide_attack', 'attack_boost'],
+    uniqueSkill: {
+        id: 'darkness_wing',
+        displayName: 'ダークネスウィング',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 270,
+        mpCost: 65,
+        effects: [
+            { type: 'self_debuff', stat: 'physicalDefense', value: -0.2, duration: 1 }
+        ],
+        description: '単体に強力な物理攻撃（威力270%）'
+    },
+    image: { full: 'img/enemy/darkprecure.png' },
+    rank: 'elite'
+},
+
+// ========================================
+// 2幕 ラスボス（7種類）
+// ========================================
+
+freeza: {
+    id: 'freeza',
+    name: 'フリーザ',
+    displayName: 'フリーザ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 350, mp: 250, physicalAttack: 100, magicAttack: 160,
+        physicalDefense: 140, magicDefense: 160, speed: 110, luck: 90
+    },
+    skills: ['strong_magic_shot', 'magic_storm', 'heal', 'all_boost'],
+    uniqueSkill: {
+        id: 'death_ball',
+        displayName: 'デスボール',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 230,
+        mpCost: 60,
+        description: '単体に超強力な魔法攻撃（威力230%）'
+    },
+    image: { full: 'img/enemy/freeza.png' },
+    rank: 'last_boss'
+},
+
+dio: {
+    id: 'dio',
+    name: 'ディオ・ブランドー',
+    displayName: 'ディオ',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 400, mp: 220, physicalAttack: 170, magicAttack: 90,
+        physicalDefense: 150, magicDefense: 130, speed: 125, luck: 95
+    },
+    skills: ['ultra_attack', 'wide_attack', 'heal', 'attack_boost'],
+    uniqueSkill: {
+        id: 'za_warudo',
+        displayName: 'ザ・ワールド',
+        type: 'physical_attack',
+        target: 'all_enemies',
+        basePower: 230,
+        mpCost: 90,
+        effects: [
+            { type: 'status', status: 'stun', chance: 100, duration: 1 }
+        ],
+        description: '全体に強力な物理攻撃（威力230%）+ スタン100%'
+    },
+    image: { full: 'img/enemy/dio.png' },
+    rank: 'last_boss'
+},
+
+aizen: {
+    id: 'aizen',
+    name: '愛染惣右介',
+    displayName: '愛染惣右介',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 370, mp: 260, physicalAttack: 95, magicAttack: 165,
+        physicalDefense: 145, magicDefense: 170, speed: 115, luck: 100
+    },
+    skills: ['magic_storm', 'strong_magic_shot', 'heal_all', 'weaken_all'],
+    uniqueSkill: {
+        id: 'kyoka_suigetsu',
+        displayName: '鏡花水月',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        basePower: 130,
+        mpCost: 70,
+        effects: [
+            { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 2 },
+            { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 2 },
+            { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 2 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 2 },
+            { type: 'debuff', stat: 'speed', value: -0.15, duration: 2 }
+        ],
+        description: '全体に魔法攻撃（威力130%）+ 全ステータス-15% 2ターン'
+    },
+    image: { full: 'img/enemy/aizen.png' },
+    rank: 'last_boss'
+},
+
+necrozma: {
+    id: 'necrozma',
+    name: 'ウルトラネクロズマ',
+    displayName: 'ウルトラネクロズマ',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 360, mp: 280, physicalAttack: 120, magicAttack: 175,
+        physicalDefense: 130, magicDefense: 150, speed: 130, luck: 105
+    },
+    skills: ['strong_magic_shot', 'magic_storm', 'all_boost', 'speed_boost_all'],
+    uniqueSkill: {
+        id: 'photon_geyser',
+        displayName: 'フォトンゲイザー',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        basePower: 240,
+        mpCost: 65,
+        description: '単体に超強力な魔法攻撃（威力240%）'
+    },
+    image: { full: 'img/enemy/ultra_necrozma.png' },
+    rank: 'last_boss'
+},
+
+masterhand: {
+    id: 'masterhand',
+    name: 'マスターハンド',
+    displayName: 'マスターハンド',
+    type: 'physical_attacker',
+    baseStats: {
+        hp: 420, mp: 200, physicalAttack: 180, magicAttack: 85,
+        physicalDefense: 160, magicDefense: 140, speed: 105, luck: 85
+    },
+    skills: ['ultra_attack', 'wide_attack', 'iron_wall', 'attack_boost'],
+    uniqueSkill: {
+        id: 'grand_slam',
+        displayName: 'グランドスラム',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        basePower: 280,
+        mpCost: 70,
+        effects: [
+            { type: 'status', status: 'stun', chance: 15, duration: 1 }
+        ],
+        description: '単体に超強力な物理攻撃（威力280%）+ スタン15%'
+    },
+    image: { full: 'img/enemy/masterhand.png' },
+    rank: 'last_boss'
+},
+
+shigaraki: {
+    id: 'shigaraki',
+    name: '死柄木弔',
+    displayName: '死柄木弔',
+    type: 'magic_attacker',
+    baseStats: {
+        hp: 340, mp: 240, physicalAttack: 110, magicAttack: 155,
+        physicalDefense: 125, magicDefense: 145, speed: 100, luck: 88
+    },
+    skills: ['magic_storm', 'strong_magic_shot', 'armor_break_all', 'weaken_all'],
+    uniqueSkill: {
+        id: 'decay',
+        displayName: '崩壊',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        basePower: 130,
+        mpCost: 65,
+        effects: [
+            { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 2 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 2 }
+        ],
+        description: '全体に魔法攻撃（威力130%）+ 防御-20% 2ターン'
+    },
+    image: { full: 'img/enemy/tomura.png' },
+    rank: 'last_boss'
+},
+
+koopa: {
+    id: 'koopa',
+    name: 'クッパ',
+    displayName: 'クッパ',
+    type: 'tank',
+    baseStats: {
+        hp: 450, mp: 210, physicalAttack: 150, magicAttack: 100,
+        physicalDefense: 170, magicDefense: 135, speed: 85, luck: 75
+    },
+    skills: ['ultra_attack', 'wide_attack', 'iron_wall', 'defense_boost'],
+    uniqueSkill: {
+        id: 'koopa_breath',
+        displayName: 'クッパブレス',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        basePower: 125,
+        mpCost: 60,
+        effects: [
+            { type: 'status', status: 'burn', chance: 20, duration: 3 }
+        ],
+        description: '全体に魔法攻撃（威力125%）+ 火傷20%'
+    },
+    image: { full: 'img/enemy/koopa.png' },
+    rank: 'last_boss'
+}
+
 };

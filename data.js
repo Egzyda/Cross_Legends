@@ -433,17 +433,7 @@ const SKILLS = {
         ],
         description: '全体の運-25% 2ターン'
     },
-    poison_fog: {
-        id: 'poison_fog',
-        name: '毒霧',
-        type: 'debuff',
-        target: 'all_enemies',
-        mpCost: 40,
-        effects: [
-            { type: 'status', status: 'poison', duration: 3 }
-        ],
-        description: '全体に毒付与（3ターン、毎ターン最大HPの8%ダメージ）'
-    },
+
 
     // --- その他サポート系 ---
     mp_restore: {
@@ -686,9 +676,9 @@ const MAP_CONFIG = {
             event: 1,
             boss: 1
         },
-        enemies: ['slime', 'goblin', 'wolf'],
-        elites: ['orc', 'dark_mage'],
-        bosses: ['dragon_knight', 'demon_lord'],
+        enemies: ['slime', 'kuribo', 'abo', 'wadorudo', 'kamec'],
+        elites: ['arboc', 'buggy', 'shadow', 'kabaton'],
+        bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru'],
         multiplier: { start: 0.6, mid: 0.8, elite: 1.0, boss: 1.2 }
     },
     act2: {
@@ -701,9 +691,9 @@ const MAP_CONFIG = {
             treasure: 1,
             boss: 1
         },
-        enemies: ['golem', 'dark_knight'],
-        elites: ['lich', 'giant'],
-        bosses: ['chaos_lord'],
+        enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
+        elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
+        bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
         multiplier: { start: 1.3, mid: 1.5, elite: 1.7, boss: 2.0 }
     }
 };
