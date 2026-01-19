@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cross Legends</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- タイトル画面 -->
+        <div id="title-screen" class="screen active">
+            <h1>Cross Legends</h1>
+            <p class="subtitle">クロス・レジェンズ</p>
+            <button id="start-btn" class="btn-primary">ゲームスタート</button>
+        </div>
+
+        <!-- パーティ編成画面 -->
+        <div id="party-screen" class="screen">
+            <h2>パーティ編成</h2>
+            <div id="character-list"></div>
+            <div id="party-slots">
+                <div class="party-slot" data-position="left">
+                    <span class="position-label">左（前衛）</span>
+                    <div class="slot-content"></div>
+                </div>
+                <div class="party-slot" data-position="center">
+                    <span class="position-label">中央</span>
+                    <div class="slot-content"></div>
+                </div>
+                <div class="party-slot" data-position="right">
+                    <span class="position-label">右（後衛）</span>
+                    <div class="slot-content"></div>
+                </div>
+            </div>
+            <button id="start-run-btn" class="btn-primary" disabled>冒険開始</button>
+        </div>
+
+        <!-- ノードマップ画面 -->
+        <div id="map-screen" class="screen">
+            <div id="map-header">
+                <span id="act-display">第1幕</span>
+                <span id="node-progress">0/10</span>
+            </div>
+            <div id="node-map"></div>
+            <div id="party-status-bar"></div>
+        </div>
+
+        <!-- 戦闘画面 -->
+        <div id="battle-screen" class="screen">
+            <div id="enemy-area"></div>
+            <div id="ally-area"></div>
+            <div id="battle-log"></div>
+            <div id="command-area">
+                <div id="character-commands"></div>
+                <div id="action-buttons">
+                    <button class="action-btn" data-action="attack">攻撃</button>
+                    <button class="action-btn" data-action="skill">スキル</button>
+                    <button class="action-btn" data-action="defend">防御</button>
+                    <button class="action-btn" data-action="item">アイテム</button>
+                </div>
+                <div id="target-selection" class="hidden"></div>
+                <div id="skill-selection" class="hidden"></div>
+                <div id="item-selection" class="hidden"></div>
+            </div>
+            <button id="execute-turn-btn" class="btn-primary hidden">ターン実行</button>
+        </div>
+
+        <!-- 報酬選択画面 -->
+        <div id="reward-screen" class="screen">
+            <h2>報酬選択</h2>
+            <div id="reward-character-name"></div>
+            <div id="reward-options"></div>
+        </div>
+
+        <!-- 休憩画面 -->
+        <div id="rest-screen" class="screen">
+            <h2>🔥 休憩</h2>
+            <div id="rest-options">
+                <button class="rest-btn" data-type="hp">HP 40%回復</button>
+                <button class="rest-btn" data-type="mp">MP 40%回復</button>
+                <button class="rest-btn" data-type="both">HP・MP 両方20%回復</button>
+            </div>
+        </div>
+
+        <!-- イベント画面 -->
+        <div id="event-screen" class="screen">
+            <h2 id="event-title"></h2>
+            <p id="event-description"></p>
+            <div id="event-options"></div>
+        </div>
+
+        <!-- 宝箱画面 -->
+        <div id="treasure-screen" class="screen">
+            <h2>💎 宝箱発見！</h2>
+            <div id="treasure-options"></div>
+        </div>
+
+        <!-- ゲームオーバー画面 -->
+        <div id="gameover-screen" class="screen">
+            <h2>GAME OVER</h2>
+            <p id="gameover-message"></p>
+            <button id="retry-btn" class="btn-primary">タイトルに戻る</button>
+        </div>
+
+        <!-- クリア画面 -->
+        <div id="clear-screen" class="screen">
+            <h2>🎉 VICTORY!</h2>
+            <p>ラスボスを倒しました！</p>
+            <button id="clear-retry-btn" class="btn-primary">タイトルに戻る</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
