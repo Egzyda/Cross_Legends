@@ -55,6 +55,17 @@ const SKILLS = {
         critBonus: 30,
         description: '単体攻撃（威力120%、クリ率+30%）'
     },
+    physical_charge: {
+        id: 'physical_charge',
+        name: '物理充填',
+        type: 'buff',
+        target: 'self',
+        mpCost: 15,
+        effects: [
+            { type: 'buff', stat: 'physicalAttack', value: 1.0, duration: 1 }
+        ],
+        description: '次ターン物理攻撃+100%'
+    },
 
     // --- 魔法アタッカー系 ---
     magic_shot: {
@@ -132,7 +143,7 @@ const SKILLS = {
             { type: 'taunt', duration: 2 },
             { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 }
         ],
-        description: '2ターン挑発状態、自分の防御+20%（先制）'
+        description: '2ターン挑発状態、自分の物防+20%（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -145,7 +156,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 2 },
             { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 2 }
         ],
-        description: '2ターン自分の防御+50%（先制）'
+        description: '2ターン自分の物防/魔防+50%（先制）'
     },
     cover: {
         id: 'cover',
@@ -168,7 +179,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.3, duration: 2 },
             { type: 'counter', power: 80, duration: 2 }
         ],
-        description: '防御+30%、攻撃受けた時に反撃（威力80%）2ターン'
+        description: '物防+30%、攻撃受けた時に反撃（威力80%）2ターン'
     },
     fortitude: {
         id: 'fortitude',
@@ -182,7 +193,18 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
         ],
-        description: 'HP30%以下で発動可、HP50%回復+防御+40% 3ターン'
+        description: 'HP30%以下で発動可、HP50%回復+物防/魔防+40% 3ターン'
+    },
+    evasion_boost: {
+        id: 'evasion_boost',
+        name: '回避上昇',
+        type: 'buff',
+        target: 'self',
+        mpCost: 25,
+        effects: [
+            { type: 'damageReduction', value: 0.3, duration: 2 }
+        ],
+        description: '2ターン被ダメージ30%軽減'
     },
 
     // --- ヒーラー系 ---
@@ -221,19 +243,8 @@ const SKILLS = {
         mpCost: 25,
         description: '単体の状態異常を全て解除'
     },
-    regen: {
-        id: 'regen',
-        name: '再生付与',
-        type: 'buff',
-        target: 'single_ally',
-        mpCost: 40,
-        effects: [
-            { type: 'regen', value: 0.1, duration: 3 }
-        ],
-        description: '単体に3ターンHP10%回復効果'
-    },
 
-    // --- サポート系 ---
+    // --- サポート系（バフ） ---
     attack_boost: {
         id: 'attack_boost',
         name: '攻撃強化',
@@ -241,10 +252,22 @@ const SKILLS = {
         target: 'single_ally',
         mpCost: 30,
         effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 0.3, duration: 3 },
-            { type: 'buff', stat: 'magicAttack', value: 0.3, duration: 3 }
+            { type: 'buff', stat: 'physicalAttack', value: 0.35, duration: 3 },
+            { type: 'buff', stat: 'magicAttack', value: 0.35, duration: 3 }
         ],
-        description: '単体の物攻/魔攻+30% 3ターン'
+        description: '単体の物攻/魔攻+35% 3ターン'
+    },
+    attack_boost_all: {
+        id: 'attack_boost_all',
+        name: '全体攻撃強化',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 50,
+        effects: [
+            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 2 }
+        ],
+        description: '全体の物攻/魔攻+20% 2ターン'
     },
     defense_boost: {
         id: 'defense_boost',
@@ -256,116 +279,159 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
         ],
-        description: '単体の防御+40% 3ターン'
+        description: '単体の物防/魔防+40% 3ターン'
+    },
+    defense_boost_all: {
+        id: 'defense_boost_all',
+        name: '全体防御強化',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 50,
+        effects: [
+            { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 2 },
+            { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 2 }
+        ],
+        description: '全体の物防/魔防+25% 2ターン'
     },
     speed_boost: {
         id: 'speed_boost',
         name: '速度上昇',
         type: 'buff',
-        target: 'all_allies',
-        mpCost: 35,
+        target: 'single_ally',
+        mpCost: 30,
         effects: [
-            { type: 'buff', stat: 'speed', value: 0.25, duration: 2 }
+            { type: 'buff', stat: 'speed', value: 0.6, duration: 3 }
         ],
-        description: '全体の速度+25% 2ターン'
+        description: '単体の速度+60% 3ターン'
+    },
+    speed_boost_all: {
+        id: 'speed_boost_all',
+        name: '全体速度上昇',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 50,
+        effects: [
+            { type: 'buff', stat: 'speed', value: 0.35, duration: 2 }
+        ],
+        description: '全体の速度+35% 2ターン'
     },
     luck_boost: {
         id: 'luck_boost',
         name: '幸運付与',
         type: 'buff',
         target: 'single_ally',
-        mpCost: 25,
+        mpCost: 30,
         effects: [
-            { type: 'buff', stat: 'luck', value: 0.5, duration: 3 }
+            { type: 'buff', stat: 'luck', value: 0.5, duration: 3 },
+            { type: 'critBoost', value: 30, duration: 3 }
         ],
-        description: '単体の運+50% 3ターン'
+        description: '単体の運+50%+クリ率+30% 3ターン'
     },
-    mp_restore: {
-        id: 'mp_restore',
-        name: 'MP回復',
-        type: 'mp_heal',
-        target: 'single_ally',
-        mpCost: 20,
-        mpHealPercent: 30,
-        description: '単体のMP 30%回復'
+    luck_boost_all: {
+        id: 'luck_boost_all',
+        name: '全体幸運付与',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 50,
+        effects: [
+            { type: 'buff', stat: 'luck', value: 0.3, duration: 2 },
+            { type: 'critBoost', value: 15, duration: 2 }
+        ],
+        description: '全体の運+30%+クリ率+15% 2ターン'
     },
+
+    // --- デバッファー系（デバフ） ---
     weaken: {
         id: 'weaken',
-        name: '弱体化',
+        name: '攻撃弱体',
         type: 'debuff',
         target: 'single_enemy',
-        mpCost: 30,
+        mpCost: 25,
         effects: [
             { type: 'debuff', stat: 'physicalAttack', value: -0.3, duration: 3 },
             { type: 'debuff', stat: 'magicAttack', value: -0.3, duration: 3 }
         ],
-        description: '敵単体の攻撃-30% 3ターン'
+        description: '単体の物攻/魔攻-30% 3ターン'
     },
-    all_boost: {
-        id: 'all_boost',
-        name: '全体強化',
-        type: 'buff',
-        target: 'all_allies',
-        mpCost: 60,
+    weaken_all: {
+        id: 'weaken_all',
+        name: '全体攻撃弱体',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 45,
         effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 0.15, duration: 2 },
-            { type: 'buff', stat: 'magicAttack', value: 0.15, duration: 2 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.15, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.15, duration: 2 },
-            { type: 'buff', stat: 'speed', value: 0.15, duration: 2 }
+            { type: 'debuff', stat: 'physicalAttack', value: -0.2, duration: 2 },
+            { type: 'debuff', stat: 'magicAttack', value: -0.2, duration: 2 }
         ],
-        description: '全体の全ステータス+15% 2ターン'
+        description: '全体の物攻/魔攻-20% 2ターン'
     },
-
-    // --- バランス/汎用系 ---
-    normal_boost: {
-        id: 'normal_boost',
-        name: '通常攻撃強化',
-        type: 'buff',
-        target: 'self',
-        mpCost: 20,
-        effects: [
-            { type: 'normalAttackBoost', value: 0.5, duration: 3 }
-        ],
-        description: '通常攻撃の威力+50% 3ターン'
-    },
-    focus: {
-        id: 'focus',
-        name: '集中',
-        type: 'buff',
-        target: 'self',
-        mpCost: 15,
-        effects: [
-            { type: 'nextDamageBoost', value: 0.8, duration: 1 }
-        ],
-        description: '次の行動のダメージ+80%'
-    },
-    spirit: {
-        id: 'spirit',
-        name: '気合い',
-        type: 'buff',
-        target: 'self',
-        mpCost: 0,
-        hpCost: 0.2,
-        effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 0.4, duration: 2 },
-            { type: 'buff', stat: 'magicAttack', value: 0.4, duration: 2 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 2 },
-            { type: 'buff', stat: 'speed', value: 0.4, duration: 2 }
-        ],
-        description: '自分のHP20%消費、全ステータス+40% 2ターン'
-    },
-    evasion_boost: {
-        id: 'evasion_boost',
-        name: '回避上昇',
-        type: 'buff',
-        target: 'self',
+    armor_break: {
+        id: 'armor_break',
+        name: '防御破壊',
+        type: 'debuff',
+        target: 'single_enemy',
         mpCost: 25,
         effects: [
-            { type: 'damageReduction', value: 0.3, duration: 2 }
+            { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 2 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 2 }
         ],
-        description: '2ターン被ダメージ30%軽減'
+        description: '単体の物防/魔防-35% 2ターン'
+    },
+    armor_break_all: {
+        id: 'armor_break_all',
+        name: '全体防御破壊',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 45,
+        effects: [
+            { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 2 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 2 }
+        ],
+        description: '全体の物防/魔防-20% 2ターン'
+    },
+    speed_down: {
+        id: 'speed_down',
+        name: '速度低下',
+        type: 'debuff',
+        target: 'single_enemy',
+        mpCost: 20,
+        effects: [
+            { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
+        ],
+        description: '単体の速度-30% 3ターン'
+    },
+    speed_down_all: {
+        id: 'speed_down_all',
+        name: '全体速度低下',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 40,
+        effects: [
+            { type: 'debuff', stat: 'speed', value: -0.2, duration: 2 }
+        ],
+        description: '全体の速度-20% 2ターン'
+    },
+    luck_down: {
+        id: 'luck_down',
+        name: '不運付与',
+        type: 'debuff',
+        target: 'single_enemy',
+        mpCost: 20,
+        effects: [
+            { type: 'debuff', stat: 'luck', value: -0.4, duration: 3 }
+        ],
+        description: '単体の運-40% 3ターン'
+    },
+    luck_down_all: {
+        id: 'luck_down_all',
+        name: '全体不運付与',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 35,
+        effects: [
+            { type: 'debuff', stat: 'luck', value: -0.25, duration: 2 }
+        ],
+        description: '全体の運-25% 2ターン'
     },
     poison_fog: {
         id: 'poison_fog',
@@ -377,284 +443,50 @@ const SKILLS = {
             { type: 'status', status: 'poison', duration: 3 }
         ],
         description: '全体に毒付与（3ターン、毎ターン最大HPの8%ダメージ）'
+    },
+
+    // --- その他サポート系 ---
+    mp_restore: {
+        id: 'mp_restore',
+        name: 'MP回復',
+        type: 'heal',
+        target: 'single_ally',
+        mpCost: 0,
+        hpCost: 0.1,
+        mpHealPercent: 30,
+        description: 'HP10%消費、単体MP30%回復'
+    },
+    all_boost: {
+        id: 'all_boost',
+        name: '全能力強化',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 60,
+        effects: [
+            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'speed', value: 0.2, duration: 2 }
+        ],
+        description: '全体の全ステータス+20% 2ターン'
     }
 };
 
 // タイプ別スキルプール
 const SKILL_POOLS = {
-    physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack'],
+    physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack', 'physical_charge'],
     magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'magic_explosion', 'magic_charge'],
-    tank: ['taunt', 'iron_wall', 'cover', 'counter_stance', 'fortitude'],
-    healer: ['heal', 'heal_all', 'revive', 'cure_status', 'regen'],
-    support: ['attack_boost', 'defense_boost', 'speed_boost', 'luck_boost', 'mp_restore', 'weaken', 'all_boost'],
-    balance: ['normal_boost', 'focus', 'spirit', 'evasion_boost', 'poison_fog']
+    tank: ['taunt', 'iron_wall', 'cover', 'counter_stance', 'fortitude', 'evasion_boost'],
+    healer: ['heal', 'heal_all', 'revive', 'cure_status'],
+    support: ['attack_boost', 'attack_boost_all', 'defense_boost', 'defense_boost_all', 'speed_boost', 'speed_boost_all', 'luck_boost', 'luck_boost_all'],
+    debuffer: ['weaken', 'weaken_all', 'armor_break', 'armor_break_all', 'speed_down', 'speed_down_all', 'luck_down', 'luck_down_all', 'poison_fog']
 };
 
-// プレイアブルキャラクター
-const CHARACTERS = {
-    keke: {
-        id: 'keke',
-        name: '唐可可',
-        displayName: '可可',
-        stats: {
-            hp: 190,
-            mp: 85,
-            physicalAttack: 75,
-            magicAttack: 35,
-            physicalDefense: 145,
-            magicDefense: 105,
-            speed: 70,
-            luck: 50
-        },
-        type: 'tank',
-        uniqueSkill: {
-            id: 'taunt',
-            displayName: '星屑クルージング',
-            basePower: 0,
-            mpCost: 20,
-            priority: 'first',
-            effects: [
-                { type: 'taunt', duration: 3 },
-                { type: 'buff', stat: 'physicalDefense', value: 0.3, duration: 3 }
-            ],
-            description: '3ターン挑発+自分の防御+30%（先制）'
-        },
-        image: {
-            full: 'img/keke_full.png',
-            face: 'img/keke_face.png'
-        },
-        skills: []
-    },
-    sky: {
-        id: 'sky',
-        name: 'キュアスカイ',
-        displayName: 'スカイ',
-        stats: {
-            hp: 135,
-            mp: 110,
-            physicalAttack: 140,
-            magicAttack: 35,
-            physicalDefense: 60,
-            magicDefense: 55,
-            speed: 110,
-            luck: 95
-        },
-        type: 'physical_attacker',
-        uniqueSkill: {
-            id: 'ultra_attack',
-            displayName: 'スカイパンチ',
-            basePower: 270,
-            mpCost: 60,
-            effects: [
-                { type: 'self_debuff', stat: 'physicalDefense', value: -0.3, duration: 1 }
-            ],
-            description: '単体に強力な物理攻撃（威力270%）'
-        },
-        image: {
-            full: 'img/sky_full.png',
-            face: 'img/sky_face.png'
-        },
-        skills: []
-    },
-    josuke: {
-        id: 'josuke',
-        name: '東方仗助',
-        displayName: '仗助',
-        stats: {
-            hp: 125,
-            mp: 130,
-            physicalAttack: 50,
-            magicAttack: 100,
-            physicalDefense: 65,
-            magicDefense: 115,
-            speed: 95,
-            luck: 60
-        },
-        type: 'healer',
-        uniqueSkill: {
-            id: 'heal',
-            displayName: 'クレイジー・D',
-            healPercent: 45,
-            mpCost: 35,
-            description: '単体HP 45%回復'
-        },
-        image: {
-            full: 'img/josuke_full.png',
-            face: 'img/josuke_face.png'
-        },
-        skills: []
-    }
-};
-
-// 敵キャラクター
-const ENEMIES = {
-    // 第1幕 雑魚
-    slime: {
-        id: 'slime',
-        name: 'スライム',
-        displayName: 'スライム',
-        type: 'balance',
-        baseStats: {
-            hp: 90, mp: 65, physicalAttack: 53, magicAttack: 34,
-            physicalDefense: 54, magicDefense: 55, speed: 55, luck: 41
-        },
-        skills: ['focus'],
-        image: { full: 'img/enemy_slime.png' },
-        rank: 'normal'
-    },
-    goblin: {
-        id: 'goblin',
-        name: 'ゴブリン',
-        displayName: 'ゴブリン',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 95, mp: 60, physicalAttack: 60, magicAttack: 30,
-            physicalDefense: 50, magicDefense: 45, speed: 60, luck: 45
-        },
-        skills: ['strong_attack'],
-        image: { full: 'img/enemy_goblin.png' },
-        rank: 'normal'
-    },
-    wolf: {
-        id: 'wolf',
-        name: 'ダイアウルフ',
-        displayName: 'ウルフ',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 85, mp: 50, physicalAttack: 65, magicAttack: 25,
-            physicalDefense: 45, magicDefense: 40, speed: 75, luck: 50
-        },
-        skills: ['double_attack'],
-        image: { full: 'img/enemy_wolf.png' },
-        rank: 'normal'
-    },
-
-    // 第1幕 エリート
-    orc: {
-        id: 'orc',
-        name: 'オーク戦士',
-        displayName: 'オーク',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 195, mp: 108, physicalAttack: 88, magicAttack: 40,
-            physicalDefense: 90, magicDefense: 70, speed: 70, luck: 55
-        },
-        skills: ['strong_attack', 'double_attack'],
-        image: { full: 'img/enemy_orc.png' },
-        rank: 'elite'
-    },
-    dark_mage: {
-        id: 'dark_mage',
-        name: '闇の魔術師',
-        displayName: '闇魔術師',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 150, mp: 150, physicalAttack: 40, magicAttack: 100,
-            physicalDefense: 60, magicDefense: 100, speed: 85, luck: 70
-        },
-        skills: ['strong_magic_shot', 'magic_explosion'],
-        image: { full: 'img/enemy_dark_mage.png' },
-        rank: 'elite'
-    },
-
-    // 中ボス
-    dragon_knight: {
-        id: 'dragon_knight',
-        name: '竜騎士',
-        displayName: '竜騎士',
-        type: 'balance',
-        baseStats: {
-            hp: 220, mp: 130, physicalAttack: 106, magicAttack: 68,
-            physicalDefense: 108, magicDefense: 110, speed: 90, luck: 75
-        },
-        skills: ['strong_attack', 'wide_attack', 'iron_wall'],
-        image: { full: 'img/enemy_dragon_knight.png' },
-        rank: 'boss'
-    },
-    demon_lord: {
-        id: 'demon_lord',
-        name: '魔王',
-        displayName: '魔王',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 200, mp: 180, physicalAttack: 80, magicAttack: 120,
-            physicalDefense: 90, magicDefense: 130, speed: 100, luck: 80
-        },
-        skills: ['magic_storm', 'strong_magic_shot', 'heal'],
-        image: { full: 'img/enemy_demon_lord.png' },
-        rank: 'boss'
-    },
-
-    // 第2幕 雑魚
-    golem: {
-        id: 'golem',
-        name: 'ゴーレム',
-        displayName: 'ゴーレム',
-        type: 'tank',
-        baseStats: {
-            hp: 250, mp: 80, physicalAttack: 100, magicAttack: 40,
-            physicalDefense: 130, magicDefense: 100, speed: 50, luck: 40
-        },
-        skills: ['iron_wall'],
-        image: { full: 'img/enemy_golem.png' },
-        rank: 'normal'
-    },
-    dark_knight: {
-        id: 'dark_knight',
-        name: '暗黒騎士',
-        displayName: '暗黒騎士',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 200, mp: 100, physicalAttack: 120, magicAttack: 50,
-            physicalDefense: 110, magicDefense: 90, speed: 90, luck: 60
-        },
-        skills: ['ultra_attack'],
-        image: { full: 'img/enemy_dark_knight.png' },
-        rank: 'normal'
-    },
-
-    // 第2幕 エリート
-    lich: {
-        id: 'lich',
-        name: 'リッチ',
-        displayName: 'リッチ',
-        type: 'magic_attacker',
-        baseStats: {
-            hp: 280, mp: 200, physicalAttack: 50, magicAttack: 150,
-            physicalDefense: 80, magicDefense: 150, speed: 100, luck: 90
-        },
-        skills: ['magic_storm', 'heal', 'poison_fog'],
-        image: { full: 'img/enemy_lich.png' },
-        rank: 'elite'
-    },
-    giant: {
-        id: 'giant',
-        name: '巨人',
-        displayName: '巨人',
-        type: 'physical_attacker',
-        baseStats: {
-            hp: 400, mp: 80, physicalAttack: 160, magicAttack: 40,
-            physicalDefense: 140, magicDefense: 80, speed: 60, luck: 50
-        },
-        skills: ['ultra_attack', 'wide_attack'],
-        image: { full: 'img/enemy_giant.png' },
-        rank: 'elite'
-    },
-
-    // ラスボス
-    chaos_lord: {
-        id: 'chaos_lord',
-        name: '混沌の王',
-        displayName: '混沌の王',
-        type: 'balance',
-        baseStats: {
-            hp: 400, mp: 250, physicalAttack: 176, magicAttack: 150,
-            physicalDefense: 180, magicDefense: 184, speed: 120, luck: 100
-        },
-        skills: ['ultra_attack', 'magic_storm', 'heal_all', 'all_boost'],
-        image: { full: 'img/enemy_chaos_lord.png' },
-        rank: 'last_boss'
-    }
+// スキル出現率設定（報酬選択時に使用）
+const SKILL_ACQUISITION_RATES = {
+    ownRole: 0.70,      // 自分の役割のスキル: 70%
+    otherRole: 0.30     // 他の役割のスキル: 30% (各役割6%ずつ、5役割)
 };
 
 // イベントデータ

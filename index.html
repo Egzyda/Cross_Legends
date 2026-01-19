@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cross Legends</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="game-container">
         <!-- タイトル画面 -->
         <div id="title-screen" class="screen active">
             <h1>Cross Legends</h1>
-            <p class="subtitle">クロス・レジェンズ</p>
-            <button id="start-btn" class="btn-primary">ゲームスタート</button>
+            <p class="subtitle">Roguelite Game</p>
+            <button id="start-btn" class="btn-primary">GAME START</button>
         </div>
 
         <!-- パーティ編成画面 -->
         <div id="party-screen" class="screen">
             <h2>パーティ編成</h2>
+            <div id="party-tabs" class="tab-container"></div>
             <div id="character-list"></div>
             <div id="party-slots">
                 <div class="party-slot" data-position="left">
@@ -111,9 +115,24 @@
             <p>ラスボスを倒しました！</p>
             <button id="clear-retry-btn" class="btn-primary">タイトルに戻る</button>
         </div>
+
+        <!-- Custom Modal -->
+        <div id="custom-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3 id="modal-title"></h3>
+                <div id="modal-body"></div>
+                <div id="modal-actions"></div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
     </div>
 
     <script src="data.js"></script>
+    <script src="data_allies.js"></script>
+    <script src="data_enemies.js"></script>
     <script src="game.js"></script>
 </body>
+
 </html>

@@ -16,7 +16,8 @@ class Game {
                 revive_stone: 0,
                 stat_crystal: 0
             },
-            battle: null
+            battle: null,
+            currentTab: 'all' // Added for party screen filtering
         };
 
         this.init();
@@ -25,6 +26,75 @@ class Game {
     init() {
         this.bindEvents();
         this.showScreen('title');
+    }
+
+    // --- UI Helpers ---
+
+    showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = message;
+        container.appendChild(toast);
+
+        // Remove after animation
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    showModal(title, body, actions = []) {
+        const modal = document.getElementById('custom-modal');
+        const titleEl = document.getElementById('modal-title');
+        const bodyEl = document.getElementById('modal-body');
+        const actionsEl = document.getElementById('modal-actions');
+
+        titleEl.innerHTML = title;
+        bodyEl.innerHTML = body;
+        actionsEl.innerHTML = '';
+
+        if (actions.length === 0) {
+            // Default close button
+            actions.push({ text: '閉じる', onClick: () => this.closeModal() });
+        }
+
+        actions.forEach(action => {
+            const btn = document.createElement('button');
+            btn.className = action.className || 'btn-primary';
+            btn.textContent = action.text;
+            btn.onclick = action.onClick;
+            actionsEl.appendChild(btn);
+        });
+
+        modal.classList.remove('hidden');
+    }
+
+    closeModal() {
+        document.getElementById('custom-modal').classList.add('hidden');
+    }
+
+    showDamagePopup(targetUnit, value, type = 'damage') {
+        // Find the unit element in DOM
+        let unitEl;
+        const isEnemy = this.state.battle.enemies.includes(targetUnit);
+        if (isEnemy) {
+            const index = this.state.battle.enemies.indexOf(targetUnit);
+            unitEl = document.querySelector(`.battle-unit[data-enemy-index="${index}"]`);
+        } else {
+            const index = this.state.party.indexOf(targetUnit);
+            unitEl = document.querySelector(`.battle-unit[data-ally-index="${index}"]`);
+        }
+
+        if (unitEl) {
+            const popup = document.createElement('div');
+            popup.className = `damage-popup ${type}`;
+            popup.innerText = value;
+            unitEl.appendChild(popup);
+
+            // Remove after animation
+            setTimeout(() => popup.remove(), 800);
+        }
     }
 
     // 画面切り替え
@@ -82,29 +152,119 @@ class Game {
     // パーティ編成画面表示
     showPartyScreen() {
         this.showScreen('party');
+        this.renderPartyFilter(); // Render dropdown filter
         this.renderCharacterList();
         this.state.party = [];
         this.updatePartySlots();
     }
 
-    // キャラクターリスト描画
+    // フィルター（プルダウン）描画
+    renderPartyFilter() {
+        const tabsContainer = document.getElementById('party-tabs');
+        if (!tabsContainer) return;
+
+        // Ensure container has correct class for sizing
+        tabsContainer.className = 'filter-container';
+        tabsContainer.innerHTML = '';
+
+        // Create Select Element
+        const select = document.createElement('select');
+        select.id = 'party-filter';
+
+        const tabs = [
+            { id: 'all', label: 'すべて' },
+            { id: 'tank', label: 'タンク' },
+            { id: 'physical_attacker', label: '物理アタッカー' },
+            { id: 'magic_attacker', label: '魔法アタッカー' },
+            { id: 'healer', label: 'ヒーラー' },
+            { id: 'buffer', label: 'サポート' },
+            { id: 'debuffer', label: '妨害' }
+        ];
+
+        tabs.forEach(tab => {
+            const option = document.createElement('option');
+            option.value = tab.id;
+            option.textContent = tab.label;
+            if (this.state.currentTab === tab.id) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', (e) => {
+            this.state.currentTab = e.target.value;
+            this.renderCharacterList(); // Re-render list with filter
+        });
+
+        tabsContainer.appendChild(select);
+    }
+
+    // キャラクター一覧描画（タブフィルター対応）
     renderCharacterList() {
         const list = document.getElementById('character-list');
         list.innerHTML = '';
+        list.className = ''; // Reset class just in case
 
-        Object.values(CHARACTERS).forEach(char => {
+        // Filter and Sort
+        let chars = Object.values(CHARACTERS);
+
+        if (this.state.currentTab !== 'all') {
+            chars = chars.filter(c => c.type === this.state.currentTab);
+        }
+
+        // Render Cards (Grid Layout handled by CSS)
+        chars.forEach(char => {
             const card = document.createElement('div');
             card.className = 'character-card';
             card.dataset.charId = char.id;
+
+            // Design: Role + Face + Name
+            // Get role label (e.g. "タンク")
+            const roleLabel = this.getTypeLabel(char.type);
+
             card.innerHTML = `
-                <img src="${char.image.face}" alt="${char.displayName}" onerror="this.style.background='#555'">
+                <div class="char-type-label">${roleLabel}</div>
+                <img src="${char.image.face}" alt="${char.displayName}" style="width: 50px; height: 50px; margin-bottom: 4px;">
                 <div class="char-name">${char.displayName}</div>
-                <div class="char-type">${this.getTypeLabel(char.type)}</div>
             `;
+
+            // Check if selected
+            if (this.state.party.some(p => p.id === char.id)) {
+                card.classList.add('selected');
+
+                // Add position badge if selected
+                const partyMember = this.state.party.find(p => p.id === char.id);
+                if (partyMember) {
+                    const badge = document.createElement('div');
+                    badge.style.position = 'absolute';
+                    badge.style.top = '-5px';
+                    badge.style.right = '-5px';
+                    badge.style.background = 'var(--primary)';
+                    badge.style.color = '#fff';
+                    badge.style.fontSize = '10px';
+                    badge.style.padding = '2px 6px';
+                    badge.style.borderRadius = '10px';
+                    badge.innerText = partyMember.position === 'left' ? '前' : (partyMember.position === 'right' ? '後' : '中');
+                    card.appendChild(badge);
+                }
+            }
+
             card.addEventListener('click', () => this.selectCharacter(char.id));
             list.appendChild(card);
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     // タイプラベル取得
     getTypeLabel(type) {
@@ -191,36 +351,111 @@ class Game {
     // マップ生成
     generateMap() {
         const config = this.state.currentAct === 1 ? MAP_CONFIG.act1 : MAP_CONFIG.act2;
-        const nodes = [];
-        const types = [];
+        const layers = [];
+        const layerCount = 10;
 
-        // ノードタイプを配列に展開
-        Object.entries(config.composition).forEach(([type, count]) => {
-            for (let i = 0; i < count; i++) {
-                types.push(type);
+        // 1. 各階層のノード生成
+        for (let l = 0; l < layerCount; l++) {
+            const layerNodes = [];
+            let nodeCount;
+
+            if (l === 0) nodeCount = 3; // 開始地点は3つ
+            else if (l === layerCount - 1) nodeCount = 1; // ボスは1つ
+            else nodeCount = Math.floor(Math.random() * 2) + 2; // 道中は2-3分岐
+
+            for (let i = 0; i < nodeCount; i++) {
+                let type = 'battle';
+
+                if (l === 0) {
+                    type = 'battle';
+                } else if (l === layerCount - 1) {
+                    type = 'boss';
+                } else {
+                    // 確率に基づくタイプ決定
+                    const rand = Math.random();
+                    if (l === 4) { // 中盤に休憩/宝箱
+                        type = this.state.currentAct === 2 ? 'treasure' : 'rest';
+                    } else if (l === 8) { // ボス前は休憩
+                        type = 'rest';
+                    } else {
+                        if (rand < 0.60) type = 'battle';
+                        else if (rand < 0.85) type = 'event';
+                        else if (rand < 0.95) type = 'elite'; // エリート
+                        else type = 'battle'; // 残りはバトル
+                    }
+                }
+
+                layerNodes.push({
+                    id: `${l}-${i}`,
+                    layer: l,
+                    index: i,
+                    type: type,
+                    nextNodes: [],
+                    completed: false,
+                    status: (l === 0) ? 'available' : 'locked'
+                });
             }
-        });
+            layers.push(layerNodes);
+        }
 
-        // シャッフル（ただしボスは最後）
-        const bossIndex = types.indexOf('boss');
-        types.splice(bossIndex, 1);
-        this.shuffleArray(types);
-        types.push('boss');
+        // 2. パス生成（ノード接続）
+        for (let l = 0; l < layerCount - 1; l++) {
+            const currentLayer = layers[l];
+            const nextLayer = layers[l + 1];
 
-        // ノード生成
-        types.forEach((type, idx) => {
-            nodes.push({
-                id: idx,
-                type: type,
-                completed: false,
-                available: idx === 0
+            currentLayer.forEach(node => {
+                const currentPos = node.index / (currentLayer.length - 1 || 1);
+
+                nextLayer.forEach((nextNode, nextIdx) => {
+                    const nextPos = nextIdx / (nextLayer.length - 1 || 1);
+                    const diff = Math.abs(currentPos - nextPos);
+
+                    if (diff < 0.6 || nextLayer.length === 1 || currentLayer.length === 1) {
+                        if (Math.random() > 0.3 || nextLayer.length === 1) {
+                            node.nextNodes.push(nextIdx);
+                        }
+                    }
+                });
+
+                if (node.nextNodes.length === 0) {
+                    let closestIdx = 0;
+                    let minDiff = 100;
+                    nextLayer.forEach((n, idx) => {
+                        const nextPos = idx / (nextLayer.length - 1 || 1);
+                        const diff = Math.abs(currentPos - nextPos);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestIdx = idx;
+                        }
+                    });
+                    node.nextNodes.push(closestIdx);
+                }
             });
-        });
 
-        this.state.nodeMap = nodes;
+            nextLayer.forEach((nextNode, idx) => {
+                const hasParent = currentLayer.some(n => n.nextNodes.includes(idx));
+                if (!hasParent) {
+                    let closestParent = currentLayer[0];
+                    let minDiff = 100;
+                    const nextPos = idx / (nextLayer.length - 1 || 1);
+
+                    currentLayer.forEach(p => {
+                        const pPos = p.index / (currentLayer.length - 1 || 1);
+                        const diff = Math.abs(pPos - nextPos);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestParent = p;
+                        }
+                    });
+                    closestParent.nextNodes.push(idx);
+                }
+            });
+        }
+
+        this.state.nodeMap = layers;
+        this.state.currentLayer = 0;
     }
 
-    // 配列シャッフル
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -228,70 +463,175 @@ class Game {
         }
     }
 
-    // マップ画面表示
     showMapScreen() {
         this.showScreen('map');
         this.renderMap();
         this.renderPartyStatusBar();
     }
 
-    // マップ描画
-    renderMap() {
-        const mapEl = document.getElementById('node-map');
-        mapEl.innerHTML = '';
-
-        document.getElementById('act-display').textContent = `第${this.state.currentAct}幕`;
-        document.getElementById('node-progress').textContent =
-            `${this.state.currentNode}/${this.state.nodeMap.length}`;
-
-        this.state.nodeMap.forEach((node, idx) => {
-            const row = document.createElement('div');
-            row.className = 'node-row';
-
-            const nodeEl = document.createElement('div');
-            nodeEl.className = 'node';
-            nodeEl.innerHTML = NODE_TYPES[node.type].icon;
-
-            if (node.completed) {
-                nodeEl.classList.add('completed');
-            } else if (node.available) {
-                nodeEl.classList.add('available');
-                nodeEl.addEventListener('click', () => this.enterNode(idx));
-            }
-
-            if (idx === this.state.currentNode && !node.completed) {
-                nodeEl.classList.add('current');
-            }
-
-            row.appendChild(nodeEl);
-            mapEl.appendChild(row);
-        });
-    }
-
-    // パーティステータスバー描画
     renderPartyStatusBar() {
         const bar = document.getElementById('party-status-bar');
+        if (!bar) return;
         bar.innerHTML = '';
 
         this.state.party.forEach(member => {
-            const status = document.createElement('div');
-            status.className = 'party-member-status';
-            const hpPercent = (member.currentHp / member.stats.hp) * 100;
-            const mpPercent = (member.currentMp / member.stats.mp) * 100;
-
-            status.innerHTML = `
+            const el = document.createElement('div');
+            el.className = 'party-member-status';
+            el.innerHTML = `
                 <div class="name">${member.displayName}</div>
-                <div class="hp-bar"><div class="fill" style="width:${hpPercent}%"></div></div>
-                <div class="mp-bar"><div class="fill" style="width:${mpPercent}%"></div></div>
+                <div class="hp-bar"><div class="fill" style="width: ${(member.currentHp / member.stats.hp) * 100}%"></div></div>
+                <div class="mp-bar"><div class="fill" style="width: ${(member.currentMp / member.stats.mp) * 100}%"></div></div>
             `;
-            bar.appendChild(status);
+            bar.appendChild(el);
         });
     }
 
-    // ノード進入
-    enterNode(nodeIdx) {
-        const node = this.state.nodeMap[nodeIdx];
-        this.state.currentNode = nodeIdx;
+    renderMap() {
+        const mapEl = document.getElementById('node-map');
+        mapEl.innerHTML = '';
+        mapEl.classList.add('branching-map'); // スタイル用クラス追加
+
+        document.getElementById('act-display').textContent = `第${this.state.currentAct}幕`;
+        document.getElementById('node-progress').textContent =
+            `階層 ${this.state.currentLayer + 1}/10`;
+
+        // SVGコンテナ作成（線描画用）
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNamespace, "svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.style.position = "absolute";
+        svg.style.top = "0";
+        svg.style.left = "0";
+        svg.style.pointerEvents = "none";
+        svg.style.zIndex = "0";
+        mapEl.appendChild(svg);
+
+        // マップを逆順（BOSSが上、STARTが下）で表示するためにflex-direction: column-reverseを使用するか、
+        // DOMの追加順序を工夫する。ここではDOMは上から下（Layer 9 -> 0）へ追加し、
+        // CSSで見た目を整える。
+
+        // CSS Grid/Flexのためのコンテナ設定はstyle.cssで行うが、
+        // ここでは各Layerを行として追加する。
+
+        // 線を描画するために、ノードの座標が必要。
+        // 一旦ノードを配置してから、座標を計算して線を描く。
+
+        const layersContainer = document.createElement('div');
+        layersContainer.className = 'layers-container';
+        mapEl.appendChild(layersContainer);
+
+        // 全ノード要素への参照を保持
+        const nodeElements = {};
+
+        // Layer 9 (Boss) -> Layer 0 (Start) の順で描画（上から下）
+        [...this.state.nodeMap].reverse().forEach((layer, refreshIdx) => {
+            const layerIndex = 9 - refreshIdx;
+
+            const row = document.createElement('div');
+            row.className = 'map-layer-row';
+            row.dataset.layer = layerIndex;
+
+            layer.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = `map-node node-type-${node.type}`;
+                nodeEl.id = `node-${node.id}`;
+                nodeEl.innerHTML = `
+                    <div class="node-icon">${NODE_TYPES[node.type].icon}</div>
+                `;
+
+                if (node.completed) nodeEl.classList.add('completed');
+                if (node.status === 'available') {
+                    nodeEl.classList.add('available');
+                    nodeEl.onclick = () => this.enterNode(node);
+                }
+                if (node.status === 'locked') nodeEl.classList.add('locked');
+
+                // 現在地ハイライト（完了したノード または これから挑むノード）
+                // Slay the Spire風なら、次のAvailableが光る。
+                // 完了済みはグレーアウトなど。
+
+                row.appendChild(nodeEl);
+                nodeElements[node.id] = nodeEl;
+            });
+
+            layersContainer.appendChild(row);
+        });
+
+        // 少し待ってから線を引く（レイアウト確定後）
+        requestAnimationFrame(() => {
+            this.drawMapConnections(svg, nodeElements);
+            // 初期表示位置を一番下（スタート地点）に合わせる
+            mapEl.scrollTop = mapEl.scrollHeight;
+        });
+    }
+
+    // ノード間の接続線を描画
+    drawMapConnections(svg, nodeElements) {
+        const svgRect = svg.getBoundingClientRect();
+
+        this.state.nodeMap.forEach(layer => {
+            layer.forEach(node => {
+                const startEl = nodeElements[node.id];
+                if (!startEl) return;
+                const startRect = startEl.getBoundingClientRect();
+
+                // 中心座標 (SVG座標系)
+                const x1 = startRect.left + startRect.width / 2 - svgRect.left;
+                const y1 = startRect.top + startRect.height / 2 - svgRect.top;
+
+                node.nextNodes.forEach(nextIdx => {
+                    // 次の階層のノードID（generateMapで id: `${l}-${i}` としている）
+                    const nextNodeId = `${node.layer + 1}-${nextIdx}`;
+                    const endEl = nodeElements[nextNodeId];
+                    if (endEl) {
+                        const endRect = endEl.getBoundingClientRect();
+                        const x2 = endRect.left + endRect.width / 2 - svgRect.left;
+                        const y2 = endRect.top + endRect.height / 2 - svgRect.top;
+
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", x1);
+                        line.setAttribute("y1", y1);
+                        line.setAttribute("x2", x2);
+                        line.setAttribute("y2", y2);
+
+                        // 線の色：有効なパスなら明るく、そうでなければ暗く
+                        let strokeColor = "#444";
+                        if (node.completed && this.isNodeAvailable(node.layer + 1, nextIdx)) {
+                            strokeColor = "#ffd700"; // 通った道、あるいは選択可能な道
+                        } else if (node.status === 'available') {
+                            strokeColor = "#888"; // これから選べる道の候補
+                        }
+
+                        // 太さ
+                        line.setAttribute("stroke", strokeColor);
+                        line.setAttribute("stroke-width", "2");
+                        line.setAttribute("stroke-dasharray", "4"); // 点線
+
+                        svg.appendChild(line);
+                    }
+                });
+            });
+        });
+    }
+
+    // ヘルパー：ノードが選択可能か確認
+    isNodeAvailable(layerIdx, nodeIdx) {
+        // ノードデータから確認
+        const layer = this.state.nodeMap[layerIdx];
+        if (!layer) return false;
+        const node = layer[nodeIdx];
+        return node && node.status === 'available';
+    }
+
+    enterNode(node) {
+        // ノードオブジェクトを直接受け取る
+        this.state.currentNode = node; // オブジェクト参照またはID保持
+
+        // 以前のロジックとの互換性のため currentNodeIndex 的なものが必要なら調整
+        // ここでは currentNode をオブジェクトとして扱うように全体を直すのがベストだが
+        // 部分的な修正にとどめるなら注意が必要。
+        // とりあえず this.state.currentNode には node オブジェクトを入れる。
 
         switch (node.type) {
             case 'battle':
@@ -315,6 +655,7 @@ class Game {
         }
     }
 
+
     // 戦闘開始
     startBattle(rank) {
         const config = this.state.currentAct === 1 ? MAP_CONFIG.act1 : MAP_CONFIG.act2;
@@ -324,7 +665,8 @@ class Game {
         // 敵選出
         if (rank === 'normal') {
             const count = Math.floor(Math.random() * 3) + 1;
-            multiplier = this.state.currentNode < 3 ? config.multiplier.start : config.multiplier.mid;
+            // 階層に基づく難易度調整
+            multiplier = this.state.currentLayer < 3 ? config.multiplier.start : config.multiplier.mid;
             for (let i = 0; i < count; i++) {
                 const enemyId = config.enemies[Math.floor(Math.random() * config.enemies.length)];
                 enemies.push(this.createEnemy(enemyId, multiplier));
@@ -341,6 +683,18 @@ class Game {
             const enemyId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
             enemies.push(this.createEnemy(enemyId, multiplier));
         }
+
+        // Duplicate Name Handling
+        const nameCounts = {};
+        enemies.forEach(e => { nameCounts[e.name] = (nameCounts[e.name] || 0) + 1; });
+        const currentCounts = {};
+        enemies.forEach(e => {
+            if (nameCounts[e.name] > 1) {
+                currentCounts[e.name] = (currentCounts[e.name] || 0) + 1;
+                const suffix = String.fromCharCode(64 + currentCounts[e.name]); // A, B, C...
+                e.displayName = `${e.name}${suffix}`;
+            }
+        });
 
         this.state.battle = {
             enemies: enemies,
@@ -500,14 +854,36 @@ class Game {
         const firstAliveIdx = this.state.party.findIndex(p => p.currentHp > 0);
         backBtn.disabled = (this.state.battle.currentCharIndex === firstAliveIdx);
 
-        // 実行ボタンの制御
+        // 実行ボタンの制御 / Turn Execution Control
         const allSelected = commandsCount === aliveAllies.length;
         const execBtn = document.getElementById('execute-turn-btn');
         execBtn.classList.toggle('hidden', !allSelected);
 
-        // 選択肢の表示/非表示
-        const actionButtons = document.getElementById('action-buttons');
-        // 全員選択済みなら通常アクションボタン（攻撃など）を隠し、戻る/開始のみにする工夫も可能ですが、一旦そのまま
+        // Disable controls if all selected (User Request)
+        const actionButtons = document.querySelectorAll('#action-buttons .action-btn');
+        if (allSelected) {
+            // Gray out specific Action buttons (Attack, Skill, etc.) but KEEP Back and Start active
+            actionButtons.forEach(btn => {
+                if (btn.id !== 'execute-turn-btn' && btn.id !== 'back-btn') {
+                    btn.classList.add('faded-out');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.remove('faded-out');
+                    btn.disabled = false;
+                }
+            });
+            execBtn.classList.add('btn-prominent'); // Highlight Start
+        } else {
+            // Re-enable all
+            actionButtons.forEach(btn => {
+                btn.classList.remove('faded-out');
+                btn.disabled = false;
+            });
+
+            // Re-apply Back button logic (already handled by disabled prop above usually, but safer to re-run or let update run)
+            backBtn.disabled = (this.state.battle.currentCharIndex === firstAliveIdx);
+            execBtn.classList.remove('btn-prominent');
+        }
 
         this.hideSelectionPanels();
     }
@@ -941,10 +1317,23 @@ class Game {
     // 攻撃実行
     async executeAttack(actor, cmd, actorName) {
         let targets = [];
+        let group = [];
+
         if (cmd.isEnemy) {
             targets = [this.state.party[cmd.target]];
         } else {
-            targets = [this.state.battle.enemies[cmd.target]];
+            // プレイヤー側の攻撃：対象が死亡していたらターゲット変更
+            group = this.state.battle.enemies;
+            let target = group[cmd.target];
+
+            if (target && target.currentHp <= 0) {
+                target = this.getAliveTarget(group, 'left');
+                if (target) {
+                    // this.addLog(`${actorName}は攻撃対象を変更した！`);
+                }
+            }
+
+            targets = target ? [target] : [];
         }
 
         for (const target of targets) {
@@ -953,6 +1342,20 @@ class Game {
             const damage = this.calculateDamage(actor, target, 'physical', 100);
             this.applyDamage(target, damage);
             this.addLog(`${actorName}の攻撃！${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
+        }
+    }
+
+    // 生存ターゲットを取得
+    getAliveTarget(group, preference = 'left') {
+        const living = group.filter(u => u.currentHp > 0);
+        if (living.length === 0) return null;
+
+        if (preference === 'right') {
+            // 一番右（インデックス最大）
+            return living[living.length - 1];
+        } else {
+            // 一番左（インデックス最小）
+            return living[0];
         }
     }
 
@@ -980,7 +1383,11 @@ class Game {
         } else if (skill.target === 'all_allies') {
             targets = cmd.isEnemy ? this.state.battle.enemies.filter(e => e.currentHp > 0) : this.state.party.filter(p => p.currentHp > 0);
         } else if (cmd.targetType === 'enemy') {
-            targets = [this.state.battle.enemies[cmd.target]];
+            let target = this.state.battle.enemies[cmd.target];
+            if (target && target.currentHp <= 0) {
+                target = this.getAliveTarget(this.state.battle.enemies, 'left');
+            }
+            targets = target ? [target] : [];
         } else {
             targets = [this.state.party[cmd.target]];
         }
@@ -990,18 +1397,44 @@ class Game {
             const damageType = skill.type === 'physical_attack' ? 'physical' : 'magic';
             const hits = skill.hits || 1;
 
+            // ターゲット再選択用設定
+            let nextRetargetStrategy = 'right'; // 最初は左(上記)で選んでいるので、次は右
+            const isSingleTarget = (cmd.targetType === 'enemy');
+            const targetGroup = cmd.isEnemy ? this.state.party : this.state.battle.enemies;
+
             for (let i = 0; i < hits; i++) {
-                for (const target of targets) {
+                for (let tIdx = 0; tIdx < targets.length; tIdx++) {
+                    let target = targets[tIdx];
+
+                    // 単体攻撃かつターゲット死亡時に再ターゲット
+                    if (isSingleTarget && target.currentHp <= 0) {
+                        const newTarget = this.getAliveTarget(targetGroup, i === 0 ? 'left' : nextRetargetStrategy); // 初回ヒット前なら左優先、途中なら戦略切り替え
+                        if (newTarget) {
+                            target = newTarget;
+                            targets[tIdx] = newTarget; // 以降のヒットのために更新
+                            // 戦略反転（右→左→右...）
+                            nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
+                        }
+                    }
+
                     if (target.currentHp <= 0) continue;
+
                     const damage = this.calculateDamage(actor, target, damageType, skill.power || skill.basePower || 100, skill.critBonus);
                     this.applyDamage(target, damage);
                     this.addLog(`${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
+
+                    if (target.currentHp <= 0) {
+                        this.addLog(`${target.displayName}を倒した！`);
+                    }
                 }
+
+                await this.delay(200); // ヒット間ウェイト
             }
         } else if (skill.type === 'heal') {
             for (const target of targets) {
                 const healAmount = Math.floor(target.stats.hp * (skill.healPercent / 100));
                 target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
+                this.showDamagePopup(target, healAmount, 'heal');
                 this.addLog(`${target.displayName}のHPが${healAmount}回復！`);
             }
         } else if (skill.type === 'revive') {
@@ -1015,6 +1448,7 @@ class Game {
             for (const target of targets) {
                 const healAmount = Math.floor(target.stats.mp * (skill.mpHealPercent / 100));
                 target.currentMp = Math.min(target.stats.mp, target.currentMp + healAmount);
+                this.showDamagePopup(target, healAmount, 'heal'); // MP heal visualization
                 this.addLog(`${target.displayName}のMPが${healAmount}回復！`);
             }
         }
@@ -1162,6 +1596,7 @@ class Game {
     // ダメージ適用
     applyDamage(target, damage) {
         target.currentHp = Math.max(0, target.currentHp - damage.value);
+        this.showDamagePopup(target, damage.value, damage.critical ? 'critical' : 'damage');
     }
 
     // ログ追加
@@ -1332,12 +1767,29 @@ class Game {
 
     // ノード完了
     finishNode() {
-        this.state.nodeMap[this.state.currentNode].completed = true;
+        const node = this.state.currentNode;
+        if (!node) return;
+
+        node.completed = true;
+        node.status = 'completed';
 
         // 次のノードを利用可能に
-        if (this.state.currentNode + 1 < this.state.nodeMap.length) {
-            this.state.nodeMap[this.state.currentNode + 1].available = true;
+        const nextLayerIdx = node.layer + 1;
+        if (this.state.nodeMap[nextLayerIdx]) {
+            let unlockedCount = 0;
+            this.state.nodeMap[nextLayerIdx].forEach((nextNode, idx) => {
+                if (node.nextNodes.includes(idx)) {
+                    nextNode.status = 'available';
+                    unlockedCount++;
+                }
+            });
+            // フェイルセーフ：もし接続が見つからなければ（仕様変更など）、その階層の全ノードを解放するか、一番近いものを解放
+            if (unlockedCount === 0) {
+                this.state.nodeMap[nextLayerIdx].forEach(n => n.status = 'available');
+            }
         }
+
+        this.state.currentLayer = nextLayerIdx;
 
         // ラスボス撃破チェック
         if (this.state.battle?.rank === 'last_boss') {
@@ -1348,7 +1800,9 @@ class Game {
         // 中ボス撃破で第2幕へ
         if (this.state.battle?.rank === 'boss' && this.state.currentAct === 1) {
             this.state.currentAct = 2;
+            this.state.currentNode = null;
             this.generateMap();
+            // generateMapでcurrentLayer=0になるのでOK
         }
 
         this.showMapScreen();
@@ -1463,8 +1917,14 @@ class Game {
                 break;
         }
 
-        alert(message);
-        this.finishNode();
+        this.showModal('イベント結果', message, [
+            {
+                text: '次へ', onClick: () => {
+                    this.closeModal();
+                    this.finishNode();
+                }
+            }
+        ]);
     }
 
     // 宝箱画面表示
@@ -1482,11 +1942,11 @@ class Game {
             btn.addEventListener('click', () => {
                 if (this.state.items[itemId] < 3) {
                     this.state.items[itemId]++;
-                    alert(`${item.name}を入手！`);
+                    this.showToast(`${item.name}を入手！`, 'success');
+                    this.finishNode();
                 } else {
-                    alert('アイテムがいっぱいだ...');
+                    this.showToast('アイテムがいっぱいだ...', 'error');
                 }
-                this.finishNode();
             });
             options.appendChild(btn);
         });
@@ -1504,10 +1964,12 @@ class Game {
             screen: 'title',
             party: [],
             currentAct: 1,
-            currentNode: 0,
+            currentLayer: 0,
+            currentNode: null,
             nodeMap: [],
             items: { hp_potion: 0, mp_potion: 0, revive_stone: 0, stat_crystal: 0 },
-            battle: null
+            battle: null,
+            currentTab: 'all'
         };
         this.showScreen('title');
     }
