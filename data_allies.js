@@ -95,5 +95,282 @@ const CHARACTERS = {
             face: 'img/josuke_face.png'
         },
         skills: []
+    },
+    yoshiko: {
+        id: 'yoshiko',
+        name: '津島善子',
+        displayName: '津島善子',
+        stats: {
+            hp: 110,
+            mp: 140,
+            physicalAttack: 40,
+            magicAttack: 120,
+            physicalDefense: 60,
+            magicDefense: 120,
+            speed: 100,
+            luck: 0
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'daten_bind',
+            displayName: '堕天龍鳳凰縛',
+            basePower: 0,
+            mpCost: 20,
+            effects: [
+                { type: 'status', status: 'stun', chance: 100, duration: 1 }
+            ],
+            description: '敵全体をスタン状態にする（1ターン行動不能）'
+        },
+        image: {
+            full: 'img/yoshiko_full.png',
+            face: 'img/yoshiko_face.png'
+        },
+        skills: []
+    },
+    lucario: {
+        id: 'lucario',
+        name: 'ルカリオ',
+        displayName: 'ルカリオ',
+        stats: {
+            hp: 130,
+            mp: 90,
+            physicalAttack: 115,
+            magicAttack: 115,
+            physicalDefense: 70,
+            magicDefense: 70,
+            speed: 90,
+            luck: 60
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'aura_sphere',
+            displayName: 'はどうだん',
+            basePower: 180,
+            mpCost: 35,
+            effects: [],
+            description: '単体に魔法攻撃（威力180%、必中）'
+        },
+        image: {
+            full: 'img/Lucario_full.png',
+            face: 'img/Lucario_face.png'
+        },
+        skills: []
+    },
+    setsuna: {
+        id: 'setsuna',
+        name: '優木せつ菜',
+        displayName: '優木せつ菜',
+        stats: {
+            hp: 120,
+            mp: 100,
+            physicalAttack: 60,
+            magicAttack: 140,
+            physicalDefense: 110,
+            magicDefense: 80,
+            speed: 80,
+            luck: 50
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'scarlet_storm',
+            displayName: 'せつ菜⭐︎スカーレットストーム',
+            basePower: 150,
+            mpCost: 50,
+            target: 'all_enemies',
+            effects: [],
+            description: '全体に物理攻撃（威力150%）'
+        },
+        image: {
+            full: 'img/setsuna_full.png',
+            face: 'img/setsuna_face.png'
+        },
+        skills: []
+    },
+    ceras: {
+        id: 'ceras',
+        name: 'セラス・柳田・リリエンフェルト',
+        displayName: 'セラス',
+        stats: {
+            hp: 150,
+            mp: 110,
+            physicalAttack: 40,
+            magicAttack: 90,
+            physicalDefense: 110,
+            magicDefense: 120,
+            speed: 60,
+            luck: 60
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'fusion_crust',
+            displayName: 'フュージョンクラスト',
+            healPercent: 40,
+            mpCost: 70,
+            target: 'single_ally_dead',
+            effects: [
+                { type: 'revive', percent: 40 }
+            ],
+            description: '戦闘不能の味方をHP40%で蘇生'
+        },
+        image: {
+            full: 'img/Ceras_full.png',
+            face: 'img/Ceras_face.png'
+        },
+        skills: []
+    },
+    kuroo: {
+        id: 'kuroo',
+        name: '黒尾鉄朗',
+        displayName: '黒尾鉄朗',
+        stats: {
+            hp: 180,
+            mp: 60,
+            physicalAttack: 90,
+            magicAttack: 30,
+            physicalDefense: 130,
+            magicDefense: 110,
+            speed: 70,
+            luck: 70
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'doshatto',
+            displayName: 'ドシャット',
+            mpCost: 30,
+            target: 'self',
+            effects: [
+                { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 2 },
+                { type: 'counter', power: 90, duration: 2 }
+            ],
+            description: '防御+40%、攻撃受けた時に反撃（威力90%）2ターン'
+        },
+        image: {
+            full: 'img/kuroo_full.png',
+            face: 'img/kuroo_face.png'
+        },
+        skills: []
+    },
+    shiki: {
+        id: 'shiki',
+        name: '若菜四季',
+        displayName: '若菜四季',
+        stats: {
+            hp: 110,
+            mp: 150,
+            physicalAttack: 50,
+            magicAttack: 80,
+            physicalDefense: 70,
+            magicDefense: 140,
+            speed: 80,
+            luck: 60
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'delorieran',
+            displayName: 'デロリエラン',
+            mpCost: 20,
+            target: 'all_allies',
+            effects: [
+                { type: 'mp_heal', percent: 20 }
+            ],
+            description: '味方全員のMPを20%回復'
+        },
+        image: {
+            full: 'img/shiki_full.png',
+            face: 'img/shiki_face.png'
+        },
+        skills: []
+    },
+    shoto: {
+        id: 'shoto',
+        name: '轟焦凍',
+        displayName: '轟焦凍',
+        stats: {
+            hp: 125,
+            mp: 100,
+            physicalAttack: 70,
+            magicAttack: 145,
+            physicalDefense: 75,
+            magicDefense: 80,
+            speed: 95,
+            luck: 50
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'ice_wall',
+            displayName: '穿天氷壁',
+            basePower: 120,
+            mpCost: 45,
+            target: 'all_enemies',
+            effects: [],
+            description: '全体に魔法攻撃（威力120%）'
+        },
+        image: {
+            full: 'img/shoto_full.png',
+            face: 'img/shoto_face.png'
+        },
+        skills: []
+    },
+    kakasi: {
+        id: 'kakasi',
+        name: 'はたけカカシ',
+        displayName: 'はたけカカシ',
+        stats: {
+            hp: 120,
+            mp: 80,
+            physicalAttack: 140,
+            magicAttack: 60,
+            physicalDefense: 70,
+            magicDefense: 60,
+            speed: 130,
+            luck: 80
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'raikiri',
+            displayName: '雷切',
+            basePower: 200,
+            mpCost: 40,
+            effects: [
+                { type: 'critBoost', value: 50, duration: 0 }
+            ],
+            description: '単体物理攻撃（威力200%、高クリティカル）'
+        },
+        image: {
+            full: 'img/kakasi_full.png',
+            face: 'img/kakasi_face.png'
+        },
+        skills: []
+    },
+    shota: {
+        id: 'shota',
+        name: '相澤消太',
+        displayName: '相澤消太',
+        stats: {
+            hp: 130,
+            mp: 90,
+            physicalAttack: 95,
+            magicAttack: 95,
+            physicalDefense: 85,
+            magicDefense: 85,
+            speed: 90,
+            luck: 70
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'erasure',
+            displayName: '抹消',
+            mpCost: 25,
+            target: 'single_enemy',
+            effects: [
+                { type: 'status', status: 'stun', chance: 100, duration: 1 }
+            ],
+            description: '敵単体をスタンにする（1ターン行動不能）'
+        },
+        image: {
+            full: 'img/shota_full.png',
+            face: 'img/shota_face.png'
+        },
+        skills: []
     }
 };
