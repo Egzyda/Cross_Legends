@@ -60,6 +60,11 @@ class Game {
             });
         });
 
+        // 戻るボタン
+        document.getElementById('back-btn').addEventListener('click', () => {
+            this.backCharacter();
+        });
+
         // ターン実行
         document.getElementById('execute-turn-btn').addEventListener('click', () => {
             this.executeTurn();
@@ -348,6 +353,8 @@ class Game {
         };
 
         this.showScreen('battle');
+        // ボタンの無効化を解除（2ndバトル対策）
+        document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
         this.renderBattle();
         this.startCommandPhase();
     }
@@ -470,34 +477,39 @@ class Game {
         const charCmds = document.getElementById('character-commands');
         charCmds.innerHTML = '';
 
+        const aliveAllies = this.state.party.filter(p => p.currentHp > 0);
+        const commandsCount = Object.keys(this.state.battle.commands).length;
+
         this.state.party.forEach((char, idx) => {
             const slot = document.createElement('div');
             slot.className = 'char-command-slot';
-            if (idx === this.state.battle.currentCharIndex) slot.classList.add('active');
+            if (idx === this.state.battle.currentCharIndex && char.currentHp > 0 && commandsCount < aliveAllies.length) {
+                slot.classList.add('active');
+            }
 
             const cmd = this.state.battle.commands[idx];
             slot.innerHTML = `
                 <div class="cmd-name">${char.displayName}</div>
-                <div class="cmd-action">${cmd ? cmd.actionName : '選択中...'}</div>
+                <div class="cmd-action">${cmd ? cmd.actionName : (char.currentHp <= 0 ? '戦闘不能' : '待機中...')}</div>
             `;
             charCmds.appendChild(slot);
         });
 
-        // 実行ボタン
-        const allSelected = this.state.battle.commands.length === this.state.party.filter(p => p.currentHp > 0).length;
-        document.getElementById('execute-turn-btn').classList.toggle('hidden', !allSelected);
+        // 戻るボタンの制御
+        const backBtn = document.getElementById('back-btn');
+        const firstAliveIdx = this.state.party.findIndex(p => p.currentHp > 0);
+        backBtn.disabled = (this.state.battle.currentCharIndex === firstAliveIdx);
 
-        // 選択UI
+        // 実行ボタンの制御
+        const allSelected = commandsCount === aliveAllies.length;
+        const execBtn = document.getElementById('execute-turn-btn');
+        execBtn.classList.toggle('hidden', !allSelected);
+
+        // 選択肢の表示/非表示
+        const actionButtons = document.getElementById('action-buttons');
+        // 全員選択済みなら通常アクションボタン（攻撃など）を隠し、戻る/開始のみにする工夫も可能ですが、一旦そのまま
+
         this.hideSelectionPanels();
-
-        // 現在のキャラが戦闘不能の場合スキップ
-        const currentChar = this.state.party[this.state.battle.currentCharIndex];
-        if (currentChar && currentChar.currentHp <= 0) {
-            this.state.battle.currentCharIndex++;
-            if (this.state.battle.currentCharIndex < this.state.party.length) {
-                this.updateCommandUI();
-            }
-        }
     }
 
     // 選択パネル非表示
@@ -534,6 +546,7 @@ class Game {
 
     // ターゲット選択表示
     showTargetSelection(forAction, skillId = null) {
+        this.hideSelectionPanels();
         const panel = document.getElementById('target-selection');
         panel.classList.remove('hidden');
         panel.innerHTML = '<h4>対象を選択</h4>';
@@ -596,6 +609,13 @@ class Game {
             });
         }
 
+        // キャンセルボタン追加
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-cancel';
+        cancelBtn.textContent = '戻る';
+        cancelBtn.onclick = () => this.hideSelectionPanels();
+        panel.appendChild(cancelBtn);
+
         if (targetType === 'self') {
             const currentIdx = this.state.battle.currentCharIndex;
             this.setCommand({
@@ -611,6 +631,7 @@ class Game {
 
     // スキル選択表示
     showSkillSelection() {
+        this.hideSelectionPanels();
         const panel = document.getElementById('skill-selection');
         panel.classList.remove('hidden');
         panel.innerHTML = '<h4>スキルを選択</h4>';
@@ -643,6 +664,12 @@ class Game {
             });
             panel.appendChild(btn);
         });
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-cancel';
+        cancelBtn.textContent = '戻る';
+        cancelBtn.onclick = () => this.hideSelectionPanels();
+        panel.appendChild(cancelBtn);
     }
 
     // スキルデータ取得
@@ -657,6 +684,7 @@ class Game {
 
     // アイテム選択表示
     showItemSelection() {
+        this.hideSelectionPanels();
         const panel = document.getElementById('item-selection');
         panel.classList.remove('hidden');
         panel.innerHTML = '<h4>アイテムを選択</h4>';
@@ -677,6 +705,12 @@ class Game {
         if (Object.values(this.state.items).every(c => c === 0)) {
             panel.innerHTML += '<p style="color:#888">アイテムがありません</p>';
         }
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-cancel';
+        cancelBtn.textContent = '戻る';
+        cancelBtn.onclick = () => this.hideSelectionPanels();
+        panel.appendChild(cancelBtn);
     }
 
     // アイテムターゲット選択
@@ -718,12 +752,13 @@ class Game {
 
         this.hideSelectionPanels();
 
-        // 次のキャラへ
+        // 次の生存キャラを探す
         let nextIdx = charIdx + 1;
         while (nextIdx < this.state.party.length && this.state.party[nextIdx].currentHp <= 0) {
             nextIdx++;
         }
 
+        // 全員入力済みでなければインデックスを更新
         if (nextIdx < this.state.party.length) {
             this.state.battle.currentCharIndex = nextIdx;
         }
@@ -1480,6 +1515,27 @@ class Game {
     // 遅延
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 前のキャラクターに戻る
+    backCharacter() {
+        let prevIdx = this.state.battle.currentCharIndex;
+
+        // 現在のキャラがまだ入力前なら、その前から探す
+        if (!this.state.battle.commands[prevIdx]) {
+            prevIdx--;
+        }
+
+        while (prevIdx >= 0) {
+            if (this.state.party[prevIdx].currentHp > 0) {
+                // 見つかった生存キャラのコマンドを消去してそこにインデックスを戻す
+                delete this.state.battle.commands[prevIdx];
+                this.state.battle.currentCharIndex = prevIdx;
+                this.updateCommandUI();
+                return;
+            }
+            prevIdx--;
+        }
     }
 }
 

@@ -409,7 +409,7 @@ const CHARACTERS = {
         type: 'tank',
         uniqueSkill: {
             id: 'taunt',
-            displayName: '可可のアピール',
+            displayName: '星屑クルージング',
             basePower: 0,
             mpCost: 20,
             priority: 'first',

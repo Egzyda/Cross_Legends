@@ -8,21 +8,30 @@ body {
     font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #fff;
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden; /* スクロール禁止 */
+    user-select: none; /* 文字選択禁止 */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none; /* 長押しメニュー禁止 */
 }
 
 #game-container {
     max-width: 430px;
     margin: 0 auto;
-    min-height: 100vh;
+    height: 100dvh; /* 動的ビューポート高さに対応 */
     position: relative;
+    display: flex;
+    flex-direction: column;
+    /* セーフエリア対応 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .screen {
     display: none;
     padding: 20px;
-    min-height: 100vh;
+    height: 100%; /* 親の高さ(100dvh)に合わせる */
+    overflow: hidden; /* スクリーン自体はスクロールさせない */
 }
 
 .screen.active {
@@ -89,8 +98,9 @@ body {
 #character-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 10px;
+    overflow-y: auto; /* キャラが増えた場合に備えてリスト内のみスクロール可能に */
 }
 
 .character-card {
@@ -112,8 +122,9 @@ body {
 }
 
 .character-card img {
-    width: 60px;
-    height: 60px;
+    width: 14vw; /* 画面幅に合わせて微調整 */
+    max-width: 60px;
+    aspect-ratio: 1/1;
     border-radius: 50%;
     object-fit: cover;
     background: #333;
@@ -387,9 +398,13 @@ body {
 }
 
 #command-area {
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.5);
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px;
+    position: relative;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
 }
 
 #character-commands {
@@ -446,10 +461,18 @@ body {
 }
 
 #target-selection, #skill-selection, #item-selection {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0,0,0,0.3);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a2e;
     border-radius: 10px;
+    padding: 10px;
+    z-index: 10;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 #target-selection h4, #skill-selection h4, #item-selection h4 {
@@ -491,8 +514,14 @@ body {
 }
 
 #execute-turn-btn {
-    margin-top: 15px;
-    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+#execute-turn-btn:disabled {
+    background: #444;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* 報酬画面 */
@@ -714,4 +743,16 @@ body {
 ::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.3);
     border-radius: 3px;
+}
+/* キャンセルボタン用 */
+.btn-cancel {
+    background: #444;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: auto;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
 }

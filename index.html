@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cross Legends</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -58,12 +58,14 @@
                     <button class="action-btn" data-action="skill">スキル</button>
                     <button class="action-btn" data-action="defend">防御</button>
                     <button class="action-btn" data-action="item">アイテム</button>
+                    <button class="action-btn" id="back-btn">戻る</button>
+                    <button id="execute-turn-btn" class="action-btn hidden">ターン開始</button>
                 </div>
                 <div id="target-selection" class="hidden"></div>
                 <div id="skill-selection" class="hidden"></div>
                 <div id="item-selection" class="hidden"></div>
             </div>
-            <button id="execute-turn-btn" class="btn-primary hidden">ターン実行</button>
+
         </div>
 
         <!-- 報酬選択画面 -->
