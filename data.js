@@ -158,17 +158,7 @@ const SKILLS = {
         ],
         description: '2ターン自分の物防/魔防+50%（先制）'
     },
-    cover: {
-        id: 'cover',
-        name: 'かばう',
-        type: 'buff',
-        target: 'single_ally',
-        mpCost: 25,
-        effects: [
-            { type: 'cover', duration: 2 }
-        ],
-        description: '2ターン味方1人への攻撃を代わりに受ける'
-    },
+
     counter_stance: {
         id: 'counter_stance',
         name: '反撃の構え',
@@ -467,10 +457,10 @@ const SKILLS = {
 const SKILL_POOLS = {
     physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack', 'physical_charge'],
     magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'magic_explosion', 'magic_charge'],
-    tank: ['taunt', 'iron_wall', 'cover', 'counter_stance', 'fortitude', 'evasion_boost'],
+    tank: ['taunt', 'iron_wall', 'counter_stance', 'fortitude', 'evasion_boost'],
     healer: ['heal', 'heal_all', 'revive', 'cure_status'],
     support: ['attack_boost', 'attack_boost_all', 'defense_boost', 'defense_boost_all', 'speed_boost', 'speed_boost_all', 'luck_boost', 'luck_boost_all'],
-    debuffer: ['weaken', 'weaken_all', 'armor_break', 'armor_break_all', 'speed_down', 'speed_down_all', 'luck_down', 'luck_down_all', 'poison_fog']
+    debuffer: ['weaken', 'weaken_all', 'armor_break', 'armor_break_all', 'speed_down', 'speed_down_all', 'luck_down', 'luck_down_all']
 };
 
 // スキル出現率設定（報酬選択時に使用）
@@ -484,12 +474,8 @@ const EVENTS = [
     {
         id: 'merchant',
         title: '商人との遭遇',
-        description: '旅の商人に出会った。何か取引ができそうだ。',
+        description: '旅の商人に出会った。',
         options: [
-            {
-                text: 'アイテムを購入（HP回復薬を入手）',
-                effect: { type: 'item', item: 'hp_potion' }
-            },
             {
                 text: '無視して進む',
                 effect: { type: 'none' }
@@ -499,7 +485,7 @@ const EVENTS = [
                 effect: {
                     type: 'luck_check',
                     success: { type: 'item', item: 'hp_potion', message: '商人から品物を奪った！' },
-                    fail: { type: 'damage', percent: 10, message: '反撃されてしまった...' }
+                    fail: { type: 'damage', percent: 15, message: '反撃されてしまった...' }
                 }
             }
         ]
@@ -523,49 +509,25 @@ const EVENTS = [
             }
         ]
     },
-    {
-        id: 'camp',
-        title: '野営地',
-        description: '安全そうな野営地を見つけた。',
-        options: [
-            {
-                text: '休憩する（全員HP20%回復）',
-                effect: { type: 'heal_all', percent: 20 }
-            },
-            {
-                text: '訓練する（全員ランダムステータス+5%）',
-                effect: { type: 'stat_up_all', percent: 5 }
-            },
-            {
-                text: '探索する（運判定でアイテム入手 or ダメージ）',
-                effect: {
-                    type: 'luck_check',
-                    success: { type: 'item', item: 'random', message: 'アイテムを発見した！' },
-                    fail: { type: 'damage', percent: 15, message: '罠にかかってしまった...' }
-                }
-            }
-        ]
-    },
+
     {
         id: 'treasure_find',
         title: '宝箱発見',
         description: '道端に宝箱が落ちている！',
         options: [
             {
-                text: '開ける',
-                effect: { type: 'heal_all', percent: 10, bonus: 'gold', message: '全員HP10%回復+ゴールドを発見！' }
-            },
-            {
-                text: '罠かもしれない...無視する',
-                effect: { type: 'none' }
-            },
-            {
-                text: '慎重に調べる（運判定）',
+                text: '開ける（何が出るか...）',
                 effect: {
-                    type: 'luck_check',
-                    success: { type: 'item', item: 'rare', message: 'レアアイテムを発見した！' },
-                    fail: { type: 'none', message: '空だった...' }
+                    type: 'random',
+                    outcomes: [
+                        { type: 'item', item: 'random', weight: 50, message: 'アイテムを発見した！' },
+                        { type: 'damage', percent: 15, weight: 50, message: '罠だった！ダメージを受けた...' }
+                    ]
                 }
+            },
+            {
+                text: '無視する',
+                effect: { type: 'none' }
             }
         ]
     },
@@ -610,10 +572,6 @@ const EVENTS = [
                     success: { type: 'none', message: '見事に回避した！' },
                     fail: { type: 'damage', percent: 25, message: '失敗！より大きなダメージを受けた...' }
                 }
-            },
-            {
-                text: '仲間を庇う（1人が-30%ダメージ、他は無傷）',
-                effect: { type: 'damage_one', percent: 30 }
             }
         ]
     }
@@ -624,7 +582,7 @@ const ITEMS = {
     hp_potion: {
         id: 'hp_potion',
         name: 'HP回復薬',
-        description: '戦闘中使用、HP50%回復',
+        description: 'HP50%回復',
         type: 'consumable',
         effect: { type: 'heal', percent: 50 },
         maxStack: 3
@@ -632,7 +590,7 @@ const ITEMS = {
     mp_potion: {
         id: 'mp_potion',
         name: 'MP回復薬',
-        description: '戦闘中使用、MP50%回復',
+        description: 'MP50%回復',
         type: 'consumable',
         effect: { type: 'mp_heal', percent: 50 },
         maxStack: 3
@@ -679,7 +637,7 @@ const MAP_CONFIG = {
         enemies: ['slime', 'kuribo', 'abo', 'wadorudo', 'kamec'],
         elites: ['arboc', 'buggy', 'shadow', 'kabaton'],
         bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru'],
-        multiplier: { start: 0.6, mid: 0.8, elite: 1.0, boss: 1.2 }
+        multiplier: { start: 0.8, mid: 1.0, elite: 1.2, boss: 1.3 }
     },
     act2: {
         nodes: 10,
@@ -694,6 +652,6 @@ const MAP_CONFIG = {
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
         elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
         bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
-        multiplier: { start: 1.3, mid: 1.5, elite: 1.7, boss: 2.0 }
+        multiplier: { start: 1.5, mid: 1.7, elite: 1.9, boss: 2.2 }
     }
 };

@@ -32,6 +32,51 @@ body {
     -webkit-user-select: none;
 }
 
+/* 繝ｭ繝ｼ繝�ぅ繝ｳ繧ｰ逕ｻ髱｢ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--text-main);
+}
+
+.loading-content p {
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--text-sub);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(79, 172, 254, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 #game-container {
     max-width: 430px;
     margin: 0 auto;
@@ -144,6 +189,24 @@ h3 {
     cursor: not-allowed;
 }
 
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+    border: none;
+    color: #fff;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px -5px rgba(255, 107, 107, 0.4);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px -5px rgba(255, 107, 107, 0.6);
+}
+
 /* Title Screen */
 #title-screen {
     justify-content: center;
@@ -153,12 +216,44 @@ h3 {
 }
 
 #title-screen h1 {
-    font-size: 42px;
-    margin-bottom: 8px;
-    background: var(--primary-gradient);
+    font-size: 48px;
+    /* Slightly larger */
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    /* Restore gradient var if needed, or keeping similar */
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 10px rgba(79, 172, 254, 0.3));
+    filter: drop-shadow(0 0 15px rgba(79, 172, 254, 0.6)) drop-shadow(0 0 30px rgba(79, 172, 254, 0.4));
+    animation: title-gradient 3s ease infinite;
+}
+
+@keyframes title-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#title-screen .btn-primary,
+#title-screen .btn-danger {
+    width: 240px;
+    /* Fixed width for consistency */
+    display: block;
+    /* Stack vertically */
+    margin: 0 auto;
+    /* Center */
+}
+
+#continue-btn {
+    margin-top: 16px;
 }
 
 #title-screen .subtitle {
@@ -172,15 +267,21 @@ h3 {
 /* Party Screen */
 #party-screen {
     padding-bottom: 30px;
-    display: flex;
-    flex-direction: column;
     height: 100%;
 }
 
 #party-screen h2 {
     text-align: center;
     margin-bottom: 24px;
+    margin-bottom: 24px;
     font-size: 24px;
+}
+
+.description-text {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 12px;
 }
 
 /* Filter Dropdown */
@@ -218,7 +319,8 @@ h3 {
 }
 
 .character-card {
-    background: var(--bg-panel);
+    background: #444;
+    /* Solid gray */
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 12px 8px;
@@ -229,14 +331,16 @@ h3 {
 }
 
 .character-card.selecting {
-    background: rgba(79, 172, 254, 0.25);
+    background: #556;
+    /* Slightly lighter solid for selection state */
     border-color: var(--primary);
     box-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
     transform: scale(1.05);
 }
 
 .character-card.selected {
-    background: rgba(79, 172, 254, 0.15);
+    background: #4a5a6a;
+    /* Distinct solid color for in-party */
     border-color: var(--primary);
     box-shadow: 0 0 15px rgba(79, 172, 254, 0.2);
 }
@@ -280,46 +384,115 @@ h3 {
     color: var(--text-sub);
 }
 
+/* Party Divider */
+.party-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0 12px;
+    position: relative;
+    width: 100%;
+}
+
+.party-divider::before,
+.party-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.party-divider span {
+    padding: 0 12px;
+    font-size: 10px;
+    color: var(--text-sub);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
 #party-slots {
     display: flex;
     gap: 12px;
     margin-bottom: 12px;
     flex-shrink: 0;
+    justify-content: center;
 }
 
-.party-slot {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px dashed #444;
-    border-radius: 12px;
-    padding: 12px 4px;
-    text-align: center;
-    min-height: 110px;
+.slot-column {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+}
+
+.party-slot {
+    width: 80px;
+    height: 105px;
+    background: linear-gradient(145deg, #2b3a4a, #222e3b);
+    border: 1px dashed #556c80;
+    border-radius: 12px;
+    padding: 8px 4px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     cursor: pointer;
     transition: all 0.2s;
+    flex: 0 0 auto;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .party-slot.available {
     border-color: var(--primary);
-    background: rgba(79, 172, 254, 0.1);
-    box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+    background: linear-gradient(145deg, #3a4b5d, #2f3e4d);
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.25);
 }
 
 .party-slot.filled {
     border-style: solid;
     border-color: var(--primary);
-    background: rgba(79, 172, 254, 0.05);
+    background: linear-gradient(145deg, #34495e, #2c3e50);
 }
 
+.slot-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.slot-role-label {
+    font-size: 8px;
+    color: var(--primary);
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.slot-char-name {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: visible;
+    white-space: nowrap;
+    margin-top: auto;
+    /* Push to bottom if needed, or just let flow */
+    margin-bottom: 4px;
+}
+
+/* Position label is now outside, update margin */
 .position-label {
     font-size: 10px;
     color: var(--text-sub);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     text-transform: uppercase;
+    font-weight: 700;
 }
 
 /* Note: Party screen shares generic bg or title bg if needed, or keeping transparent/dark */
@@ -349,7 +522,7 @@ h3 {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* 上から下へ要素追加（game.jsで制御） */
+    /* 荳翫°繧我ｸ九∈隕∫ｴ�霑ｽ蜉���ame.js縺ｧ蛻ｶ蠕｡�� */
     align-items: center;
     position: relative;
     overflow-y: auto;
@@ -363,22 +536,22 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 40px;
-    /* 階層間の距離 */
+    /* 髫主ｱ､髢薙�霍晞屬 */
     width: 100%;
     z-index: 1;
-    /* SVGより上 */
+    /* SVG繧医ｊ荳� */
 }
 
-/* 各階層の行 */
+/* 蜷�嚴螻､縺ｮ陦� */
 .map-layer-row {
     display: flex;
     justify-content: center;
-    /* 中央揃え */
+    /* 荳ｭ螟ｮ謠�∴ */
     align-items: center;
     width: 100%;
     position: relative;
     height: 60px;
-    /* ノードの高さ確保 */
+    /* 繝弱�繝峨�鬮倥＆遒ｺ菫� */
 }
 
 .map-node {
@@ -393,18 +566,18 @@ h3 {
     border: 2px solid var(--glass-border);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: absolute;
-    /* absolute配置で分布させる */
-    /* しかしflexboxで並べたい。absoluteだと接続線描画は楽だがレスポンシブが面倒。
-       game.jsの描画ロジックでは単に div を追加しているだけなので、
-       ここでは flexbox で均等配置するアプローチをとる。 */
+    /* absolute驟咲ｽｮ縺ｧ蛻�ｸ�＆縺帙ｋ */
+    /* 縺励°縺庸lexbox縺ｧ荳ｦ縺ｹ縺溘＞縲Ｂbsolute縺�縺ｨ謗･邯夂ｷ壽緒逕ｻ縺ｯ讌ｽ縺�縺後Ξ繧ｹ繝昴Φ繧ｷ繝悶′髱｢蛟偵�
+       game.js縺ｮ謠冗判繝ｭ繧ｸ繝�け縺ｧ縺ｯ蜊倥↓ div 繧定ｿｽ蜉�縺励※縺�ｋ縺�縺代↑縺ｮ縺ｧ縲�
+       縺薙％縺ｧ縺ｯ flexbox 縺ｧ蝮�ｭ蛾�鄂ｮ縺吶ｋ繧｢繝励Ο繝ｼ繝√ｒ縺ｨ繧九� */
     position: relative;
     margin: 0 15px;
-    /* ノード間の最小マージン */
+    /* 繝弱�繝蛾俣縺ｮ譛蟆上�繝ｼ繧ｸ繝ｳ */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     z-index: 2;
 }
 
-/* ノードタイプ別スタイル */
+/* 繝弱�繝峨ち繧､繝怜挨繧ｹ繧ｿ繧､繝ｫ */
 .node-type-battle {
     background: radial-gradient(circle, #333, #111);
     border-color: #666;
@@ -439,7 +612,7 @@ h3 {
     box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
 }
 
-/* 状態別スタイル */
+/* 迥ｶ諷句挨繧ｹ繧ｿ繧､繝ｫ */
 .map-node.available {
     border-color: #ffd700;
     cursor: pointer;
@@ -483,15 +656,27 @@ h3 {
     border-radius: 16px;
     padding: 12px;
     display: flex;
+    flex-direction: column;
+    /* Vertical layout */
     gap: 8px;
     border-top: 1px solid var(--glass-border);
     position: relative;
 }
 
+.controls-row {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.members-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
 #item-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    /* Removed absolute positioning */
     background: rgba(79, 172, 254, 0.2);
     border: 1px solid var(--primary);
     color: #fff;
@@ -504,6 +689,22 @@ h3 {
 
 #item-btn:hover {
     background: rgba(79, 172, 254, 0.4);
+}
+
+#home-btn {
+    background: rgba(78, 205, 196, 0.2);
+    border: 1px solid var(--success);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-right: 8px;
+}
+
+#home-btn:hover {
+    background: rgba(78, 205, 196, 0.4);
 }
 
 .party-member-status {
@@ -670,13 +871,34 @@ h3 {
 }
 
 .unit-hp-bar {
-    height: 6px;
+    height: 14px;
+    /* Increased from 6px */
     margin-top: 6px;
+    position: relative;
 }
 
 .unit-mp-bar {
-    height: 4px;
+    height: 12px;
+    /* Increased from 4px */
     margin-top: 3px;
+    position: relative;
+}
+
+.bar-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #fff;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    line-height: 1;
+    z-index: 2;
 }
 
 .hp-bar {
@@ -703,29 +925,55 @@ h3 {
     background: var(--primary-gradient);
 }
 
-/* Status Effects Layout */
-.status-effects {
+/* 繝舌ヵ/繝�ヰ繝輔が繝ｼ繝舌�繝ｬ繧､�育判蜒丞ｷｦ荳翫↓驥阪�縺ｦ陦ｨ遉ｺ�� */
+.buff-overlay {
+    position: absolute;
+    top: 4px;
+    left: 4px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     gap: 2px;
-    width: 100%;
-    min-height: 18px; /* 高さを固定してアイコンの押し上げを防止 */
-    margin-top: 4px;
+    z-index: 10;
+    pointer-events: none;
 }
 
-.status-effect {
-    font-size: 9px;
+.buff-item,
+.debuff-item {
+    font-size: 10px;
     font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.8);
     white-space: nowrap;
 }
 
-.status-effect.buff { color: #4facfe; border: 1px solid rgba(79, 172, 254, 0.3); }
-.status-effect.debuff { color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
-.status-effect.special { background: #f5af19; color: #000; }
+.buff-item {
+    color: #4facfe;
+    border: 1px solid rgba(79, 172, 254, 0.5);
+}
+
+.debuff-item {
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.5);
+}
+
+/* 迥ｶ諷狗焚蟶ｸ陦ｨ遉ｺ�医く繝｣繝ｩ荳矩Κ縲∵ｼ｢蟄嶺ｸ譁�ｭ暦ｼ� */
+.status-ailments {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 4px;
+    height: 20px;
+}
+
+.status-ailment {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(245, 175, 25, 0.9);
+    color: #000;
+}
 
 /* Command Area */
 #command-area {
@@ -800,6 +1048,15 @@ h3 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    box-shadow: none;
+    pointer-events: none;
+}
+
+
 /* Turn Execution Controls */
 #execute-turn-btn {
     background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
@@ -807,8 +1064,7 @@ h3 {
     /* Remove width: 100% and margin to fit grid */
     padding: 14px;
     /* Match .action-btn */
-    font-size: 16px;
-    /* Slightly larger text is okay, or match 14px? prompt says "match size" */
+    /* Match .action-btn */
     font-weight: bold;
     border: none;
     border-radius: 12px;
@@ -1058,7 +1314,7 @@ h3 {
     margin-top: 10px;
 }
 
-/* スキル選択ボタンの新レイアウト */
+/* 繧ｹ繧ｭ繝ｫ驕ｸ謚槭�繧ｿ繝ｳ縺ｮ譁ｰ繝ｬ繧､繧｢繧ｦ繝� */
 .skill-btn {
     display: flex;
     flex-direction: column;
@@ -1305,3 +1561,156 @@ h3 {
     font-weight: 700;
     color: var(--primary);
 }
+
+/* Event Screen Styles */
+#event-screen {
+    background-image: url('img/bg/bg_map.png');
+    /* 背景統一 */
+    background-size: cover;
+    background-position: center;
+    padding: 24px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    /* コンテンツが多い場合のスクロール */
+}
+
+#event-screen.active {
+    display: flex;
+}
+
+/* Rest Screen Styles */
+#rest-screen {
+    background-image: url('img/bg/bg_map.png');
+    background-size: cover;
+    background-position: center;
+    padding: 24px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#rest-screen.active {
+    display: flex;
+}
+
+#rest-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+    width: 100%;
+}
+
+.rest-btn {
+    padding: 20px;
+    background: linear-gradient(145deg, rgba(80, 40, 40, 0.9), rgba(45, 25, 25, 0.9));
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.rest-btn:hover {
+    background: linear-gradient(145deg, rgba(100, 50, 50, 0.9), rgba(55, 30, 30, 0.9));
+    border-color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 107, 107, 0.2);
+}
+
+.event-content {
+    background: rgba(11, 12, 18, 0.85);
+    /* 読みやすさ向上のための背景 */
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(5px);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+#event-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* ボタン間隔調整 */
+    margin-top: 24px;
+    width: 100%;
+}
+
+.event-btn {
+    padding: 16px;
+    text-align: left;
+    line-height: 1.5;
+    background: linear-gradient(145deg, rgba(50, 60, 80, 0.9), rgba(30, 35, 45, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.event-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 100, 0.9), rgba(40, 45, 55, 0.9));
+    border-color: var(--primary);
+    transform: translateX(2px);
+    box-shadow: 0 4px 8px rgba(79, 172, 254, 0.2);
+}
+/* Party Status Bar (Map & Rest) */
+.party-status-bar,
+#party-status-bar,
+#rest-party-status {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.members-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.party-member-status {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    min-width: 85px;
+    max-width: 110px;
+    cursor: pointer;
+}
+
+.party-member-status img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    border: 2px solid #fff;
+}
+
+.hp-mp-text {
+    font-size: 10px;
+    color: #eee;
+    margin: 2px 0;
+    width: 100%;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: 700;
+}
+

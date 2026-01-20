@@ -24,9 +24,48 @@ class Game {
         this.init();
     }
 
-    init() {
+    async init() {
+        // 画像プリロード
+        await this.preloadImages();
+        document.getElementById('loading-overlay').classList.add('hidden');
+
         this.bindEvents();
+        this.initTitleScreen();
         this.showScreen('title');
+    }
+
+    // 画像プリロード
+    async preloadImages() {
+        const images = [];
+
+        // キャラ画像
+        Object.values(CHARACTERS).forEach(char => {
+            if (char.image?.full) images.push(char.image.full);
+            if (char.image?.face) images.push(char.image.face);
+        });
+
+        // 敵画像
+        Object.values(ENEMIES).forEach(enemy => {
+            if (enemy.image?.full) images.push(enemy.image.full);
+        });
+
+        // 背景画像
+        images.push(
+            'img/bg/bg_title.png',
+            'img/bg/bg_map.png',
+            'img/bg/bg_battle.png'
+        );
+
+        const promises = images.map(src => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = resolve; // エラーでも続行
+                img.src = src;
+            });
+        });
+
+        await Promise.all(promises);
     }
 
     // --- UI Helpers ---
@@ -100,6 +139,7 @@ class Game {
 
     // 画面切り替え
     showScreen(screenId) {
+        window.scrollTo(0, 0); // スクロールリセット
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(`${screenId}-screen`).classList.add('active');
         this.state.screen = screenId;
@@ -109,7 +149,28 @@ class Game {
     bindEvents() {
         // タイトル画面
         document.getElementById('start-btn').addEventListener('click', () => {
-            this.showPartyScreen();
+            if (this.hasSaveData()) {
+                this.showModal('確認', '進行中のデータがあります。<br>新しいゲームを始めるとデータは消去されます。<br>よろしいですか？', [
+                    { text: 'キャンセル', onClick: () => this.closeModal(), className: 'btn-primary' },
+                    {
+                        text: 'はじめる',
+                        onClick: () => {
+                            this.closeModal();
+                            this.clearSaveData();
+                            this.showPartyScreen();
+                        },
+                        className: 'btn-danger' // Style definition needed if not exists, defaulting to primary if not handled in css
+                    }
+                ]);
+            } else {
+                this.showPartyScreen();
+            }
+        });
+
+        document.getElementById('continue-btn').addEventListener('click', () => {
+            if (this.hasSaveData()) {
+                this.loadGame();
+            }
         });
 
         // パーティ編成
@@ -148,15 +209,78 @@ class Game {
         document.getElementById('clear-retry-btn').addEventListener('click', () => {
             this.resetGame();
         });
+
+        // 休憩ボタン
+        document.querySelectorAll('.rest-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.handleRest(e.target.dataset.type);
+            });
+        });
+    }
+
+    // --- Save System ---
+
+    saveGame() {
+        const saveData = {
+            party: this.state.party,
+            currentAct: this.state.currentAct,
+            currentNode: this.state.currentNode,
+            currentLayer: this.state.currentLayer,
+            nodeMap: this.state.nodeMap,
+            items: this.state.items,
+            screen: this.state.screen
+            // Battle state is complex to save mid-battle, usually save at start of battle or node
+            // For now, save mostly map state
+        };
+        localStorage.setItem('cross_legends_save', JSON.stringify(saveData));
+    }
+
+    loadGame() {
+        const json = localStorage.getItem('cross_legends_save');
+        if (!json) return;
+
+        const data = JSON.parse(json);
+        this.state.party = data.party;
+        this.state.currentAct = data.currentAct;
+        this.state.currentNode = data.currentNode;
+        this.state.currentLayer = data.currentLayer;
+        this.state.nodeMap = data.nodeMap;
+        this.state.items = data.items;
+
+        // Restore screen
+        if (data.screen === 'map') {
+            this.showMapScreen();
+        } else {
+            // Default to map if saved elsewhere or unknown
+            this.showMapScreen();
+        }
+    }
+
+    hasSaveData() {
+        return !!localStorage.getItem('cross_legends_save');
+    }
+
+    clearSaveData() {
+        localStorage.removeItem('cross_legends_save');
+    }
+
+    initTitleScreen() {
+        // Show/Hide Continue Button
+        const continueBtn = document.getElementById('continue-btn');
+        if (this.hasSaveData()) {
+            continueBtn.style.display = 'block';
+        } else {
+            continueBtn.style.display = 'none';
+        }
     }
 
     // パーティ編成画面表示
     showPartyScreen() {
+        this.state.party = [];
+        this.state.selectedChar = null;
         this.showScreen('party');
         this.renderPartyFilter();
         this.renderCharacterList();
-        this.state.party = [];
-        this.state.selectedChar = null;
         this.updatePartySlots();
     }
 
@@ -355,11 +479,22 @@ class Game {
             const member = this.state.party.find(p => p.position === pos);
 
             if (member) {
+                const isLongName = member.displayName.length > 7;
+                const nameContent = isLongName
+                    ? `<svg width="100%" height="100%" viewBox="0 0 100 14" preserveAspectRatio="none" style="overflow:visible; min-width: 100%;">
+                         <text x="50%" y="11" font-size="10" text-anchor="middle" fill="currentColor"
+                               textLength="100%" lengthAdjust="spacingAndGlyphs" font-family="inherit" font-weight="700">
+                           ${member.displayName}
+                         </text>
+                       </svg>`
+                    : member.displayName;
+
                 content.innerHTML = `
+                    <div class="slot-role-label">${this.getTypeLabel(member.type)}</div>
                     <img src="${member.image.face}" alt="${member.displayName}"
-                         style="width:50px;height:50px;border-radius:50%;background:#555"
+                         style="width:50px;height:50px;border-radius:50%;background:#555;margin-bottom:4px;"
                          onerror="this.style.background='#555'">
-                    <div>${member.displayName}</div>
+                    <div class="slot-char-name">${nameContent}</div>
                 `;
                 newSlot.classList.add('filled');
                 newSlot.classList.remove('available');
@@ -547,32 +682,86 @@ class Game {
         if (!bar) return;
         bar.innerHTML = '';
 
-        // Add item button
+        // Controls Row (Home & Item)
+        const controlsRow = document.createElement('div');
+        controlsRow.className = 'controls-row';
+
+        const homeBtn = document.createElement('button');
+        homeBtn.id = 'home-btn';
+        homeBtn.textContent = 'ホーム';
+        homeBtn.onclick = () => {
+            this.saveGame();
+            this.showScreen('title');
+            this.initTitleScreen(); // Re-check continue button
+        };
+        controlsRow.appendChild(homeBtn);
+
         const itemBtn = document.createElement('button');
         itemBtn.id = 'item-btn';
         itemBtn.textContent = 'アイテム';
         itemBtn.onclick = () => this.showItemModal('map');
-        bar.appendChild(itemBtn);
+        controlsRow.appendChild(itemBtn);
+
+        bar.appendChild(controlsRow);
+
+        // Members Row
+        const membersRow = document.createElement('div');
+        membersRow.className = 'members-row';
 
         this.state.party.forEach(member => {
             const el = document.createElement('div');
             el.className = 'party-member-status';
-            const hpPercent = (member.currentHp / member.stats.hp) * 100;
-            const mpPercent = (member.currentMp / member.stats.mp) * 100;
+            const hpPercent = member.stats.hp > 0 ? (member.currentHp / member.stats.hp) * 100 : 0;
+            const mpPercent = member.stats.mp > 0 ? (member.currentMp / member.stats.mp) * 100 : 0;
 
             el.innerHTML = `
                 <img src="${member.image.face}" alt="${member.displayName}" onerror="this.style.background='#555'">
-                <div class="hp-mp-text">HP: ${member.currentHp}/${member.stats.hp}</div>
+                <div class="hp-mp-text">HP: ${Math.floor(member.currentHp)}/${member.stats.hp}</div>
                 <div class="hp-bar"><div class="fill" style="width: ${hpPercent}%"></div></div>
-                <div class="hp-mp-text">MP: ${member.currentMp}/${member.stats.mp}</div>
+                <div class="hp-mp-text">MP: ${Math.floor(member.currentMp)}/${member.stats.mp}</div>
                 <div class="mp-bar"><div class="fill" style="width: ${mpPercent}%"></div></div>
             `;
 
-            // Long press for detail
-            this.addLongPressListener(el, () => this.showCharacterDetail(member.id, 'map'));
+            // Single click for detail (changed from long press)
+            el.onclick = () => this.showCharacterDetail(member.id, 'map');
 
-            bar.appendChild(el);
+            membersRow.appendChild(el);
         });
+
+        bar.appendChild(membersRow);
+    }
+
+    // パーティアイコン描画（報酬画面用など）
+    renderPartyIcons(container) {
+        container.innerHTML = '';
+        container.className = 'party-status-bar'; // 既存スタイル流用
+
+        // Members Row
+        const membersRow = document.createElement('div');
+        membersRow.className = 'members-row';
+        membersRow.style.justifyContent = 'center'; // 中央揃え
+
+        this.state.party.forEach(member => {
+            const el = document.createElement('div');
+            el.className = 'party-member-status';
+            const hpPercent = member.stats.hp > 0 ? (member.currentHp / member.stats.hp) * 100 : 0;
+            const mpPercent = member.stats.mp > 0 ? (member.currentMp / member.stats.mp) * 100 : 0;
+
+            el.innerHTML = `
+                <img src="${member.image.face}" alt="${member.displayName}" onerror="this.style.background='#555'">
+                <div class="hp-mp-text">HP: ${Math.floor(member.currentHp)}/${member.stats.hp}</div>
+                <div class="hp-bar"><div class="fill" style="width: ${hpPercent}%"></div></div>
+                <div class="hp-mp-text">MP: ${Math.floor(member.currentMp)}/${member.stats.mp}</div>
+                <div class="mp-bar"><div class="fill" style="width: ${mpPercent}%"></div></div>
+            `;
+
+            // 詳細表示
+            el.onclick = () => this.showCharacterDetail(member.id, 'map'); // mapモードの詳細表示を流用
+
+            membersRow.appendChild(el);
+        });
+
+        container.appendChild(membersRow);
     }
 
     renderMap() {
@@ -634,6 +823,7 @@ class Game {
 
                 if (node.completed) nodeEl.classList.add('completed');
                 // 現在の階層のみ選択可能にする（並列移動・戻り防止）
+                // 修正：statusがavailableでも、現在のレイヤーでなければ反応させない（特に見た目）
                 if (node.status === 'available' && node.layer === this.state.currentLayer) {
                     nodeEl.classList.add('available');
                     nodeEl.onclick = () => this.enterNode(node);
@@ -748,6 +938,11 @@ class Game {
                 break;
             case 'rest':
                 this.showScreen('rest');
+                // 休憩画面にもパーティ情報を表示
+                const restPartyContainer = document.getElementById('rest-party-status');
+                if (restPartyContainer) {
+                    this.renderPartyIcons(restPartyContainer);
+                }
                 break;
             case 'event':
                 this.showEventScreen();
@@ -757,10 +952,7 @@ class Game {
                 break;
         }
     }
-}
 
-// ゲーム開始
-const game = new Game();
 
 
     // 戦闘開始
@@ -779,11 +971,21 @@ const game = new Game();
                 enemies.push(this.createEnemy(enemyId, multiplier));
             }
         } else if (rank === 'elite') {
-            const count = Math.floor(Math.random() * 2) + 1;
+            // エリート1体 + 雑魚0~2体
             multiplier = config.multiplier.elite;
-            for (let i = 0; i < count; i++) {
-                const enemyId = config.elites[Math.floor(Math.random() * config.elites.length)];
-                enemies.push(this.createEnemy(enemyId, multiplier, true));
+
+            // エリート1体
+            const eliteId = config.elites[Math.floor(Math.random() * config.elites.length)];
+            enemies.push(this.createEnemy(eliteId, multiplier, true));
+
+            // 雑魚追加
+            const minionCount = Math.floor(Math.random() * 3); // 0, 1, 2
+            if (minionCount > 0) {
+                const minionMultiplier = this.state.currentLayer < 3 ? config.multiplier.start : config.multiplier.mid;
+                for (let i = 0; i < minionCount; i++) {
+                    const enemyId = config.enemies[Math.floor(Math.random() * config.enemies.length)];
+                    enemies.push(this.createEnemy(enemyId, minionMultiplier));
+                }
             }
         } else if (rank === 'boss' || rank === 'last_boss') {
             multiplier = config.multiplier.boss;
@@ -847,7 +1049,8 @@ const game = new Game();
             image: template.image,
             buffs: [],
             debuffs: [],
-            statusEffects: []
+            statusEffects: [],
+            uniqueSkill: template.uniqueSkill // uniqueSkillをコピー
         };
     }
 
@@ -872,10 +1075,14 @@ const game = new Game();
             const hpPercent = Math.max(0, (enemy.currentHp / enemy.stats.hp) * 100);
 
             unit.innerHTML = `
+                <div class="buff-overlay">${this.renderBuffOverlay(enemy)}</div>
                 <img src="${enemy.image.full}" alt="${enemy.displayName}" onerror="this.style.background='#555'">
                 <div class="unit-name">${enemy.displayName}</div>
-                <div class="unit-hp-bar"><div class="fill" style="width:${hpPercent}%"></div></div>
-                <div class="status-effects">${this.renderStatusEffects(enemy)}</div>
+                <div class="unit-hp-bar">
+                    <div class="fill" style="width:${hpPercent}%"></div>
+                    <div class="bar-text">${enemy.currentHp}/${enemy.stats.hp}</div>
+                </div>
+                <div class="status-ailments">${this.renderStatusAilments(enemy)}</div>
             `;
             area.appendChild(unit);
         });
@@ -896,43 +1103,63 @@ const game = new Game();
             const mpPercent = Math.max(0, (ally.currentMp / ally.stats.mp) * 100);
 
             unit.innerHTML = `
+                <div class="buff-overlay">${this.renderBuffOverlay(ally)}</div>
                 <img src="${ally.image.face}" alt="${ally.displayName}" onerror="this.style.background='#555'">
                 <div class="unit-name">${ally.displayName}</div>
-                <div class="unit-hp-bar"><div class="fill" style="width:${hpPercent}%"></div></div>
-                <div class="unit-mp-bar"><div class="fill" style="width:${mpPercent}%"></div></div>
-                <div class="status-effects">${this.renderStatusEffects(ally)}</div>
+                <div class="unit-hp-bar">
+                    <div class="fill" style="width:${hpPercent}%"></div>
+                    <div class="bar-text">${ally.currentHp}/${ally.stats.hp}</div>
+                </div>
+                <div class="unit-mp-bar">
+                    <div class="fill" style="width:${mpPercent}%"></div>
+                    <div class="bar-text">${ally.currentMp}/${ally.stats.mp}</div>
+                </div>
+                <div class="status-ailments">${this.renderStatusAilments(ally)}</div>
             `;
 
-            // Long press for detail
-            this.addLongPressListener(unit, () => this.showCharacterDetail(ally.id, 'battle'));
+            // Single click for detail (changed from long press)
+            unit.onclick = () => this.showCharacterDetail(ally.id, 'battle');
 
             area.appendChild(unit);
         });
     }
 
-    // ステータスエフェクト表示
-    renderStatusEffects(unit) {
+    // バフ/デバフオーバーレイ表示（画像左上に重ねて表示）
+    renderBuffOverlay(unit) {
         const statLabels = {
             physicalAttack: '物攻', magicAttack: '魔攻',
             physicalDefense: '物防', magicDefense: '魔防',
             speed: '速', luck: '運', hp: 'HP', mp: 'MP'
         };
-        const statusLabels = { poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス', taunt: '挑' };
 
-        let effects = [];
+        let html = '';
+
+        // バフ（同じstatは統合済みなので全て表示）
         unit.buffs.forEach(b => {
             const label = statLabels[b.stat] || b.stat;
-            effects.push(`<span class="status-effect buff">${label}↑</span>`);
+            html += `<span class="buff-item">${label}↑</span>`;
         });
+
+        // デバフ
         unit.debuffs.forEach(d => {
             const label = statLabels[d.stat] || d.stat;
-            effects.push(`<span class="status-effect debuff">${label}↓</span>`);
+            html += `<span class="debuff-item">${label}↓</span>`;
         });
-        unit.statusEffects.forEach(s => {
-            const label = statusLabels[s.type] || s.type;
-            effects.push(`<span class="status-effect special">${label}</span>`);
-        });
-        return effects.join('');
+
+        return html;
+    }
+
+    // 状態異常表示（キャラ下部、漢字一文字）
+    renderStatusAilments(unit) {
+        const statusLabels = {
+            poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス',
+            taunt: '挑', burn: '焼', regen: '再', defending: '防', damageReduction: '軽'
+        };
+
+        return unit.statusEffects.map(s => {
+            const label = statusLabels[s.type] || s.type.charAt(0);
+            return `<span class="status-ailment">${label}</span>`;
+        }).join('');
     }
 
     // バトルログ描画
@@ -944,10 +1171,24 @@ const game = new Game();
 
     // コマンドフェーズ開始
     startCommandPhase() {
+        // 毎ターン開始時にMP10%回復
+        this.state.party.forEach(member => {
+            if (member.currentHp > 0) {
+                const mpRecover = Math.floor(member.stats.mp * 0.1);
+                member.currentMp = Math.min(member.stats.mp, member.currentMp + mpRecover);
+            }
+        });
+
         this.state.battle.commands = [];
         this.state.battle.currentCharIndex = 0;
         this.state.battle.phase = 'command';
         this.updateCommandUI();
+    }
+
+    // 通常攻撃タイプを取得（素のステータスで高い方）
+    getPrimaryAttackType(char) {
+        const baseStats = CHARACTERS[char.id]?.stats || char.stats;
+        return baseStats.physicalAttack >= baseStats.magicAttack ? 'physical' : 'magic';
     }
 
     // コマンドUI更新
@@ -972,6 +1213,14 @@ const game = new Game();
             `;
             charCmds.appendChild(slot);
         });
+
+        // 攻撃ボタンのラベルを現在のキャラに合わせて更新
+        const attackBtn = document.querySelector('[data-action="attack"]');
+        const currentChar = this.state.party[this.state.battle.currentCharIndex];
+        if (attackBtn && currentChar && currentChar.currentHp > 0) {
+            const attackType = this.getPrimaryAttackType(currentChar);
+            attackBtn.textContent = attackType === 'magic' ? '攻撃（魔法）' : '攻撃（物理）';
+        }
 
         // 戻るボタンの制御
         const backBtn = document.getElementById('back-btn');
@@ -1043,10 +1292,7 @@ const game = new Game();
                 break;
         }
     }
-}
 
-// ゲーム開始
-const game = new Game();
 
     // ターゲット選択表示
     showTargetSelection(forAction, skillId = null) {
@@ -1277,8 +1523,11 @@ const game = new Game();
     // ターン実行
     async executeTurn() {
         this.state.battle.phase = 'execution';
+        this.state.battle.phase = 'execution';
         document.getElementById('execute-turn-btn').classList.add('hidden');
         document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = true);
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.disabled = true; // 確実に無効化
 
         // 敵の行動を追加
         this.generateEnemyCommands();
@@ -1334,8 +1583,12 @@ const game = new Game();
                 }
             }
 
-            // スキル使用
-            if (!action && enemy.currentMp >= 30) {
+            // 沈黙チェック
+            const silenced = enemy.statusEffects.find(e => e.type === 'silence');
+            if (silenced) {
+                // 沈黙中はスキル使えないので強制的に通常攻撃
+                action = { type: 'attack' };
+            } else if (!action && enemy.currentMp >= 30) {
                 const usableSkills = enemy.skills.filter(s => {
                     const skill = SKILLS[s];
                     if (!skill) return false;
@@ -1372,19 +1625,19 @@ const game = new Game();
 
     // ターゲット選択（配置補正考慮）
     selectTarget() {
-        const weights = { left: 130, center: 100, right: 70 };
+        const weights = { left: 600, center: 300, right: 100 }; // 左60%, 中30%, 右10%
         const alive = this.state.party.filter(p => p.currentHp > 0);
-
-        // 挑発中のキャラがいればそちらを狙う
-        const taunting = alive.find(p => p.statusEffects.some(e => e.type === 'taunt'));
-        if (taunting) {
-            return this.state.party.indexOf(taunting);
-        }
 
         // 重み付きランダム
         let totalWeight = 0;
         const candidates = alive.map(p => {
-            const weight = weights[p.position] || 100;
+            let weight = weights[p.position] || 100;
+
+            // 挑発中のキャラはウェイト9倍
+            if (p.statusEffects.some(e => e.type === 'taunt')) {
+                weight *= 9;
+            }
+
             totalWeight += weight;
             return { char: p, weight: totalWeight };
         });
@@ -1425,6 +1678,15 @@ const game = new Game();
             return;
         }
 
+        // 沈黙チェック
+        if (cmd.type === 'skill') {
+            const silenced = actor.statusEffects.find(e => e.type === 'silence');
+            if (silenced) {
+                this.addLog(`${actorName}は沈黙でスキルが使えない！`);
+                return;
+            }
+        }
+
         switch (cmd.type) {
             case 'attack':
                 await this.executeAttack(actor, cmd, actorName);
@@ -1445,10 +1707,7 @@ const game = new Game();
                 break;
         }
     }
-}
 
-// ゲーム開始
-const game = new Game();
 
     // 攻撃実行
     async executeAttack(actor, cmd, actorName) {
@@ -1475,9 +1734,23 @@ const game = new Game();
         for (const target of targets) {
             if (target.currentHp <= 0) continue;
 
-            const damage = this.calculateDamage(actor, target, 'physical', 100);
+            // 通常攻撃のダメージタイプを素のステータスで判定
+            const damageType = this.getPrimaryAttackType(actor);
+            const damage = this.calculateDamage(actor, target, damageType, 100);
+            const typeLabel = damageType === 'magic' ? '魔法' : '物理';
             this.applyDamage(target, damage);
-            this.addLog(`${actorName}の攻撃！${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
+            this.addLog(`${actorName}の${typeLabel}攻撃！${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
+
+            // カウンター判定
+            if (target.currentHp > 0) {
+                const counter = target.statusEffects.find(e => e.type === 'counter');
+                if (counter && typeLabel === '物理') {
+                    // 反撃（物理扱い）
+                    const counterDamage = this.calculateDamage(target, actor, 'physical', counter.power || 100);
+                    this.applyDamage(actor, counterDamage);
+                    this.addLog(`${target.displayName}の反撃！${actorName}に${counterDamage.value}ダメージ`);
+                }
+            }
         }
     }
 
@@ -1597,38 +1870,70 @@ const game = new Game();
         }
     }
 
-    // エフェクト適用
+    // エフェクト適用（重複時はターン延長）
     applyEffect(actor, targets, effect) {
         switch (effect.type) {
             case 'buff':
             case 'self_buff':
                 const buffTargets = effect.type === 'self_buff' ? [actor] : targets;
                 buffTargets.forEach(t => {
-                    t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
+                    // 同じstatの既存バフを探す
+                    const existing = t.buffs.find(b => b.stat === effect.stat);
+                    if (existing) {
+                        existing.duration = Math.max(existing.duration, effect.duration);
+                        if (effect.value > existing.value) existing.value = effect.value;
+                    } else {
+                        t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
+                    }
                 });
                 break;
             case 'debuff':
             case 'self_debuff':
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
                 debuffTargets.forEach(t => {
-                    t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
+                    // 同じstatの既存デバフを探す
+                    const existing = t.debuffs.find(d => d.stat === effect.stat);
+                    if (existing) {
+                        existing.duration = Math.max(existing.duration, effect.duration);
+                        if (Math.abs(effect.value) > Math.abs(existing.value)) existing.value = effect.value;
+                    } else {
+                        t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
+                    }
                 });
                 break;
             case 'taunt':
-                actor.statusEffects.push({ type: 'taunt', duration: effect.duration });
-                this.addLog(`${actor.displayName}は挑発状態になった！`);
+                // 既存の挑発があればターン延長
+                const existingTaunt = actor.statusEffects.find(e => e.type === 'taunt');
+                if (existingTaunt) {
+                    existingTaunt.duration = Math.max(existingTaunt.duration, effect.duration);
+                } else {
+                    actor.statusEffects.push({ type: 'taunt', duration: effect.duration });
+                }
                 break;
             case 'status':
                 targets.forEach(t => {
                     if (!effect.chance || Math.random() * 100 < effect.chance) {
-                        t.statusEffects.push({ type: effect.status, duration: effect.duration || 3 });
-                        this.addLog(`${t.displayName}は${effect.status}状態になった！`);
+                        // 既存の同じ状態異常があればターン延長
+                        const existingStatus = t.statusEffects.find(e => e.type === effect.status);
+                        if (existingStatus) {
+                            existingStatus.duration = Math.max(existingStatus.duration, effect.duration || 3);
+                        } else {
+                            t.statusEffects.push({ type: effect.status, duration: effect.duration || 3 });
+                            const statusLabels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', burn: '火傷' };
+                            this.addLog(`${t.displayName}は${statusLabels[effect.status] || effect.status}状態になった！`);
+                        }
                     }
                 });
                 break;
             case 'regen':
                 targets.forEach(t => {
-                    t.statusEffects.push({ type: 'regen', value: effect.value, duration: effect.duration });
+                    const existingRegen = t.statusEffects.find(e => e.type === 'regen');
+                    if (existingRegen) {
+                        existingRegen.duration = Math.max(existingRegen.duration, effect.duration);
+                        if (effect.value > existingRegen.value) existingRegen.value = effect.value;
+                    } else {
+                        t.statusEffects.push({ type: 'regen', value: effect.value, duration: effect.duration });
+                    }
                 });
                 break;
             case 'damageReduction':
@@ -1636,12 +1941,15 @@ const game = new Game();
                     t.statusEffects.push({ type: 'damageReduction', value: effect.value, duration: effect.duration });
                 });
                 break;
+            case 'counter':
+                const counterTargets = effect.target === 'self' || effect.type === 'self_buff' ? [actor] : targets;
+                counterTargets.forEach(t => {
+                    t.statusEffects.push({ type: 'counter', power: effect.power, duration: effect.duration });
+                });
+                break;
         }
     }
-}
 
-// ゲーム開始
-const game = new Game();
 
     // アイテム使用
     async executeItem(cmd, actorName) {
@@ -1667,10 +1975,7 @@ const game = new Game();
                 break;
         }
     }
-}
 
-// ゲーム開始
-const game = new Game();
 
     // ダメージ計算
     calculateDamage(attacker, defender, type, power, critBonus = 0) {
@@ -1684,9 +1989,12 @@ const game = new Game();
             defense = this.getEffectiveStat(defender, 'magicDefense');
         }
 
-        // 基本ダメージ
-        let damage = (attack * (power / 100)) - defense;
-        damage = Math.max(1, damage);
+        // 基本ダメージ（ハイブリッド方式: 割合軽減 + 固定値軽減）
+        let baseDamage = attack * (power / 100);
+        let defenseRatio = defense / (defense + 150); // 防御150で50%軽減
+        let defenseFlat = defense * 0.4; // 防御値の40%を固定軽減
+        let damage = baseDamage * (1 - defenseRatio) - defenseFlat;
+        damage = Math.max(baseDamage * 0.1, damage); // 最低10%貫通
 
         // 乱数
         damage *= 0.9 + Math.random() * 0.2;
@@ -1733,6 +2041,13 @@ const game = new Game();
                 value *= (1 + d.value);
             }
         });
+
+        // 火傷の実効ステータス低下（物理防御・魔法防御）
+        if (statName === 'physicalDefense' || statName === 'magicDefense') {
+            if (unit.statusEffects.some(e => e.type === 'burn')) {
+                value *= 0.85; // 15%低下
+            }
+        }
 
         return Math.floor(value);
     }
@@ -1781,6 +2096,14 @@ const game = new Game();
                 this.addLog(`${unit.displayName}は毒で${damage}ダメージ！`);
             }
 
+            // 火傷ダメージ
+            const burn = unit.statusEffects.find(e => e.type === 'burn');
+            if (burn) {
+                const damage = Math.floor(unit.stats.hp * 0.04);
+                unit.currentHp = Math.max(1, unit.currentHp - damage);
+                this.addLog(`${unit.displayName}は火傷で${damage}ダメージ！`);
+            }
+
             // リジェネ
             const regen = unit.statusEffects.find(e => e.type === 'regen');
             if (regen) {
@@ -1809,6 +2132,13 @@ const game = new Game();
     battleVictory() {
         this.addLog('戦闘に勝利した！');
 
+        // 状態異常・バフリセット
+        this.state.party.forEach(p => {
+            p.buffs = [];
+            p.debuffs = [];
+            p.statusEffects = [];
+        });
+
         // 報酬フェーズ
         setTimeout(() => {
             this.startRewardPhase();
@@ -1836,67 +2166,145 @@ const game = new Game();
         }
 
         this.showScreen('reward');
-        document.getElementById('reward-character-name').textContent = `${char.displayName}の報酬`;
+        // パーティ情報表示領域があればそこに描画、なければ作成
+        let partyStatusContainer = document.getElementById('reward-party-status');
+        if (!partyStatusContainer) {
+            partyStatusContainer = document.createElement('div');
+            partyStatusContainer.id = 'reward-party-status';
+            // reward-character-nameの前に挿入
+            const rewardScreen = document.getElementById('reward-screen');
+            rewardScreen.insertBefore(partyStatusContainer, document.getElementById('reward-character-name'));
+        }
+        this.renderPartyIcons(partyStatusContainer);
+
+        document.getElementById('reward-character-name').textContent = `${char.displayName}の獲得フェイズ`;
+        document.getElementById('reward-character-name').style.marginTop = '10px';
 
         const options = document.getElementById('reward-options');
         options.innerHTML = '';
 
-        const isElite = this.state.battle.rank === 'elite';
-        const boostPercent = isElite ? 10 : 8;
+        // 3択ボタンを表示
+        const choices = [
+            { id: 'stat', text: 'ステータス強化', desc: 'ステータスを上昇させる' },
+            { id: 'skill', text: 'スキル習得', desc: '新しいスキルを覚える' },
+            { id: 'skip', text: '報酬をスキップ', desc: '何も受け取らずに進む' }
+        ];
 
-        // ステータスアップ選択肢
-        const stats = ['hp', 'mp', 'physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
-        const statLabels = {
-            hp: 'HP', mp: 'MP', physicalAttack: '物理攻撃', magicAttack: '魔法攻撃',
-            physicalDefense: '物理防御', magicDefense: '魔法防御', speed: '速度', luck: '運'
-        };
-
-        // ランダムに3つステータスを選択
-        const shuffledStats = [...stats].sort(() => Math.random() - 0.5).slice(0, 2);
-
-        shuffledStats.forEach(stat => {
-            const currentValue = char.stats[stat];
-            const baseValue = CHARACTERS[char.id].stats[stat];
-            const boost = Math.floor(baseValue * boostPercent / 100);
-
+        choices.forEach(choice => {
             const option = document.createElement('div');
             option.className = 'reward-option';
             option.innerHTML = `
-                <div class="reward-title">${statLabels[stat]} UP</div>
-                <div class="reward-desc">${currentValue} → ${currentValue + boost} (+${boost})</div>
+                <div class="reward-title">${choice.text}</div>
+                <div class="reward-desc">${choice.desc}</div>
             `;
             option.addEventListener('click', () => {
-                char.stats[stat] += boost;
-                if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boost);
-                if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boost);
-                this.nextReward(charIdx);
+                this.showDetailReward(charIdx, choice.id);
             });
             options.appendChild(option);
         });
+    }
 
-        // スキル獲得（スロットに空きがあれば）
-        if (char.skills.length < 3) {
-            const skillPool = SKILL_POOLS[char.type] || SKILL_POOLS.balance;
-            const availableSkills = skillPool.filter(s =>
-                s !== char.uniqueSkill?.id && !char.skills.some(cs => cs.id === s)
-            );
+    // 詳細報酬表示
+    showDetailReward(charIdx, type) {
+        const char = this.state.party[charIdx];
+        const options = document.getElementById('reward-options');
+        options.innerHTML = ''; // クリア
 
-            if (availableSkills.length > 0) {
-                const randomSkillId = availableSkills[Math.floor(Math.random() * availableSkills.length)];
-                const skill = SKILLS[randomSkillId];
+        const isElite = this.state.battle.rank === 'elite';
+        const boostPercent = isElite ? 10 : 8;
+
+        if (type === 'stat') {
+            const stats = ['hp', 'mp', 'physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
+            const statLabels = {
+                hp: 'HP', mp: 'MP', physicalAttack: '物理攻撃', magicAttack: '魔法攻撃',
+                physicalDefense: '物理防御', magicDefense: '魔法防御', speed: '速度', luck: '運'
+            };
+
+            // ランダム3つ
+            const shuffledStats = [...stats].sort(() => Math.random() - 0.5).slice(0, 3);
+
+            shuffledStats.forEach(stat => {
+                const currentValue = char.stats[stat];
+                const baseValue = CHARACTERS[char.id].stats[stat];
+                const boost = Math.floor(baseValue * boostPercent / 100);
 
                 const option = document.createElement('div');
                 option.className = 'reward-option';
                 option.innerHTML = `
-                    <div class="reward-title">新スキル: ${skill.name}</div>
-                    <div class="reward-desc">${skill.description}</div>
+                    <div class="reward-title">${statLabels[stat]} UP</div>
+                    <div class="reward-desc">${currentValue} → ${currentValue + boost} (+${boost})</div>
                 `;
                 option.addEventListener('click', () => {
-                    char.skills.push({ id: randomSkillId, displayName: skill.name });
+                    char.stats[stat] += boost;
+                    if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boost);
+                    if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boost);
                     this.nextReward(charIdx);
                 });
                 options.appendChild(option);
+            });
+        } else if (type === 'skill') {
+            if (char.skills.length >= 3) {
+                this.showToast('スキル枠がいっぱいです', 'error');
+                this.showRewardForCharacter(charIdx); // 戻る
+                return;
             }
+
+            // スキル候補生成
+            const candidateSkills = [];
+            const myPool = SKILL_POOLS[char.type] || SKILL_POOLS.balance;
+
+            // 他のプールのスキルを収集
+            let otherPools = [];
+            Object.keys(SKILL_POOLS).forEach(key => {
+                if (key !== char.type) {
+                    otherPools = otherPools.concat(SKILL_POOLS[key]);
+                }
+            });
+
+            // 3つの候補を生成
+            for (let i = 0; i < 3; i++) {
+                const isMyRole = Math.random() < 0.7; // 70%
+                let pool = isMyRole ? myPool : otherPools;
+
+                // 重複除外 & 下位互換スキル除外
+                const available = pool.filter(s =>
+                    s !== char.uniqueSkill?.id &&
+                    !char.skills.some(cs => cs.id === s) &&
+                    !candidateSkills.some(c => c.id === s) &&
+                    (!char.excludeSkills || !char.excludeSkills.includes(s))
+                );
+
+                if (available.length > 0) {
+                    const skillId = available[Math.floor(Math.random() * available.length)];
+                    candidateSkills.push(SKILLS[skillId]);
+                }
+            }
+
+            if (candidateSkills.length === 0) {
+                const option = document.createElement('div');
+                option.className = 'reward-option';
+                option.innerHTML = `<div class="reward-title">習得可能なスキルがありません</div>`;
+                option.addEventListener('click', () => this.nextReward(charIdx));
+                options.appendChild(option);
+            } else {
+                candidateSkills.forEach(skill => {
+                    const option = document.createElement('div');
+                    option.className = 'reward-option';
+                    option.innerHTML = `
+                        <div class="reward-title">${skill.name}</div>
+                        <div class="reward-desc">${skill.description}</div>
+                    `;
+                    option.addEventListener('click', () => {
+                        char.skills.push({ id: skill.id, displayName: skill.name });
+                        this.nextReward(charIdx);
+                    });
+                    options.appendChild(option);
+                });
+            }
+
+        } else {
+            // Skip
+            this.nextReward(charIdx);
         }
     }
 
@@ -1937,6 +2345,7 @@ const game = new Game();
 
         // ラスボス撃破チェック
         if (this.state.battle?.rank === 'last_boss') {
+            this.clearSaveData(); // Clear save on victory
             this.showScreen('clear');
             return;
         }
@@ -1949,6 +2358,7 @@ const game = new Game();
             // generateMapでcurrentLayer=0になるのでOK
         }
 
+        this.saveGame(); // Auto-save on layer progression
         this.showMapScreen();
     }
 
@@ -1989,7 +2399,27 @@ const game = new Game();
         event.options.forEach((opt, idx) => {
             const btn = document.createElement('button');
             btn.className = 'event-btn';
-            btn.textContent = opt.text;
+
+            // 確率表示ロジック
+            let label = opt.text;
+            if (opt.effect.type === 'luck_check') {
+                const avgLuck = this.state.party.reduce((s, m) => s + m.stats.luck, 0) / 3;
+                const chance = Math.floor(Math.min(100, 30 + avgLuck / 3));
+                label += `（成功率: ${chance}%）`;
+            } else if (opt.effect.type === 'random') {
+                // randomの場合、最初のoutcomeを「成功」とみなすか、weightsから計算
+                // ここでは単純にweight比率を表示
+                const outcomes = opt.effect.outcomes;
+                const totalWeight = outcomes.reduce((s, o) => s + o.weight, 0);
+                // item または heal_all を当たりとする
+                const successOutcome = outcomes.find(o => o.type === 'item' || o.type === 'heal_all');
+                if (successOutcome) {
+                    const chance = Math.floor((successOutcome.weight / totalWeight) * 100);
+                    label += `（成功率: ${chance}%）`;
+                }
+            }
+
+            btn.textContent = label;
             btn.addEventListener('click', () => this.handleEventOption(opt));
             options.appendChild(btn);
         });
@@ -2030,6 +2460,22 @@ const game = new Game();
                     message = 'アイテムがいっぱいだ...';
                 }
                 break;
+            case 'silence':
+                targets.forEach(t => {
+                    if (!effect.chance || Math.random() * 100 < effect.chance) {
+                        t.statusEffects.push({ type: 'silence', duration: effect.duration || 2 });
+                        this.addLog(`${t.displayName}は沈黙状態になった！`);
+                    }
+                });
+                break;
+            case 'burn':
+                targets.forEach(t => {
+                    if (!effect.chance || Math.random() * 100 < effect.chance) {
+                        t.statusEffects.push({ type: 'burn', duration: effect.duration || 3 });
+                        this.addLog(`${t.displayName}は火傷状態になった！`);
+                    }
+                });
+                break;
             case 'luck_check':
                 const avgLuck = this.state.party.reduce((s, m) => s + m.stats.luck, 0) / 3;
                 const success = Math.random() * 100 < 30 + avgLuck / 3;
@@ -2049,6 +2495,46 @@ const game = new Game();
                         this.handleEventOption({ effect: outcome });
                         return;
                     }
+                }
+                break;
+            case 'sacrifice_hp':
+                this.state.party.forEach(m => {
+                    if (m.currentHp > 0) {
+                        const damage = Math.floor(m.stats.hp * (effect.percent / 100));
+                        m.currentHp = Math.max(1, m.currentHp - damage);
+                    }
+                });
+                if (effect.reward === 'random_skill') {
+                    // ランダムスキル獲得（ランダムな1名）
+                    const randomChar = this.state.party[Math.floor(Math.random() * this.state.party.length)];
+                    // 簡易的にスキルプールから付与（本来はshowDetailReward相当のロジックが良いが自動付与にする）
+                    const pool = SKILL_POOLS[randomChar.type] || SKILL_POOLS.physical_attacker;
+                    const newSkillId = pool[Math.floor(Math.random() * pool.length)];
+                    const newSkill = SKILLS[newSkillId];
+                    if (newSkill && !randomChar.skills.some(s => s === newSkillId)) {
+                        randomChar.skills.push(newSkillId);
+                        message = `HPを捧げ、${randomChar.displayName}は${newSkill.name}を習得した！`;
+                    } else {
+                        message = `HPを捧げたが、何も起こらなかった...`;
+                    }
+                }
+                break;
+            case 'sacrifice_mp':
+                this.state.party.forEach(m => {
+                    if (m.currentHp > 0) {
+                        const mpCost = Math.floor(m.stats.mp * (effect.percent / 100));
+                        m.currentMp = Math.max(0, m.currentMp - mpCost);
+                    }
+                });
+                if (effect.reward === 'stat_up') {
+                    // ランダムステータスUP（ランダムな1名）
+                    const randomChar = this.state.party[Math.floor(Math.random() * this.state.party.length)];
+                    const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense'];
+                    const stat = stats[Math.floor(Math.random() * stats.length)];
+                    const increase = Math.floor(CHARACTERS[randomChar.id].stats[stat] * 0.15);
+                    randomChar.stats[stat] += increase;
+                    const statLabels = { physicalAttack: '物攻', magicAttack: '魔攻', physicalDefense: '物防', magicDefense: '魔防' };
+                    message = `MPを捧げ、${randomChar.displayName}の${statLabels[stat]}が${increase}上がった！`;
                 }
                 break;
             case 'stat_up_all':
@@ -2098,12 +2584,14 @@ const game = new Game();
 
     // ゲームオーバー
     gameOver() {
+        this.clearSaveData();
         document.getElementById('gameover-message').textContent = '全滅してしまった...';
         this.showScreen('gameover');
     }
 
     // ゲームリセット
     resetGame() {
+        this.clearSaveData();
         this.state = {
             screen: 'title',
             party: [],
@@ -2143,7 +2631,7 @@ const game = new Game();
             prevIdx--;
         }
     }
-}
+
 
     // キャラ詳細モーダル表示
     showCharacterDetail(charId, context) {
@@ -2181,20 +2669,28 @@ const game = new Game();
         const typeLabel = this.getTypeLabel(char.type);
         statsDiv.innerHTML = `<div class="detail-type">タイプ：${typeLabel}</div>`;
 
-        // HP/MP
+        // 通常攻撃タイプを判定（素のステータスで高い方）
+        const basePhys = CHARACTERS[char.id]?.stats.physicalAttack || char.stats.physicalAttack;
+        const baseMag = CHARACTERS[char.id]?.stats.magicAttack || char.stats.magicAttack;
+        const primaryAttackType = basePhys >= baseMag ? 'physical' : 'magic';
+
+        // HP/MP with colors
+        const hpColor = '#4ecdc4'; // 戦闘画面のHPバーと同じ色
+        const mpColor = '#4facfe'; // 戦闘画面のMPバーと同じ色
+
         if (context === 'party') {
             statsDiv.innerHTML += `
-                <div class="stat-row"><span class="stat-label">HP:</span> <span class="stat-value">${char.stats.hp}</span></div>
-                <div class="stat-row"><span class="stat-label">MP:</span> <span class="stat-value">${char.stats.mp}</span></div>
+                <div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${char.stats.hp}</span></div>
+                <div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${char.stats.mp}</span></div>
             `;
         } else {
             statsDiv.innerHTML += `
-                <div class="stat-row"><span class="stat-label">HP:</span> <span class="stat-value">${char.currentHp}/${char.stats.hp}</span></div>
-                <div class="stat-row"><span class="stat-label">MP:</span> <span class="stat-value">${char.currentMp}/${char.stats.mp}</span></div>
+                <div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${Math.floor(char.currentHp)}/${char.stats.hp}</span></div>
+                <div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${Math.floor(char.currentMp)}/${char.stats.mp}</span></div>
             `;
         }
 
-        // Other stats
+        // Other stats with attack highlights
         const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
         const statLabels = {
             physicalAttack: '物攻', magicAttack: '魔攻',
@@ -2202,9 +2698,26 @@ const game = new Game();
             speed: '速度', luck: '運'
         };
 
+        // 攻撃力の色
+        const physColor = '#ff6b6b'; // 物理攻撃色（赤系）
+        const magColor = '#a29bfe'; // 魔法攻撃色（紫系）
+
         stats.forEach(stat => {
             const baseValue = char.stats[stat];
             let displayText = `${baseValue}`;
+            let labelStyle = '';
+            let valueStyle = '';
+
+            // 物理/魔法攻撃力に色を付ける（主攻撃タイプを強調）
+            if (stat === 'physicalAttack') {
+                const isMain = primaryAttackType === 'physical';
+                labelStyle = `color:${physColor}; ${isMain ? 'font-weight:bold;' : ''}`;
+                valueStyle = `color:${physColor}; ${isMain ? 'font-weight:bold;' : ''}`;
+            } else if (stat === 'magicAttack') {
+                const isMain = primaryAttackType === 'magic';
+                labelStyle = `color:${magColor}; ${isMain ? 'font-weight:bold;' : ''}`;
+                valueStyle = `color:${magColor}; ${isMain ? 'font-weight:bold;' : ''}`;
+            }
 
             // Battle context: show buffs/debuffs
             if (context === 'battle') {
@@ -2219,7 +2732,7 @@ const game = new Game();
                 }
             }
 
-            statsDiv.innerHTML += `<div class="stat-row"><span class="stat-label">${statLabels[stat]}:</span> <span class="stat-value">${displayText}</span></div>`;
+            statsDiv.innerHTML += `<div class="stat-row"><span class="stat-label" style="${labelStyle}">${statLabels[stat]}:</span> <span class="stat-value" style="${valueStyle}">${displayText}</span></div>`;
         });
 
         content.appendChild(statsDiv);
@@ -2349,7 +2862,7 @@ const game = new Game();
         this.closeItemModal();
 
         // Show target selection
-        this.showModal('対象を選択', '', this.state.party.map(member => {
+        const targets = this.state.party.map(member => {
             const isValidTarget = item.effect.type === 'revive'
                 ? member.currentHp <= 0
                 : member.currentHp > 0;
@@ -2367,7 +2880,21 @@ const game = new Game();
                     }
                 }
             };
-        }).filter(Boolean));
+        }).filter(Boolean);
+
+        // キャンセルボタン追加
+        targets.push({
+            text: 'キャンセル',
+            className: 'btn-cancel',
+            onClick: () => {
+                this.closeModal();
+                if (context === 'map' || context === 'battle') {
+                    this.showItemModal(context); // アイテム一覧に戻る
+                }
+            }
+        });
+
+        this.showModal('対象を選択', '', targets);
     }
 
     // アイテム効果適用

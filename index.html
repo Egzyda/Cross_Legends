@@ -6,35 +6,57 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cross Legends</title>
+    <link rel="icon" href="img/bg/icon.png">
+    <link rel="apple-touch-icon" href="img/bg/icon.png">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <!-- ローディング画面 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
     <div id="game-container">
         <!-- タイトル画面 -->
         <div id="title-screen" class="screen active">
             <h1>Cross Legends</h1>
             <p class="subtitle">Roguelite Game</p>
             <button id="start-btn" class="btn-primary">GAME START</button>
+            <button id="continue-btn" class="btn-primary" style="margin-top: 16px; display: none;">CONTINUE</button>
         </div>
 
         <!-- パーティ編成画面 -->
         <div id="party-screen" class="screen">
             <h2>パーティ編成</h2>
+            <p class="description-text">長押し: 詳細ステータス / タップ: 編成・解除</p>
             <div id="party-tabs" class="tab-container"></div>
             <div id="character-list"></div>
+            <div class="party-divider">
+                <span>FORMATION</span>
+            </div>
             <div id="party-slots">
-                <div class="party-slot" data-position="left">
+                <div class="slot-column">
                     <span class="position-label">左（前衛）</span>
-                    <div class="slot-content"></div>
+                    <div class="party-slot" data-position="left">
+                        <div class="slot-content"></div>
+                    </div>
                 </div>
-                <div class="party-slot" data-position="center">
+                <div class="slot-column">
                     <span class="position-label">中央</span>
-                    <div class="slot-content"></div>
+                    <div class="party-slot" data-position="center">
+                        <div class="slot-content"></div>
+                    </div>
                 </div>
-                <div class="party-slot" data-position="right">
+                <div class="slot-column">
                     <span class="position-label">右（後衛）</span>
-                    <div class="slot-content"></div>
+                    <div class="party-slot" data-position="right">
+                        <div class="slot-content"></div>
+                    </div>
                 </div>
             </div>
             <button id="start-run-btn" class="btn-primary" disabled>冒険開始</button>
@@ -82,6 +104,7 @@
         <!-- 休憩画面 -->
         <div id="rest-screen" class="screen">
             <h2>🔥 休憩</h2>
+            <div id="rest-party-status"></div>
             <div id="rest-options">
                 <button class="rest-btn" data-type="hp">HP 40%回復</button>
                 <button class="rest-btn" data-type="mp">MP 40%回復</button>

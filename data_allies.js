@@ -35,7 +35,8 @@ const CHARACTERS = {
             full: 'img/keke_full.png',
             face: 'img/keke_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['taunt'] // 上位互換のため除外
     },
     sky: {
         id: 'sky',
@@ -66,7 +67,8 @@ const CHARACTERS = {
             full: 'img/sky_full.png',
             face: 'img/sky_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['strong_attack', 'ultra_attack'] // 上位互換のため除外
     },
     josuke: {
         id: 'josuke',
@@ -75,10 +77,10 @@ const CHARACTERS = {
         stats: {
             hp: 125,
             mp: 130,
-            physicalAttack: 50,
-            magicAttack: 100,
-            physicalDefense: 65,
-            magicDefense: 115,
+            physicalAttack: 110,
+            magicAttack: 50,
+            physicalDefense: 85,
+            magicDefense: 85,
             speed: 95,
             luck: 60
         },
@@ -94,7 +96,8 @@ const CHARACTERS = {
             full: 'img/josuke_full.png',
             face: 'img/josuke_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['heal'] // 上位互換のため除外
     },
     yoshiko: {
         id: 'yoshiko',
@@ -116,6 +119,8 @@ const CHARACTERS = {
             displayName: '堕天龍鳳凰縛',
             basePower: 0,
             mpCost: 20,
+            type: 'magic_attack',
+            target: 'all_enemies',
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
             ],
@@ -147,6 +152,8 @@ const CHARACTERS = {
             displayName: 'はどうだん',
             basePower: 180,
             mpCost: 35,
+            type: 'magic_attack',
+            target: 'single_enemy',
             effects: [],
             description: '単体に魔法攻撃（威力180%、必中）'
         },
@@ -154,7 +161,8 @@ const CHARACTERS = {
             full: 'img/Lucario_full.png',
             face: 'img/Lucario_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['magic_shot', 'strong_magic_shot'] // 上位互換のため除外
     },
     setsuna: {
         id: 'setsuna',
@@ -177,6 +185,8 @@ const CHARACTERS = {
             basePower: 150,
             mpCost: 50,
             target: 'all_enemies',
+            type: 'physical_attack',
+            target: 'all_enemies',
             effects: [],
             description: '全体に物理攻撃（威力150%）'
         },
@@ -184,7 +194,8 @@ const CHARACTERS = {
             full: 'img/setsuna_full.png',
             face: 'img/setsuna_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['wide_attack'] // 上位互換のため除外
     },
     ceras: {
         id: 'ceras',
@@ -206,17 +217,17 @@ const CHARACTERS = {
             displayName: 'フュージョンクラスト',
             healPercent: 40,
             mpCost: 70,
+            type: 'revive',
             target: 'single_ally_dead',
-            effects: [
-                { type: 'revive', percent: 40 }
-            ],
+            effects: [],
             description: '戦闘不能の味方をHP40%で蘇生'
         },
         image: {
             full: 'img/Ceras_full.png',
             face: 'img/Ceras_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['revive'] // 上位互換のため除外
     },
     kuroo: {
         id: 'kuroo',
@@ -237,6 +248,7 @@ const CHARACTERS = {
             id: 'doshatto',
             displayName: 'ドシャット',
             mpCost: 30,
+            type: 'buff',
             target: 'self',
             effects: [
                 { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 2 },
@@ -248,7 +260,8 @@ const CHARACTERS = {
             full: 'img/kuroo_full.png',
             face: 'img/kuroo_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['counter_stance'] // 上位互換のため除外
     },
     shiki: {
         id: 'shiki',
@@ -269,10 +282,10 @@ const CHARACTERS = {
             id: 'delorieran',
             displayName: 'デロリエラン',
             mpCost: 20,
+            type: 'mp_heal',
             target: 'all_allies',
-            effects: [
-                { type: 'mp_heal', percent: 20 }
-            ],
+            mpHealPercent: 20,
+            effects: [],
             description: '味方全員のMPを20%回復'
         },
         image: {
@@ -301,6 +314,7 @@ const CHARACTERS = {
             displayName: '穿天氷壁',
             basePower: 120,
             mpCost: 45,
+            type: 'magic_attack',
             target: 'all_enemies',
             effects: [],
             description: '全体に魔法攻撃（威力120%）'
@@ -309,7 +323,8 @@ const CHARACTERS = {
             full: 'img/shoto_full.png',
             face: 'img/shoto_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['magic_storm'] // 上位互換のため除外
     },
     kakasi: {
         id: 'kakasi',
@@ -331,16 +346,18 @@ const CHARACTERS = {
             displayName: '雷切',
             basePower: 200,
             mpCost: 40,
-            effects: [
-                { type: 'critBoost', value: 50, duration: 0 }
-            ],
+            type: 'physical_attack',
+            target: 'single_enemy',
+            critBonus: 50,
+            effects: [],
             description: '単体物理攻撃（威力200%、高クリティカル）'
         },
         image: {
             full: 'img/kakasi_full.png',
             face: 'img/kakasi_face.png'
         },
-        skills: []
+        skills: [],
+        excludeSkills: ['strong_attack'] // 上位互換のため除外
     },
     shota: {
         id: 'shota',
@@ -361,6 +378,7 @@ const CHARACTERS = {
             id: 'erasure',
             displayName: '抹消',
             mpCost: 25,
+            type: 'magic_attack',
             target: 'single_enemy',
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
@@ -372,5 +390,70 @@ const CHARACTERS = {
             face: 'img/shota_face.png'
         },
         skills: []
+    },
+    shizuku: {
+        id: 'shizuku',
+        name: '桜坂しずく',
+        displayName: '桜坂しずく',
+        stats: {
+            hp: 120,
+            mp: 110,
+            physicalAttack: 80,
+            magicAttack: 80,
+            physicalDefense: 90,
+            magicDefense: 90,
+            speed: 90,
+            luck: 70
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'solitude_rain',
+            displayName: 'Solitude Rain',
+            basePower: 0,
+            mpCost: 25,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'status', status: 'poison', chance: 100, duration: 3 }
+            ],
+            description: '敵単体を毒状態にする（3ターン継続ダメージ）'
+        },
+        image: {
+            full: 'img/shizuku_full.png',
+            face: 'img/shizuku_face.png'
+        },
+        skills: []
+    },
+    gojo: {
+        id: 'gojo',
+        name: '五条悟',
+        displayName: '五条悟',
+        stats: {
+            hp: 115,
+            mp: 120,
+            physicalAttack: 45,
+            magicAttack: 155,
+            physicalDefense: 65,
+            magicDefense: 95,
+            speed: 95,
+            luck: 55
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'muryokushou',
+            displayName: '無量空処',
+            basePower: 240,
+            mpCost: 55,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [],
+            description: '単体に強力な魔法攻撃（威力240%）'
+        },
+        image: {
+            full: 'img/satoru_full.png',
+            face: 'img/satoru_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_magic_shot'] // 上位互換のため除外
     }
 };
