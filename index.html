@@ -125,6 +125,26 @@
             </div>
         </div>
 
+        <!-- Character Detail Modal -->
+        <div id="character-detail-modal" class="modal-overlay hidden">
+            <div class="modal-content character-detail">
+                <div class="detail-header">
+                    <h3 id="detail-char-name"></h3>
+                    <button class="close-btn" onclick="game.closeCharacterDetail()">×</button>
+                </div>
+                <div id="detail-body"></div>
+            </div>
+        </div>
+
+        <!-- Item Modal -->
+        <div id="item-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3>所持アイテム</h3>
+                <div id="item-list"></div>
+                <button class="btn-primary" onclick="game.closeItemModal()">閉じる</button>
+            </div>
+        </div>
+
         <!-- Toast Container -->
         <div id="toast-container"></div>
     </div>

@@ -17,7 +17,8 @@ class Game {
                 stat_crystal: 0
             },
             battle: null,
-            currentTab: 'all' // Added for party screen filtering
+            currentTab: 'all',
+            selectedChar: null // For 2-step selection
         };
 
         this.init();
@@ -152,9 +153,10 @@ class Game {
     // パーティ編成画面表示
     showPartyScreen() {
         this.showScreen('party');
-        this.renderPartyFilter(); // Render dropdown filter
+        this.renderPartyFilter();
         this.renderCharacterList();
         this.state.party = [];
+        this.state.selectedChar = null;
         this.updatePartySlots();
     }
 
@@ -177,7 +179,7 @@ class Game {
             { id: 'physical_attacker', label: '物理アタッカー' },
             { id: 'magic_attacker', label: '魔法アタッカー' },
             { id: 'healer', label: 'ヒーラー' },
-            { id: 'buffer', label: 'サポート' },
+            { id: 'support', label: 'サポート' },
             { id: 'debuffer', label: '妨害' }
         ];
 
@@ -203,53 +205,63 @@ class Game {
     renderCharacterList() {
         const list = document.getElementById('character-list');
         list.innerHTML = '';
-        list.className = ''; // Reset class just in case
 
-        // Filter and Sort
         let chars = Object.values(CHARACTERS);
 
         if (this.state.currentTab !== 'all') {
             chars = chars.filter(c => c.type === this.state.currentTab);
         }
 
-        // Render Cards (Grid Layout handled by CSS)
         chars.forEach(char => {
             const card = document.createElement('div');
             card.className = 'character-card';
             card.dataset.charId = char.id;
 
-            // Design: Role + Face + Name
-            // Get role label (e.g. "タンク")
             const roleLabel = this.getTypeLabel(char.type);
+            const isLongName = char.displayName.length > 7;
+            const nameContent = isLongName
+                ? `<svg width="100%" height="100%" viewBox="0 0 100 14" preserveAspectRatio="none" style="overflow:visible; min-width: 100%;">
+                     <text x="50%" y="11" font-size="10" text-anchor="middle" fill="currentColor"
+                           textLength="100%" lengthAdjust="spacingAndGlyphs" font-family="inherit" font-weight="700">
+                       ${char.displayName}
+                     </text>
+                   </svg>`
+                : char.displayName;
 
             card.innerHTML = `
                 <div class="char-type-label">${roleLabel}</div>
                 <img src="${char.image.face}" alt="${char.displayName}" style="width: 50px; height: 50px; margin-bottom: 4px;">
-                <div class="char-name">${char.displayName}</div>
+                <div class="char-name">${nameContent}</div>
             `;
 
-            // Check if selected
-            if (this.state.party.some(p => p.id === char.id)) {
+            // Check if in party
+            const inParty = this.state.party.find(p => p.id === char.id);
+            if (inParty) {
                 card.classList.add('selected');
-
-                // Add position badge if selected
-                const partyMember = this.state.party.find(p => p.id === char.id);
-                if (partyMember) {
-                    const badge = document.createElement('div');
-                    badge.style.position = 'absolute';
-                    badge.style.top = '-5px';
-                    badge.style.right = '-5px';
-                    badge.style.background = 'var(--primary)';
-                    badge.style.color = '#fff';
-                    badge.style.fontSize = '10px';
-                    badge.style.padding = '2px 6px';
-                    badge.style.borderRadius = '10px';
-                    badge.innerText = partyMember.position === 'left' ? '前' : (partyMember.position === 'right' ? '後' : '中');
-                    card.appendChild(badge);
-                }
+                const badge = document.createElement('div');
+                badge.style.position = 'absolute';
+                badge.style.top = '-5px';
+                badge.style.right = '-5px';
+                badge.style.background = 'var(--primary)';
+                badge.style.color = '#fff';
+                badge.style.fontSize = '10px';
+                badge.style.padding = '2px 6px';
+                badge.style.borderRadius = '10px';
+                badge.innerText = inParty.position === 'left' ? '前' : (inParty.position === 'right' ? '後' : '中');
+                card.appendChild(badge);
             }
 
-            card.addEventListener('click', () => this.selectCharacter(char.id));
+            // Check if currently selecting
+            if (this.state.selectedChar === char.id) {
+                card.classList.add('selecting');
+            }
+
+            // Click event
+            card.addEventListener('click', () => this.handleCharacterClick(char.id));
+
+            // Long press for detail
+            this.addLongPressListener(card, () => this.showCharacterDetail(char.id, 'party'));
+
             list.appendChild(card);
         });
     }
@@ -274,43 +286,72 @@ class Game {
             tank: 'タンク',
             healer: 'ヒーラー',
             support: 'サポート',
+            debuffer: '妨害',
             balance: 'バランス'
         };
         return labels[type] || type;
     }
 
-    // キャラクター選択
-    selectCharacter(charId) {
-        const positions = ['left', 'center', 'right'];
+    // キャラクタークリック処理（2段階選択）
+    handleCharacterClick(charId) {
+        // Already in party? Remove from party
         const existingIndex = this.state.party.findIndex(p => p.id === charId);
-
         if (existingIndex >= 0) {
-            // 選択解除
             this.state.party.splice(existingIndex, 1);
-        } else if (this.state.party.length < 3) {
-            // 新規選択
-            const charData = JSON.parse(JSON.stringify(CHARACTERS[charId]));
-            charData.currentHp = charData.stats.hp;
-            charData.currentMp = charData.stats.mp;
-            charData.position = positions[this.state.party.length];
-            charData.buffs = [];
-            charData.debuffs = [];
-            charData.statusEffects = [];
-            charData.statBoosts = {};
-            charData.skills = [];
-            this.state.party.push(charData);
+            this.state.selectedChar = null;
+            this.updatePartySlots();
+            this.renderCharacterList();
+            return;
         }
 
+        // Toggle selection
+        if (this.state.selectedChar === charId) {
+            this.state.selectedChar = null;
+        } else {
+            this.state.selectedChar = charId;
+        }
+
+        this.renderCharacterList();
         this.updatePartySlots();
-        this.updateCharacterCards();
+    }
+
+    // スロットクリック処理
+    handleSlotClick(position) {
+        if (!this.state.selectedChar) return;
+        if (this.state.party.length >= 3) return;
+
+        // Check if position already filled
+        if (this.state.party.find(p => p.position === position)) return;
+
+        // Add to party
+        const charData = JSON.parse(JSON.stringify(CHARACTERS[this.state.selectedChar]));
+        charData.currentHp = charData.stats.hp;
+        charData.currentMp = charData.stats.mp;
+        charData.position = position;
+        charData.buffs = [];
+        charData.debuffs = [];
+        charData.statusEffects = [];
+        charData.statBoosts = {};
+        charData.skills = [];
+        this.state.party.push(charData);
+
+        this.state.selectedChar = null;
+        this.updatePartySlots();
+        this.renderCharacterList();
     }
 
     // パーティスロット更新
     updatePartySlots() {
         const positions = ['left', 'center', 'right'];
-        positions.forEach((pos, idx) => {
+        positions.forEach((pos) => {
             const slot = document.querySelector(`.party-slot[data-position="${pos}"]`);
-            const content = slot.querySelector('.slot-content');
+            if (!slot) return;
+
+            // Remove old click listener by replacing
+            const newSlot = slot.cloneNode(true);
+            slot.parentNode.replaceChild(newSlot, slot);
+
+            const content = newSlot.querySelector('.slot-content');
             const member = this.state.party.find(p => p.position === pos);
 
             if (member) {
@@ -320,22 +361,54 @@ class Game {
                          onerror="this.style.background='#555'">
                     <div>${member.displayName}</div>
                 `;
-                slot.classList.add('filled');
+                newSlot.classList.add('filled');
+                newSlot.classList.remove('available');
             } else {
                 content.innerHTML = '<div style="color:#666">空き</div>';
-                slot.classList.remove('filled');
+                newSlot.classList.remove('filled');
+                // Available if char selected
+                if (this.state.selectedChar) {
+                    newSlot.classList.add('available');
+                } else {
+                    newSlot.classList.remove('available');
+                }
             }
+
+            // Add click listener
+            newSlot.addEventListener('click', () => this.handleSlotClick(pos));
         });
 
-        // 開始ボタン有効化
         document.getElementById('start-run-btn').disabled = this.state.party.length !== 3;
     }
 
-    // キャラカード選択状態更新
-    updateCharacterCards() {
-        document.querySelectorAll('.character-card').forEach(card => {
-            const isSelected = this.state.party.some(p => p.id === card.dataset.charId);
-            card.classList.toggle('selected', isSelected);
+    // Long press listener helper
+    addLongPressListener(element, callback) {
+        let pressTimer;
+        let didLongPress = false;
+
+        const startPress = (e) => {
+            didLongPress = false;
+            pressTimer = setTimeout(() => {
+                didLongPress = true;
+                callback();
+            }, 500);
+        };
+
+        const endPress = () => {
+            clearTimeout(pressTimer);
+        };
+
+        element.addEventListener('mousedown', startPress);
+        element.addEventListener('mouseup', endPress);
+        element.addEventListener('mouseleave', endPress);
+        element.addEventListener('touchstart', startPress);
+        element.addEventListener('touchend', endPress);
+        element.addEventListener('touchcancel', endPress);
+
+        // Right click
+        element.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            callback();
         });
     }
 
@@ -474,14 +547,30 @@ class Game {
         if (!bar) return;
         bar.innerHTML = '';
 
+        // Add item button
+        const itemBtn = document.createElement('button');
+        itemBtn.id = 'item-btn';
+        itemBtn.textContent = 'アイテム';
+        itemBtn.onclick = () => this.showItemModal('map');
+        bar.appendChild(itemBtn);
+
         this.state.party.forEach(member => {
             const el = document.createElement('div');
             el.className = 'party-member-status';
+            const hpPercent = (member.currentHp / member.stats.hp) * 100;
+            const mpPercent = (member.currentMp / member.stats.mp) * 100;
+
             el.innerHTML = `
-                <div class="name">${member.displayName}</div>
-                <div class="hp-bar"><div class="fill" style="width: ${(member.currentHp / member.stats.hp) * 100}%"></div></div>
-                <div class="mp-bar"><div class="fill" style="width: ${(member.currentMp / member.stats.mp) * 100}%"></div></div>
+                <img src="${member.image.face}" alt="${member.displayName}" onerror="this.style.background='#555'">
+                <div class="hp-mp-text">HP: ${member.currentHp}/${member.stats.hp}</div>
+                <div class="hp-bar"><div class="fill" style="width: ${hpPercent}%"></div></div>
+                <div class="hp-mp-text">MP: ${member.currentMp}/${member.stats.mp}</div>
+                <div class="mp-bar"><div class="fill" style="width: ${mpPercent}%"></div></div>
             `;
+
+            // Long press for detail
+            this.addLongPressListener(el, () => this.showCharacterDetail(member.id, 'map'));
+
             bar.appendChild(el);
         });
     }
@@ -668,6 +757,10 @@ class Game {
                 break;
         }
     }
+}
+
+// ゲーム開始
+const game = new Game();
 
 
     // 戦闘開始
@@ -809,18 +902,35 @@ class Game {
                 <div class="unit-mp-bar"><div class="fill" style="width:${mpPercent}%"></div></div>
                 <div class="status-effects">${this.renderStatusEffects(ally)}</div>
             `;
+
+            // Long press for detail
+            this.addLongPressListener(unit, () => this.showCharacterDetail(ally.id, 'battle'));
+
             area.appendChild(unit);
         });
     }
 
     // ステータスエフェクト表示
     renderStatusEffects(unit) {
+        const statLabels = {
+            physicalAttack: '物攻', magicAttack: '魔攻',
+            physicalDefense: '物防', magicDefense: '魔防',
+            speed: '速', luck: '運', hp: 'HP', mp: 'MP'
+        };
+        const statusLabels = { poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス', taunt: '挑' };
+
         let effects = [];
-        unit.buffs.forEach(b => effects.push(`<span class="status-effect" style="color:#4ecdc4">↑${b.stat}</span>`));
-        unit.debuffs.forEach(d => effects.push(`<span class="status-effect" style="color:#ff6b6b">↓${d.stat}</span>`));
+        unit.buffs.forEach(b => {
+            const label = statLabels[b.stat] || b.stat;
+            effects.push(`<span class="status-effect buff">${label}↑</span>`);
+        });
+        unit.debuffs.forEach(d => {
+            const label = statLabels[d.stat] || d.stat;
+            effects.push(`<span class="status-effect debuff">${label}↓</span>`);
+        });
         unit.statusEffects.forEach(s => {
-            const labels = { poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス', taunt: '挑' };
-            effects.push(`<span class="status-effect">${labels[s.type] || s.type}</span>`);
+            const label = statusLabels[s.type] || s.type;
+            effects.push(`<span class="status-effect special">${label}</span>`);
         });
         return effects.join('');
     }
@@ -933,6 +1043,10 @@ class Game {
                 break;
         }
     }
+}
+
+// ゲーム開始
+const game = new Game();
 
     // ターゲット選択表示
     showTargetSelection(forAction, skillId = null) {
@@ -1038,9 +1152,13 @@ class Game {
             btn.className = 'skill-btn';
             btn.disabled = !canUse;
             btn.innerHTML = `
-                <span class="skill-name">${skill.displayName || skillData.name}</span>
-                <span class="skill-cost">MP: ${skillData.mpCost}</span>
-                <span class="skill-desc">${skill.description || skillData.description}</span>
+                <div class="skill-header">
+                    <span class="skill-name">${skill.displayName || skillData.name}</span>
+                    <span class="skill-cost">MP: ${skillData.mpCost}</span>
+                </div>
+                <div class="skill-body">
+                    <span class="skill-desc">${skill.description || skillData.description}</span>
+                </div>
             `;
             btn.addEventListener('click', () => {
                 if (canUse) {
@@ -1327,6 +1445,10 @@ class Game {
                 break;
         }
     }
+}
+
+// ゲーム開始
+const game = new Game();
 
     // 攻撃実行
     async executeAttack(actor, cmd, actorName) {
@@ -1516,6 +1638,10 @@ class Game {
                 break;
         }
     }
+}
+
+// ゲーム開始
+const game = new Game();
 
     // アイテム使用
     async executeItem(cmd, actorName) {
@@ -1541,6 +1667,10 @@ class Game {
                 break;
         }
     }
+}
+
+// ゲーム開始
+const game = new Game();
 
     // ダメージ計算
     calculateDamage(attacker, defender, type, power, critBonus = 0) {
@@ -2011,6 +2141,263 @@ class Game {
                 return;
             }
             prevIdx--;
+        }
+    }
+}
+
+    // キャラ詳細モーダル表示
+    showCharacterDetail(charId, context) {
+        const modal = document.getElementById('character-detail-modal');
+        const nameEl = document.getElementById('detail-char-name');
+        const bodyEl = document.getElementById('detail-body');
+
+        let char;
+        if (context === 'party') {
+            char = CHARACTERS[charId];
+        } else {
+            char = this.state.party.find(p => p.id === charId);
+            if (!char) return;
+        }
+
+        nameEl.textContent = char.name;
+        bodyEl.innerHTML = '';
+
+        // Content area
+        const content = document.createElement('div');
+        content.className = 'detail-content';
+
+        // Battle context: no image
+        if (context !== 'battle') {
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'detail-image';
+            imageDiv.innerHTML = `<img src="${char.image.full}" alt="${char.name}" onerror="this.style.background='#555'">`;
+            content.appendChild(imageDiv);
+        }
+
+        // Stats area
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'detail-stats';
+
+        const typeLabel = this.getTypeLabel(char.type);
+        statsDiv.innerHTML = `<div class="detail-type">タイプ：${typeLabel}</div>`;
+
+        // HP/MP
+        if (context === 'party') {
+            statsDiv.innerHTML += `
+                <div class="stat-row"><span class="stat-label">HP:</span> <span class="stat-value">${char.stats.hp}</span></div>
+                <div class="stat-row"><span class="stat-label">MP:</span> <span class="stat-value">${char.stats.mp}</span></div>
+            `;
+        } else {
+            statsDiv.innerHTML += `
+                <div class="stat-row"><span class="stat-label">HP:</span> <span class="stat-value">${char.currentHp}/${char.stats.hp}</span></div>
+                <div class="stat-row"><span class="stat-label">MP:</span> <span class="stat-value">${char.currentMp}/${char.stats.mp}</span></div>
+            `;
+        }
+
+        // Other stats
+        const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
+        const statLabels = {
+            physicalAttack: '物攻', magicAttack: '魔攻',
+            physicalDefense: '物防', magicDefense: '魔防',
+            speed: '速度', luck: '運'
+        };
+
+        stats.forEach(stat => {
+            const baseValue = char.stats[stat];
+            let displayText = `${baseValue}`;
+
+            // Battle context: show buffs/debuffs
+            if (context === 'battle') {
+                const effectiveValue = this.getEffectiveStat(char, stat);
+                if (effectiveValue !== baseValue) {
+                    const buff = char.buffs.find(b => b.stat === stat);
+                    const debuff = char.debuffs.find(d => d.stat === stat);
+                    const duration = buff ? buff.duration : (debuff ? debuff.duration : 0);
+                    const arrow = effectiveValue > baseValue ? '↑' : '↓';
+                    const changeClass = effectiveValue > baseValue ? 'stat-change' : 'stat-change down';
+                    displayText = `${baseValue} → ${effectiveValue} <span class="${changeClass}">${arrow}${duration}T</span>`;
+                }
+            }
+
+            statsDiv.innerHTML += `<div class="stat-row"><span class="stat-label">${statLabels[stat]}:</span> <span class="stat-value">${displayText}</span></div>`;
+        });
+
+        content.appendChild(statsDiv);
+        bodyEl.appendChild(content);
+
+        // Unique Skill
+        const uniqueSection = document.createElement('div');
+        uniqueSection.className = 'detail-section';
+        uniqueSection.innerHTML = '<h4>【固有スキル】</h4>';
+
+        const uniqueSkill = char.uniqueSkill;
+        if (uniqueSkill) {
+            const skillItem = document.createElement('div');
+            skillItem.className = 'skill-item';
+            skillItem.innerHTML = `
+                <div class="skill-item-header">
+                    <span class="skill-item-name">${uniqueSkill.displayName || uniqueSkill.id}</span>
+                    <span class="skill-item-cost">MP: ${uniqueSkill.mpCost || 0}</span>
+                </div>
+                <div class="skill-item-desc">${uniqueSkill.description || ''}</div>
+            `;
+            uniqueSection.appendChild(skillItem);
+        }
+        bodyEl.appendChild(uniqueSection);
+
+        // Acquired Skills (map/battle only)
+        if (context !== 'party' && char.skills && char.skills.length > 0) {
+            const skillsSection = document.createElement('div');
+            skillsSection.className = 'detail-section';
+            skillsSection.innerHTML = '<h4>【獲得スキル】</h4>';
+
+            char.skills.forEach(skill => {
+                const skillData = SKILLS[skill.id] || {};
+                const skillItem = document.createElement('div');
+                skillItem.className = 'skill-item';
+                skillItem.innerHTML = `
+                    <div class="skill-item-header">
+                        <span class="skill-item-name">${skill.displayName || skillData.name || skill.id}</span>
+                        <span class="skill-item-cost">MP: ${skillData.mpCost || 0}</span>
+                    </div>
+                    <div class="skill-item-desc">${skillData.description || ''}</div>
+                `;
+                skillsSection.appendChild(skillItem);
+            });
+            bodyEl.appendChild(skillsSection);
+        }
+
+        // Status ailments (battle only)
+        if (context === 'battle' && char.statusEffects && char.statusEffects.length > 0) {
+            const statusSection = document.createElement('div');
+            statusSection.className = 'detail-section';
+            statusSection.innerHTML = '<h4>【状態異常】</h4><div class="status-list"></div>';
+
+            const statusList = statusSection.querySelector('.status-list');
+            char.statusEffects.forEach(effect => {
+                const tag = document.createElement('span');
+                tag.className = 'status-tag ailment';
+                const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御' };
+                tag.textContent = `${labels[effect.type] || effect.type}(残${effect.duration}T)`;
+                statusList.appendChild(tag);
+            });
+            bodyEl.appendChild(statusSection);
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    closeCharacterDetail() {
+        document.getElementById('character-detail-modal').classList.add('hidden');
+    }
+
+    // アイテムモーダル表示
+    showItemModal(context) {
+        const modal = document.getElementById('item-modal');
+        const listEl = document.getElementById('item-list');
+        listEl.innerHTML = '';
+
+        const hasItems = Object.values(this.state.items).some(count => count > 0);
+
+        if (!hasItems) {
+            listEl.innerHTML = '<p style="text-align:center;color:var(--text-sub);padding:20px;">アイテムがありません</p>';
+            modal.classList.remove('hidden');
+            return;
+        }
+
+        Object.entries(this.state.items).forEach(([itemId, count]) => {
+            if (count === 0) return;
+
+            const item = ITEMS[itemId];
+            if (!item) return;
+
+            // Stat crystal can't be used in battle
+            const canUse = !(context === 'battle' && itemId === 'stat_crystal');
+
+            const entry = document.createElement('div');
+            entry.className = 'item-entry';
+            if (!canUse) entry.classList.add('disabled');
+
+            entry.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-desc">${item.description}</div>
+                </div>
+                <div class="item-count">×${count}</div>
+            `;
+
+            if (canUse) {
+                entry.onclick = () => this.useItemFromModal(itemId, context);
+            }
+
+            listEl.appendChild(entry);
+        });
+
+        modal.classList.remove('hidden');
+    }
+
+    closeItemModal() {
+        document.getElementById('item-modal').classList.add('hidden');
+    }
+
+    // アイテム使用
+    useItemFromModal(itemId, context) {
+        const item = ITEMS[itemId];
+        if (!item) return;
+
+        // Close item modal
+        this.closeItemModal();
+
+        // Show target selection
+        this.showModal('対象を選択', '', this.state.party.map(member => {
+            const isValidTarget = item.effect.type === 'revive'
+                ? member.currentHp <= 0
+                : member.currentHp > 0;
+
+            if (!isValidTarget) return null;
+
+            return {
+                text: member.displayName,
+                className: 'btn-primary',
+                onClick: () => {
+                    this.applyItemEffect(itemId, member);
+                    this.closeModal();
+                    if (context === 'map') {
+                        this.renderPartyStatusBar();
+                    }
+                }
+            };
+        }).filter(Boolean));
+    }
+
+    // アイテム効果適用
+    applyItemEffect(itemId, target) {
+        const item = ITEMS[itemId];
+        if (!item) return;
+
+        this.state.items[itemId]--;
+
+        switch (item.effect.type) {
+            case 'heal':
+                const healAmount = Math.floor(target.stats.hp * (item.effect.percent / 100));
+                target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
+                this.showToast(`${target.displayName}のHPが${healAmount}回復！`, 'success');
+                break;
+            case 'mp_heal':
+                const mpAmount = Math.floor(target.stats.mp * (item.effect.percent / 100));
+                target.currentMp = Math.min(target.stats.mp, target.currentMp + mpAmount);
+                this.showToast(`${target.displayName}のMPが${mpAmount}回復！`, 'success');
+                break;
+            case 'revive':
+                target.currentHp = Math.floor(target.stats.hp * (item.effect.percent / 100));
+                this.showToast(`${target.displayName}が復活した！`, 'success');
+                break;
+            case 'stat_boost':
+                Object.keys(target.stats).forEach(stat => {
+                    target.stats[stat] = Math.floor(target.stats[stat] * item.effect.multiplier);
+                });
+                this.showToast(`${target.displayName}の全ステータスが上昇！`, 'success');
+                break;
         }
     }
 }
