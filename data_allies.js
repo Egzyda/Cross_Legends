@@ -29,7 +29,7 @@ const CHARACTERS = {
                 { type: 'taunt', duration: 3 },
                 { type: 'buff', stat: 'physicalDefense', value: 0.3, duration: 3 }
             ],
-            description: '3ターン挑発+自分の防御+30%（先制）'
+            description: '3ターン挑発+自分の防御+30%（先制）',
         },
         image: {
             full: 'img/keke_full.png',
@@ -61,7 +61,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'self_debuff', stat: 'physicalDefense', value: -0.3, duration: 1 }
             ],
-            description: '単体に強力な物理攻撃（威力270%）'
+            description: '単体に強力な物理攻撃（威力270%）',
         },
         image: {
             full: 'img/sky_full.png',
@@ -90,7 +90,7 @@ const CHARACTERS = {
             displayName: 'クレイジー・D',
             healPercent: 45,
             mpCost: 35,
-            description: '単体HP 45%回復'
+            description: '単体HP 45%回復',
         },
         image: {
             full: 'img/josuke_full.png',
@@ -124,7 +124,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
             ],
-            description: '敵全体をスタン状態にする（1ターン行動不能）'
+            description: '敵全体をスタン状態にする（1ターン行動不能）',
         },
         image: {
             full: 'img/yoshiko_full.png',
@@ -155,7 +155,7 @@ const CHARACTERS = {
             type: 'magic_attack',
             target: 'single_enemy',
             effects: [],
-            description: '単体に魔法攻撃（威力180%、必中）'
+            description: '単体に魔法攻撃（威力180%、必中）',
         },
         image: {
             full: 'img/Lucario_full.png',
@@ -186,9 +186,8 @@ const CHARACTERS = {
             mpCost: 50,
             target: 'all_enemies',
             type: 'physical_attack',
-            target: 'all_enemies',
             effects: [],
-            description: '全体に物理攻撃（威力150%）'
+            description: '全体に物理攻撃（威力150%）',
         },
         image: {
             full: 'img/setsuna_full.png',
@@ -220,7 +219,7 @@ const CHARACTERS = {
             type: 'revive',
             target: 'single_ally_dead',
             effects: [],
-            description: '戦闘不能の味方をHP40%で蘇生'
+            description: '戦闘不能の味方をHP40%で蘇生',
         },
         image: {
             full: 'img/Ceras_full.png',
@@ -254,7 +253,7 @@ const CHARACTERS = {
                 { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 2 },
                 { type: 'counter', power: 90, duration: 2 }
             ],
-            description: '防御+40%、攻撃受けた時に反撃（威力90%）2ターン'
+            description: '防御+40%、攻撃受けた時に反撃（威力90%）2ターン',
         },
         image: {
             full: 'img/kuroo_full.png',
@@ -286,7 +285,7 @@ const CHARACTERS = {
             target: 'all_allies',
             mpHealPercent: 20,
             effects: [],
-            description: '味方全員のMPを20%回復'
+            description: '味方全員のMPを20%回復',
         },
         image: {
             full: 'img/shiki_full.png',
@@ -317,7 +316,7 @@ const CHARACTERS = {
             type: 'magic_attack',
             target: 'all_enemies',
             effects: [],
-            description: '全体に魔法攻撃（威力120%）'
+            description: '全体に魔法攻撃（威力120%）',
         },
         image: {
             full: 'img/shoto_full.png',
@@ -350,7 +349,7 @@ const CHARACTERS = {
             target: 'single_enemy',
             critBonus: 50,
             effects: [],
-            description: '単体物理攻撃（威力200%、高クリティカル）'
+            description: '単体物理攻撃（威力200%、高クリティカル）',
         },
         image: {
             full: 'img/kakasi_full.png',
@@ -383,7 +382,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
             ],
-            description: '敵単体をスタンにする（1ターン行動不能）'
+            description: '敵単体をスタンにする（1ターン行動不能）',
         },
         image: {
             full: 'img/shota_full.png',
@@ -416,7 +415,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }
             ],
-            description: '敵単体を毒状態にする（3ターン継続ダメージ）'
+            description: '敵単体を毒状態にする（3ターン継続ダメージ）',
         },
         image: {
             full: 'img/shizuku_full.png',
@@ -447,7 +446,7 @@ const CHARACTERS = {
             type: 'magic_attack',
             target: 'single_enemy',
             effects: [],
-            description: '単体に強力な魔法攻撃（威力240%）'
+            description: '単体に強力な魔法攻撃（威力240%）',
         },
         image: {
             full: 'img/satoru_full.png',

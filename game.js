@@ -1057,8 +1057,21 @@ class Game {
     // 戦闘描画
     renderBattle() {
         this.renderEnemies();
+        this.renderVSDivider();
         this.renderAllies();
         this.renderBattleLog();
+    }
+
+    renderVSDivider() {
+        const battleScreen = document.getElementById('battle-screen');
+        let divider = battleScreen.querySelector('.vs-divider');
+        if (!divider) {
+            divider = document.createElement('div');
+            divider.className = 'vs-divider';
+            divider.innerHTML = '<span>VS</span>';
+            const allyArea = document.getElementById('ally-area');
+            battleScreen.insertBefore(divider, allyArea);
+        }
     }
 
     // 敵描画
@@ -1153,12 +1166,13 @@ class Game {
     renderStatusAilments(unit) {
         const statusLabels = {
             poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス',
-            taunt: '挑', burn: '焼', regen: '再', defending: '防', damageReduction: '軽'
+            taunt: '挑', burn: '火', regen: '再', defending: '防', damageReduction: '軽'
         };
 
         return unit.statusEffects.map(s => {
             const label = statusLabels[s.type] || s.type.charAt(0);
-            return `<span class="status-ailment">${label}</span>`;
+            // 配色用のクラスを追加
+            return `<span class="status-ailment ${s.type}">${label}</span>`;
         }).join('');
     }
 
@@ -1207,9 +1221,24 @@ class Game {
             }
 
             const cmd = this.state.battle.commands[idx];
+            const actionText = cmd ? (cmd.actionName.includes('→') ? cmd.actionName.split('→')[0] : cmd.actionName) : (char.currentHp <= 0 ? '戦闘不能' : '');
+            const targetText = (cmd && cmd.actionName.includes('→')) ? '→' + cmd.actionName.split('→')[1] : '';
+
+            const actionAttr = actionText.length > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
+            const targetAttr = targetText.length > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
+
             slot.innerHTML = `
                 <div class="cmd-name">${char.displayName}</div>
-                <div class="cmd-action">${cmd ? cmd.actionName : (char.currentHp <= 0 ? '戦闘不能' : '待機中...')}</div>
+                <div class="cmd-action">
+                    <svg width="100%" height="14" viewBox="0 0 100 14" preserveAspectRatio="xMidYMid meet">
+                        <text x="50%" y="11" font-size="10" text-anchor="middle" fill="currentColor" ${actionAttr}>${actionText}</text>
+                    </svg>
+                </div>
+                <div class="cmd-target">
+                    <svg width="100%" height="14" viewBox="0 0 100 14" preserveAspectRatio="xMidYMid meet">
+                        <text x="50%" y="11" font-size="10" text-anchor="middle" fill="#a0a0b0" ${targetAttr}>${targetText}</text>
+                    </svg>
+                </div>
             `;
             charCmds.appendChild(slot);
         });
@@ -1227,10 +1256,21 @@ class Game {
         const firstAliveIdx = this.state.party.findIndex(p => p.currentHp > 0);
         backBtn.disabled = (this.state.battle.currentCharIndex === firstAliveIdx);
 
-        // 実行ボタンの制御 / Turn Execution Control
+        // 入力中キャラの点滅枠制御
+        document.querySelectorAll('.battle-unit').forEach(el => el.classList.remove('active-unit'));
         const allSelected = commandsCount === aliveAllies.length;
+        const currentUnitEl = document.querySelector(`.battle-unit[data-ally-index="${this.state.battle.currentCharIndex}"]`);
+        if (currentUnitEl && !allSelected) currentUnitEl.classList.add('active-unit');
+
+        // 実行ボタンの制御
         const execBtn = document.getElementById('execute-turn-btn');
-        execBtn.classList.toggle('hidden', !allSelected);
+        if (allSelected) {
+            execBtn.classList.add('visible');
+            execBtn.classList.remove('hidden');
+        } else {
+            execBtn.classList.remove('visible');
+            execBtn.classList.add('hidden');
+        }
 
         // Disable controls if all selected (User Request)
         const actionButtons = document.querySelectorAll('#action-buttons .action-btn');
@@ -1322,7 +1362,7 @@ class Game {
                             this.setCommand({
                                 type: 'skill',
                                 skillId: skillId,
-                                actionName: skill.displayName || skill.name,
+                                actionName: (skill.displayName || skill.name) + (targetType === 'all_enemies' ? '' : '→' + enemy.displayName),
                                 target: targetType === 'all_enemies' ? 'all' : idx,
                                 targetType: 'enemy',
                                 priority: skill.priority === 'first' ? 999 : 0
@@ -1348,7 +1388,7 @@ class Game {
                         this.setCommand({
                             type: 'skill',
                             skillId: skillId,
-                            actionName: skill.displayName || skill.name + '→' + ally.displayName,
+                            actionName: (skill.displayName || skill.name) + (targetType === 'all_allies' ? '' : '→' + ally.displayName),
                             target: targetType === 'all_allies' ? 'all' : idx,
                             targetType: 'ally',
                             priority: skill.priority === 'first' ? 999 : 0
@@ -1376,6 +1416,31 @@ class Game {
                 targetType: 'ally',
                 priority: skill.priority === 'first' ? 999 : 0
             });
+            return;
+        }
+
+        if (targetType === 'all_enemies') {
+            this.setCommand({
+                type: 'skill',
+                skillId: skillId,
+                actionName: skill.displayName || skill.name,
+                target: 'all',
+                targetType: 'enemy',
+                priority: skill.priority === 'first' ? 999 : 0
+            });
+            return;
+        }
+
+        if (targetType === 'all_allies') {
+            this.setCommand({
+                type: 'skill',
+                skillId: skillId,
+                actionName: skill.displayName || skill.name,
+                target: 'all',
+                targetType: 'ally',
+                priority: skill.priority === 'first' ? 999 : 0
+            });
+            return;
         }
     }
 
@@ -1554,13 +1619,11 @@ class Game {
         // 行動実行
         for (const cmd of allCommands) {
             await this.executeCommand(cmd);
-            this.renderBattle();
-            await this.delay(500);
+            // キャラが完全に動作を終えて、HPバーが減るのを待つ余韻
+            await this.delay(1200);
+            this.renderBattle(); // 状態異常バッジ等の最終同期
 
-            // 勝敗判定
-            if (this.checkBattleEnd()) {
-                return;
-            }
+            if (this.checkBattleEnd()) return;
         }
 
         // ターン終了処理
@@ -1653,17 +1716,24 @@ class Game {
 
     // コマンド実行
     async executeCommand(cmd) {
-        let actor, actorName;
+        let actor, actorName, actorEl;
 
         if (cmd.isEnemy) {
             actor = this.state.battle.enemies[cmd.enemyIndex];
             actorName = actor.displayName;
+            actorEl = document.querySelector(`.battle-unit[data-enemy-index="${cmd.enemyIndex}"]`);
         } else {
             actor = this.state.party[cmd.charIndex];
             actorName = actor.displayName;
+            actorEl = document.querySelector(`.battle-unit[data-ally-index="${cmd.charIndex}"]`);
         }
 
         if (actor.currentHp <= 0) return;
+
+        // 行動開始：黄色枠点灯
+        if (actorEl) actorEl.classList.add('acting');
+
+        try {
 
         // スタン/麻痺チェック
         const stunned = actor.statusEffects.find(e => e.type === 'stun');
@@ -1706,52 +1776,37 @@ class Game {
                 await this.executeItem(cmd, actorName);
                 break;
         }
+        } finally {
+            // 行動終了：黄色枠消灯
+            if (actorEl) actorEl.classList.remove('acting');
+        }
     }
 
 
     // 攻撃実行
     async executeAttack(actor, cmd, actorName) {
         let targets = [];
-        let group = [];
-
         if (cmd.isEnemy) {
             targets = [this.state.party[cmd.target]];
         } else {
-            // プレイヤー側の攻撃：対象が死亡していたらターゲット変更
-            group = this.state.battle.enemies;
-            let target = group[cmd.target];
-
-            if (target && target.currentHp <= 0) {
-                target = this.getAliveTarget(group, 'left');
-                if (target) {
-                    // this.addLog(`${actorName}は攻撃対象を変更した！`);
-                }
-            }
-
+            let target = this.state.battle.enemies[cmd.target];
+            if (target && target.currentHp <= 0) target = this.getAliveTarget(this.state.battle.enemies, 'left');
             targets = target ? [target] : [];
         }
 
-        for (const target of targets) {
-            if (target.currentHp <= 0) continue;
+        this.addLog(`${actorName}の攻撃！`);
+        await this.delay(800);
 
-            // 通常攻撃のダメージタイプを素のステータスで判定
-            const damageType = this.getPrimaryAttackType(actor);
+        const damageType = this.getPrimaryAttackType(actor);
+
+        // エフェクトとダメージを並列実行
+        await Promise.all(targets.map(async (target) => {
+            if (target.currentHp <= 0) return;
+            await this.showAttackEffect(actor, target, null, damageType);
             const damage = this.calculateDamage(actor, target, damageType, 100);
-            const typeLabel = damageType === 'magic' ? '魔法' : '物理';
             this.applyDamage(target, damage);
-            this.addLog(`${actorName}の${typeLabel}攻撃！${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
-
-            // カウンター判定
-            if (target.currentHp > 0) {
-                const counter = target.statusEffects.find(e => e.type === 'counter');
-                if (counter && typeLabel === '物理') {
-                    // 反撃（物理扱い）
-                    const counterDamage = this.calculateDamage(target, actor, 'physical', counter.power || 100);
-                    this.applyDamage(actor, counterDamage);
-                    this.addLog(`${target.displayName}の反撃！${actorName}に${counterDamage.value}ダメージ`);
-                }
-            }
-        }
+            this.addLog(`${target.displayName}に${damage.value}ダメージ！${damage.critical ? '（クリ！）' : ''}`);
+        }));
     }
 
     // 生存ターゲットを取得
@@ -1770,7 +1825,7 @@ class Game {
 
     // スキル実行
     async executeSkill(actor, cmd, actorName) {
-        const skill = SKILLS[cmd.skillId] || actor.uniqueSkill;
+        const skill = this.getSkillData(cmd.skillId, actor);
         if (!skill) return;
 
         const mpCost = skill.mpCost || 0;
@@ -1782,6 +1837,7 @@ class Game {
 
         const skillName = skill.displayName || skill.name;
         this.addLog(`${actorName}の${skillName}！`);
+        await this.delay(1000); // プレイヤーが技名を認識する「タメ」
 
         // ターゲット決定
         let targets = [];
@@ -1812,35 +1868,25 @@ class Game {
             const targetGroup = cmd.isEnemy ? this.state.party : this.state.battle.enemies;
 
             for (let i = 0; i < hits; i++) {
-                for (let tIdx = 0; tIdx < targets.length; tIdx++) {
-                    let target = targets[tIdx];
-
-                    // 単体攻撃かつターゲット死亡時に再ターゲット
+                // ターゲット全員に対して同時にエフェクトとダメージを発生させる
+                await Promise.all(targets.map(async (target, tIdx) => {
                     if (isSingleTarget && target.currentHp <= 0) {
-                        const newTarget = this.getAliveTarget(targetGroup, i === 0 ? 'left' : nextRetargetStrategy); // 初回ヒット前なら左優先、途中なら戦略切り替え
-                        if (newTarget) {
-                            target = newTarget;
-                            targets[tIdx] = newTarget; // 以降のヒットのために更新
-                            // 戦略反転（右→左→右...）
-                            nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
-                        }
+                        const newTarget = this.getAliveTarget(targetGroup, i === 0 ? 'left' : nextRetargetStrategy);
+                        if (newTarget) { target = newTarget; targets[tIdx] = newTarget; }
                     }
+                    if (target.currentHp <= 0) return;
 
-                    if (target.currentHp <= 0) continue;
-
+                    await this.showAttackEffect(actor, target, skill, damageType);
                     const damage = this.calculateDamage(actor, target, damageType, skill.power || skill.basePower || 100, skill.critBonus);
                     this.applyDamage(target, damage);
-                    this.addLog(`${target.displayName}に${damage.value}ダメージ${damage.critical ? '（クリティカル！）' : ''}`);
-
-                    if (target.currentHp <= 0) {
-                        this.addLog(`${target.displayName}を倒した！`);
-                    }
-                }
-
-                await this.delay(200); // ヒット間ウェイト
+                    this.addLog(`${target.displayName}に${damage.value}ダメージ！`);
+                }));
+                nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
+                await this.delay(200);
             }
         } else if (skill.type === 'heal') {
             for (const target of targets) {
+                await this.showEffectIcon(target, skill, 'heal');
                 const healAmount = Math.floor(target.stats.hp * (skill.healPercent / 100));
                 target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
                 this.showDamagePopup(target, healAmount, 'heal');
@@ -1849,15 +1895,17 @@ class Game {
         } else if (skill.type === 'revive') {
             for (const target of targets) {
                 if (target.currentHp <= 0) {
+                    await this.showEffectIcon(target, skill, 'revive');
                     target.currentHp = Math.floor(target.stats.hp * (skill.healPercent / 100));
                     this.addLog(`${target.displayName}が復活した！`);
                 }
             }
         } else if (skill.type === 'mp_heal') {
             for (const target of targets) {
+                await this.showEffectIcon(target, skill, 'heal');
                 const healAmount = Math.floor(target.stats.mp * (skill.mpHealPercent / 100));
                 target.currentMp = Math.min(target.stats.mp, target.currentMp + healAmount);
-                this.showDamagePopup(target, healAmount, 'heal'); // MP heal visualization
+                this.showDamagePopup(target, healAmount, 'heal');
                 this.addLog(`${target.displayName}のMPが${healAmount}回復！`);
             }
         }
@@ -1865,19 +1913,19 @@ class Game {
         // 追加効果
         if (skill.effects) {
             for (const effect of skill.effects) {
-                this.applyEffect(actor, targets, effect);
+                await this.applyEffect(actor, targets, effect, skill);
             }
         }
     }
 
     // エフェクト適用（重複時はターン延長）
-    applyEffect(actor, targets, effect) {
+    async applyEffect(actor, targets, effect, skill = null) {
         switch (effect.type) {
             case 'buff':
             case 'self_buff':
                 const buffTargets = effect.type === 'self_buff' ? [actor] : targets;
-                buffTargets.forEach(t => {
-                    // 同じstatの既存バフを探す
+                for (const t of buffTargets) {
+                    await this.showEffectIcon(t, skill, 'buff');
                     const existing = t.buffs.find(b => b.stat === effect.stat);
                     if (existing) {
                         existing.duration = Math.max(existing.duration, effect.duration);
@@ -1885,13 +1933,13 @@ class Game {
                     } else {
                         t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
-                });
+                }
                 break;
             case 'debuff':
             case 'self_debuff':
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
-                debuffTargets.forEach(t => {
-                    // 同じstatの既存デバフを探す
+                for (const t of debuffTargets) {
+                    await this.showEffectIcon(t, skill, 'debuff');
                     const existing = t.debuffs.find(d => d.stat === effect.stat);
                     if (existing) {
                         existing.duration = Math.max(existing.duration, effect.duration);
@@ -1899,10 +1947,10 @@ class Game {
                     } else {
                         t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
-                });
+                }
                 break;
             case 'taunt':
-                // 既存の挑発があればターン延長
+                await this.showEffectIcon(actor, skill, 'shield');
                 const existingTaunt = actor.statusEffects.find(e => e.type === 'taunt');
                 if (existingTaunt) {
                     existingTaunt.duration = Math.max(existingTaunt.duration, effect.duration);
@@ -1911,9 +1959,9 @@ class Game {
                 }
                 break;
             case 'status':
-                targets.forEach(t => {
+                for (const t of targets) {
                     if (!effect.chance || Math.random() * 100 < effect.chance) {
-                        // 既存の同じ状態異常があればターン延長
+                        await this.showEffectIcon(t, skill, 'status', effect.status);
                         const existingStatus = t.statusEffects.find(e => e.type === effect.status);
                         if (existingStatus) {
                             existingStatus.duration = Math.max(existingStatus.duration, effect.duration || 3);
@@ -1923,7 +1971,7 @@ class Game {
                             this.addLog(`${t.displayName}は${statusLabels[effect.status] || effect.status}状態になった！`);
                         }
                     }
-                });
+                }
                 break;
             case 'regen':
                 targets.forEach(t => {
@@ -1943,9 +1991,10 @@ class Game {
                 break;
             case 'counter':
                 const counterTargets = effect.target === 'self' || effect.type === 'self_buff' ? [actor] : targets;
-                counterTargets.forEach(t => {
+                for (const t of counterTargets) {
+                    await this.showEffectIcon(t, skill, 'shield');
                     t.statusEffects.push({ type: 'counter', power: effect.power, duration: effect.duration });
-                });
+                }
                 break;
         }
     }
@@ -2056,6 +2105,24 @@ class Game {
     applyDamage(target, damage) {
         target.currentHp = Math.max(0, target.currentHp - damage.value);
         this.showDamagePopup(target, damage.value, damage.critical ? 'critical' : 'damage');
+        // 全体描画ではなくバーの幅だけを更新してアニメーションを維持
+        this.updateBarsUI();
+    }
+
+    updateBarsUI() {
+        // 味方と敵、すべてのバーの幅を最新状態に同期（ transition: 1s が効く）
+        const allUnits = [...this.state.party, ...this.state.battle.enemies];
+        allUnits.forEach((unit, idx) => {
+            const isEnemy = this.state.battle.enemies.includes(unit);
+            const selector = isEnemy ? `[data-enemy-index="${this.state.battle.enemies.indexOf(unit)}"]` : `[data-ally-index="${this.state.party.indexOf(unit)}"]`;
+            const unitEl = document.querySelector(selector);
+            if (unitEl) {
+                const hpFill = unitEl.querySelector('.unit-hp-bar .fill');
+                if (hpFill) hpFill.style.width = `${(unit.currentHp / unit.stats.hp) * 100}%`;
+                const hpText = unitEl.querySelector('.unit-hp-bar .bar-text');
+                if (hpText) hpText.innerText = `${Math.floor(unit.currentHp)}/${unit.stats.hp}`;
+            }
+        });
     }
 
     // ログ追加
@@ -2926,6 +2993,96 @@ class Game {
                 this.showToast(`${target.displayName}の全ステータスが上昇！`, 'success');
                 break;
         }
+    }
+
+    async showAttackEffect(actor, target, skill, damageType) {
+        const skillId = skill ? skill.id : 'normal_attack';
+        const isPhysical = (damageType === 'physical');
+        const unitEl = document.querySelector(this.getUnitSelector(target));
+        if (!unitEl) return;
+
+        const vfx = document.createElement('div');
+        vfx.className = 'vfx-container';
+        unitEl.appendChild(vfx);
+
+        // --- プロレベル演出ロジック ---
+        if (skillId === 'muryokushou') {
+            document.getElementById('battle-screen').classList.add('void-invert');
+            setTimeout(() => document.getElementById('battle-screen').classList.remove('void-invert'), 800);
+        }
+
+        if (skillId === 'stone_edge') {
+            // バンギラス：岩を複数突き上げ
+            [...Array(4)].forEach((_, i) => {
+                const rock = document.createElement('div');
+                rock.className = 'vfx-rock-pro';
+                rock.setAttribute('style', `--x:${(i-1.5)*30}px; --d:${i*0.1}s; --b:${1-i*0.1};`);
+                vfx.appendChild(rock);
+            });
+        } else if (skillId === 'taunt') {
+            // 唐可可：星屑の螺旋
+            const star = document.createElement('div');
+            star.className = 'vfx-star'; star.textContent = '⭐';
+            vfx.appendChild(star);
+        } else if (!isPhysical) {
+            // 汎用・固有魔法：SVG魔方陣
+            const circle = document.createElement('div');
+            circle.className = 'vfx-magic-circle-pro';
+            vfx.appendChild(circle);
+        } else {
+            // 汎用・固有物理：ダブルプロ斬撃
+            const s1 = document.createElement('div'); s1.className = 'vfx-slash-pro'; s1.style.setProperty('--r', '-30deg');
+            const s2 = document.createElement('div'); s2.className = 'vfx-slash-pro'; s2.style.setProperty('--r', '60deg');
+            vfx.appendChild(s1); vfx.appendChild(s2);
+        }
+
+        this.showFlashEffect(target, isPhysical ? 'white' : 'blue');
+        await this.delay(600);
+        vfx.remove();
+    }
+
+    getUnitSelector(unit) {
+        const isEnemy = this.state.battle.enemies.includes(unit);
+        const idx = isEnemy ? this.state.battle.enemies.indexOf(unit) : this.state.party.indexOf(unit);
+        return isEnemy ? `[data-enemy-index="${idx}"]` : `[data-ally-index="${idx}"]`;
+    }
+
+    // 古い画像エフェクト関数（getDefaultVisualEffect, showImpactEffect）は廃止
+
+    showFlashEffect(target, color) {
+        const isEnemy = this.state.battle.enemies.includes(target);
+        const index = isEnemy ? this.state.battle.enemies.indexOf(target) : this.state.party.indexOf(target);
+        const selector = isEnemy ? `[data-enemy-index="${index}"]` : `[data-ally-index="${index}"]`;
+        const unitEl = document.querySelector(selector);
+        if (!unitEl) return;
+        unitEl.classList.add(`flash-${color}`);
+        setTimeout(() => unitEl.classList.remove(`flash-${color}`), 300);
+    }
+
+    async showEffectIcon(target, skill, effectType, statusType = null) {
+        const unitSelector = this.getUnitSelector(target);
+        const unitEl = document.querySelector(unitSelector);
+        if (!unitEl) return;
+
+        // 防御・軽減・挑発：洗練されたシールドオーラ演出
+        if (effectType === 'shield' || statusType === 'defending' || effectType === 'taunt' || effectType === 'damageReduction') {
+            const shield = document.createElement('div');
+            shield.className = 'shield-aura';
+            unitEl.appendChild(shield);
+            setTimeout(() => shield.remove(), 800);
+            await this.delay(400);
+            return;
+        }
+
+        // バフ・回復は「金」、デバフ・異常は「紫」の光のみ（絵文字は一切出さない）
+        const flashColor = (effectType === 'buff' || effectType === 'heal' || effectType === 'revive') ? 'gold' : 'purple';
+        this.showFlashEffect(target, flashColor);
+        await this.delay(300);
+    }
+
+    async showCriticalEffect() {
+        // 中央の演出は廃止（applyDamage時のポップアップに統合）
+        return Promise.resolve();
     }
 }
 
