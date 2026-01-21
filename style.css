@@ -748,22 +748,27 @@ h3 {
 
 /* Battle Screen */
 #battle-screen {
-    padding: 12px 16px 0 16px; /* 上の余白を少し詰め、下はコマンドエリアに任せる */
-    gap: 8px; /* 要素間の隙間を少し詰める */
+    padding: 12px 16px 0 16px;
+    /* 上の余白を少し詰め、下はコマンドエリアに任せる */
+    gap: 8px;
+    /* 要素間の隙間を少し詰める */
     background-image: url('img/bg/bg_battle.png');
 }
 
 #battle-log {
-    height: 56px; /* 約3行分に固定 */
+    height: 56px;
+    /* 約3行分に固定 */
     background: rgba(0, 0, 0, 0.7);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: 4px 8px;
     overflow-y: auto;
-    font-size: 11px; /* 文字を少し小さくして3行入りやすくする */
+    font-size: 11px;
+    /* 文字を少し小さくして3行入りやすくする */
     margin-bottom: 4px;
     scrollbar-width: thin;
-    flex-shrink: 0; /* ログが潰されないように保護 */
+    flex-shrink: 0;
+    /* ログが潰されないように保護 */
 }
 
 #enemy-area {
@@ -922,9 +927,11 @@ h3 {
         transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
     }
+
     50% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1.2);
         opacity: 0;
@@ -961,38 +968,87 @@ h3 {
 }
 
 @keyframes flashWhite {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(3) drop-shadow(0 0 10px #fff); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(3) drop-shadow(0 0 10px #fff);
+    }
 }
 
 @keyframes flashYellow {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 15px #ffd700); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 15px #ffd700);
+    }
 }
 
 @keyframes flashBlue {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 15px #4facfe); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 15px #4facfe);
+    }
 }
 
 @keyframes flashRed {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 15px #ff6b6b); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 15px #ff6b6b);
+    }
 }
 
 @keyframes flashPurple {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 15px #a29bfe); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 15px #a29bfe);
+    }
 }
 
 @keyframes flashGreen {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 15px #4ecdc4); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 15px #4ecdc4);
+    }
 }
 
 @keyframes flashGold {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5) drop-shadow(0 0 20px #ffd700); }
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2.5) drop-shadow(0 0 20px #ffd700);
+    }
 }
 
 /* Buff/Debuff Effect Icons */
@@ -1042,9 +1098,11 @@ h3 {
         transform: translate(-50%, 20%);
         opacity: 0;
     }
+
     50% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -80%);
         opacity: 0;
@@ -1056,9 +1114,11 @@ h3 {
         transform: translate(-50%, -80%);
         opacity: 0;
     }
+
     50% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, 20%);
         opacity: 0;
@@ -1070,10 +1130,12 @@ h3 {
         transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
     }
+
     50% {
         transform: translate(-50%, -50%) scale(1.5);
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1);
         opacity: 0;
@@ -1085,9 +1147,11 @@ h3 {
         transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
         opacity: 0;
     }
+
     50% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1.5) rotate(360deg);
         opacity: 0;
@@ -1099,9 +1163,11 @@ h3 {
         transform: translate(-50%, -50%) scale(0.8);
         opacity: 0;
     }
+
     30% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1);
         opacity: 0;
@@ -1109,9 +1175,20 @@ h3 {
 }
 
 @keyframes statusBlink {
-    0%, 100% { opacity: 0; }
-    25%, 75% { opacity: 1; }
-    50% { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    25%,
+    75% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 /* Critical Effect */
@@ -1137,10 +1214,12 @@ h3 {
         transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
     }
+
     30% {
         transform: translate(-50%, -50%) scale(1.3);
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1);
         opacity: 0;
@@ -1164,8 +1243,15 @@ h3 {
 }
 
 @keyframes screenFlash {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Bars */
@@ -1221,25 +1307,60 @@ h3 {
 
 .fill {
     height: 100%;
-    transition: width 1.0s cubic-bezier(0.22, 1, 0.36, 1); /* 1秒かけた滑らかな減少 */
+    transition: width 1.0s cubic-bezier(0.22, 1, 0.36, 1);
+    /* 1秒かけた滑らかな減少 */
 }
 
 /* 状態異常バッジの配色設定 */
-.status-ailment.poison { background: #a333c8; color: #fff; }
-.status-ailment.paralysis, .status-ailment.stun { background: #fbbd08; color: #000; }
-.status-ailment.silence { background: #1b1c1d; color: #fff; }
-.status-ailment.burn { background: #db2828; color: #fff; }
-.status-ailment.taunt { background: #f5af19; color: #000; }
-.status-ailment.defending { background: #2185d0; color: #fff; }
-.status-ailment.regen { background: #21ba45; color: #fff; }
-.status-ailment.damageReduction { background: #2c3e50; color: #fff; }
+.status-ailment.poison {
+    background: #a333c8;
+    color: #fff;
+}
+
+.status-ailment.paralysis,
+.status-ailment.stun {
+    background: #fbbd08;
+    color: #000;
+}
+
+.status-ailment.silence {
+    background: #1b1c1d;
+    color: #fff;
+}
+
+.status-ailment.burn {
+    background: #db2828;
+    color: #fff;
+}
+
+.status-ailment.taunt {
+    background: #f5af19;
+    color: #000;
+}
+
+.status-ailment.defending {
+    background: #2185d0;
+    color: #fff;
+}
+
+.status-ailment.regen {
+    background: #21ba45;
+    color: #fff;
+}
+
+.status-ailment.damageReduction {
+    background: #2c3e50;
+    color: #fff;
+}
 
 /* 防御：洗練されたシールドエフェクト */
 .shield-aura {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    width: 120px; height: 120px;
+    width: 120px;
+    height: 120px;
     border: 4px solid #4facfe;
     border-radius: 50%;
     background: rgba(79, 172, 254, 0.2);
@@ -1250,9 +1371,19 @@ h3 {
 }
 
 @keyframes shield-expand-fade {
-    0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
-    20% { opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+    0% {
+        transform: translate(-50%, -50%) scale(0.6);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.4);
+        opacity: 0;
+    }
 }
 
 /* ダメージポップアップのバネ挙動 */
@@ -1265,6 +1396,7 @@ h3 {
     animation: spring-up 1.0s forwards;
     z-index: 200;
 }
+
 .damage-popup.critical {
     color: #ffd700;
     font-size: 36px;
@@ -1272,11 +1404,28 @@ h3 {
 }
 
 @keyframes spring-up {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; }
-    20% { transform: translateY(-30px) scale(1.2); opacity: 1; }
-    40% { transform: translateY(-25px) scale(0.9); }
-    60% { transform: translateY(-28px) scale(1.0); }
-    100% { transform: translateY(-60px); opacity: 0; }
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        transform: translateY(-30px) scale(1.2);
+        opacity: 1;
+    }
+
+    40% {
+        transform: translateY(-25px) scale(0.9);
+    }
+
+    60% {
+        transform: translateY(-28px) scale(1.0);
+    }
+
+    100% {
+        transform: translateY(-60px);
+        opacity: 0;
+    }
 }
 
 .unit-hp-bar .fill,
@@ -1345,7 +1494,8 @@ h3 {
     border-top: 1px solid var(--glass-border);
     backdrop-filter: blur(20px);
     border-radius: 20px 20px 0 0;
-    padding: 8px 16px max(12px, env(safe-area-inset-bottom)); /* 上下余白を圧縮しつつセーフエリアを確保 */
+    padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+    /* 上下余白を圧縮しつつセーフエリアを確保 */
     margin: 0 -16px 0 -16px;
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
     z-index: 10;
@@ -1355,9 +1505,11 @@ h3 {
 #character-commands {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px; /* 隙間を半分に */
+    margin-bottom: 8px;
+    /* 隙間を半分に */
     background: rgba(0, 0, 0, 0.3);
-    padding: 4px 8px; /* 縦パディングを圧縮 */
+    padding: 4px 8px;
+    /* 縦パディングを圧縮 */
     border-radius: 12px;
 }
 
@@ -1389,10 +1541,12 @@ h3 {
     background: linear-gradient(145deg, rgba(50, 60, 80, 0.9), rgba(30, 35, 45, 0.9));
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    padding: 8px 12px; /* 縦を大幅に細く、横は余裕を持たせる */
+    padding: 8px 12px;
+    /* 縦を大幅に細く、横は余裕を持たせる */
     border-radius: 10px;
     font-weight: 700;
-    font-size: 14px; /* 文字サイズを維持 */
+    font-size: 14px;
+    /* 文字サイズを維持 */
     cursor: pointer;
     transition: 0.2s;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -1431,7 +1585,8 @@ h3 {
     border: none;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    visibility: hidden; /* 予約スペースを確保しつつ隠す */
+    visibility: hidden;
+    /* 予約スペースを確保しつつ隠す */
 }
 
 .btn-prominent {
@@ -1619,10 +1774,31 @@ h3 {
     white-space: nowrap;
 }
 
+.damage-popup.heal {
+    color: var(--success);
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+.damage-popup.mp-heal {
+    color: #d000ff;
+    text-shadow: 0 0 10px rgba(208, 0, 255, 0.5);
+}
+
 @keyframes spring-pop {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    40% { transform: translate(-50%, -100%) scale(1.2); opacity: 1; }
-    100% { transform: translate(-50%, -150%) scale(1.0); opacity: 0; }
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    40% {
+        transform: translate(-50%, -100%) scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -150%) scale(1.0);
+        opacity: 0;
+    }
 }
 
 @keyframes floatUp {
@@ -1689,8 +1865,10 @@ h3 {
 .skill-btn {
     display: flex;
     flex-direction: column;
-    gap: 2px; /* 名称と説明の間の隙間を詰める */
-    padding: 6px 12px; /* スキルボタンも縦を大幅に圧縮 */
+    gap: 2px;
+    /* 名称と説明の間の隙間を詰める */
+    padding: 6px 12px;
+    /* スキルボタンも縦を大幅に圧縮 */
 }
 
 .skill-header {
@@ -1703,7 +1881,8 @@ h3 {
 
 .skill-name {
     font-weight: 700;
-    font-size: 13px; /* わずかに小さくして一行の収まりを良くする */
+    font-size: 13px;
+    /* わずかに小さくして一行の収まりを良くする */
     color: #fff;
 }
 
@@ -2039,6 +2218,7 @@ h3 {
     transform: translateX(2px);
     box-shadow: 0 4px 8px rgba(79, 172, 254, 0.2);
 }
+
 /* Party Status Bar (Map & Rest) */
 .party-status-bar,
 #party-status-bar,
@@ -2085,6 +2265,7 @@ h3 {
     white-space: nowrap;
     font-weight: 700;
 }
+
 /* アクティブユニットの点滅効果 */
 .battle-unit.active-unit {
     border-color: var(--warning) !important;
@@ -2093,8 +2274,13 @@ h3 {
 }
 
 @keyframes unit-blink {
-    from { border-color: var(--primary); }
-    to { border-color: var(--warning); }
+    from {
+        border-color: var(--primary);
+    }
+
+    to {
+        border-color: var(--warning);
+    }
 }
 
 /* ボタンの可視性制御 */
@@ -2111,15 +2297,18 @@ h3 {
 
 .vfx-container {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px; height: 200px;
+    width: 200px;
+    height: 200px;
     pointer-events: none;
     z-index: 150;
     display: flex;
     justify-content: center;
     align-items: center;
-    mix-blend-mode: plus-lighter; /* 加算合成で発光感を最大化 */
+    mix-blend-mode: plus-lighter;
+    /* 加算合成で発光感を最大化 */
 }
 
 /* 行動中の黄色枠：脈動アニメーション付き */
@@ -2129,15 +2318,22 @@ h3 {
     animation: acting-pulse 1s infinite alternate ease-in-out;
     z-index: 50;
 }
+
 @keyframes acting-pulse {
-    from { filter: brightness(1) drop-shadow(0 0 5px #ffd700); }
-    to { filter: brightness(1.3) drop-shadow(0 0 15px #ffd700); }
+    from {
+        filter: brightness(1) drop-shadow(0 0 5px #ffd700);
+    }
+
+    to {
+        filter: brightness(1.3) drop-shadow(0 0 15px #ffd700);
+    }
 }
 
 /* ダメージポップアップ：キャラ中央＆バネ挙動 */
 .damage-popup {
     position: absolute;
-    top: 40%; left: 50%;
+    top: 40%;
+    left: 50%;
     transform: translate(-50%, -50%);
     font-weight: 900;
     font-size: 38px;
@@ -2147,64 +2343,1567 @@ h3 {
     z-index: 200;
     pointer-events: none;
 }
+
 @keyframes pro-spring-pop {
-    0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
-    20% { transform: translate(-50%, -40px) scale(1.3); opacity: 1; }
-    40% { transform: translate(-50%, -35px) scale(0.9); }
-    60% { transform: translate(-50%, -38px) scale(1.0); }
-    100% { transform: translate(-50%, -80px); opacity: 0; }
+    0% {
+        transform: translate(-50%, 0) scale(0.3);
+        opacity: 0;
+    }
+
+    20% {
+        transform: translate(-50%, -40px) scale(1.3);
+        opacity: 1;
+    }
+
+    40% {
+        transform: translate(-50%, -35px) scale(0.9);
+    }
+
+    60% {
+        transform: translate(-50%, -38px) scale(1.0);
+    }
+
+    100% {
+        transform: translate(-50%, -80px);
+        opacity: 0;
+    }
 }
 
 /* 物理：鋭利なプロ斬撃 */
 .vfx-slash-pro {
     position: absolute;
-    width: 150%; height: 8px;
+    width: 150%;
+    height: 8px;
     background: linear-gradient(90deg, transparent 0%, #fff 50%, transparent 100%);
     filter: blur(1px) drop-shadow(0 0 10px #ff6b6b);
     transform: rotate(var(--r)) scaleX(0);
     animation: slash-pro-anim 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
 @keyframes slash-pro-anim {
-    0% { transform: rotate(var(--r)) scaleX(0) skewX(45deg); opacity: 0; }
-    30% { opacity: 1; }
-    100% { transform: rotate(var(--r)) scaleX(1.2) skewX(45deg); opacity: 0; }
+    0% {
+        transform: rotate(var(--r)) scaleX(0) skewX(45deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: rotate(var(--r)) scaleX(1.2) skewX(45deg);
+        opacity: 0;
+    }
 }
 
 /* 魔法：SVG魔方陣の回転拡散 */
 .vfx-magic-circle-pro {
     position: absolute;
-    width: 140px; height: 140px;
+    width: 140px;
+    height: 140px;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%234facfe' stroke-width='1' stroke-dasharray='5 2'/%3E%3Ccircle cx='50' cy='50' r='38' fill='none' stroke='%234facfe' stroke-width='2'/%3E%3Cpath d='M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z' fill='%234facfe' opacity='0.3'/%3E%3C/svg%3E") center/contain no-repeat;
     animation: magic-circle-anim 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
+
 @keyframes magic-circle-anim {
-    0% { transform: scale(0.2) rotate(-180deg); opacity: 0; }
-    30% { opacity: 1; }
-    100% { transform: scale(1.3) rotate(0deg); opacity: 0; }
+    0% {
+        transform: scale(0.2) rotate(-180deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.3) rotate(0deg);
+        opacity: 0;
+    }
 }
 
 /* ストーンエッジ：不規則な岩の突き上げ */
 .vfx-rock-pro {
     position: absolute;
     bottom: 20px;
-    width: 40px; height: 100px;
+    width: 40px;
+    height: 100px;
     background: #8b5e3c;
-    clip-path: polygon(50% 0%, 100% 100%, 0% 100%); /* 基本は三角 */
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    /* 基本は三角 */
     filter: brightness(var(--b)) drop-shadow(0 0 5px #000);
     transform: translateX(var(--x)) scaleY(0);
     animation: rock-pro-anim 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: var(--d);
 }
+
 @keyframes rock-pro-anim {
-    0% { transform: translateX(var(--x)) scaleY(0); opacity: 0; }
-    20% { opacity: 1; }
-    100% { transform: translateX(var(--x)) scaleY(1.4); opacity: 0; }
+    0% {
+        transform: translateX(var(--x)) scaleY(0);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(var(--x)) scaleY(1.4);
+        opacity: 0;
+    }
 }
 
 /* 無量空処：明度反転 */
-.void-invert { animation: void-flash 0.8s ease-in-out; }
+.void-invert {
+    animation: void-flash 0.8s ease-in-out;
+}
+
 @keyframes void-flash {
-    0% { filter: invert(0); }
-    50% { filter: invert(1) hue-rotate(180deg); }
-    100% { filter: invert(0); }
+    0% {
+        filter: invert(0);
+    }
+
+    50% {
+        filter: invert(1) hue-rotate(180deg);
+    }
+
+    100% {
+        filter: invert(0);
+    }
+}
+
+/* === 味方固有技エフェクト === */
+
+/* 星屑クルージング（唐可可）：星の螺旋オーラ (強化版) */
+.vfx-stardust {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 223, 0, 0.4) 0%, transparent 70%);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    animation: stardust-spin 1s ease-out forwards;
+}
+
+.vfx-stardust::before,
+.vfx-stardust::after {
+    content: '★';
+    position: absolute;
+    font-size: 24px;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffeb3b, 0 0 20px #fff;
+    animation: stardust-orbit 0.8s ease-out forwards;
+}
+
+.vfx-stardust::before {
+    top: 10%;
+    left: 50%;
+}
+
+.vfx-stardust::after {
+    top: 50%;
+    left: 10%;
+    font-size: 18px;
+    animation-delay: 0.1s;
+}
+
+@keyframes stardust-spin {
+    0% {
+        transform: scale(0.3) rotate(0deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.5) rotate(180deg);
+        opacity: 0;
+    }
+}
+
+@keyframes stardust-orbit {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-40px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* スカイパンチ（キュアスカイ）：青い拳衝撃波 (強化版) */
+.vfx-sky-punch {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(135, 206, 250, 0.9) 0%, rgba(30, 144, 255, 0.4) 60%, transparent 80%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 20px #00bfff);
+    animation: sky-punch-anim 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+.vfx-sky-punch::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%;
+    height: 140%;
+    transform: translate(-50%, -50%);
+    border: 8px solid rgba(135, 206, 250, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
+    animation: sky-ring-expand 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+@keyframes sky-punch-anim {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+@keyframes sky-ring-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* クレイジー・D（東方仗助）：緑の回復オーラ (強化版) */
+.vfx-crazy-diamond {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(50, 205, 50, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 15px #32cd32);
+    animation: heal-pulse 0.8s ease-out forwards;
+}
+
+.vfx-crazy-diamond::before {
+    content: '♥';
+    /* ハートマークを使用するが、これは記号として一般的なので許容範囲か確認。
+       もし記号禁止ならSVGかCSSシェイプにする必要がある。
+       ユーザー要望「絵文字禁止」だが、記号フォントはグレーゾーン。
+       安全策としてCSSでハートを作る */
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    background: #ff69b4;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    box-shadow: -10px 10px 20px rgba(255, 105, 180, 0.5);
+    animation: heal-heart-pop 0.6s ease-out forwards;
+}
+
+.vfx-crazy-diamond::after {
+    /* ハートの片割れ（擬似要素でハート作成） */
+    content: '';
+    position: absolute;
+    top: 50%;
+    /* 調整必要 */
+    left: 50%;
+}
+
+/* CSS Heart Logic (簡易版) */
+/* 以前のSVGによるDiamond設定を上書き */
+.vfx-crazy-diamond::before {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2332cd32' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center/contain no-repeat;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
+    box-shadow: none;
+    animation: heal-heart-pop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heal-heart-pop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.0);
+        opacity: 0;
+    }
+}
+
+/* 堕天龍鳳凰縛（津島善子）：紫の鎖エフェクト */
+.vfx-fallen-bind {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+}
+
+.vfx-chain {
+    position: absolute;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, transparent, #9b59b6, transparent);
+    filter: drop-shadow(0 0 12px #9b59b6);
+    animation: chain-wrap 0.6s ease-out forwards;
+}
+
+.vfx-chain:nth-child(1) {
+    top: 30%;
+    transform: rotate(0deg);
+}
+
+.vfx-chain:nth-child(2) {
+    top: 50%;
+    transform: rotate(15deg);
+    animation-delay: 0.1s;
+}
+
+.vfx-chain:nth-child(3) {
+    top: 70%;
+    transform: rotate(-15deg);
+    animation-delay: 0.2s;
+}
+
+@keyframes chain-wrap {
+    0% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    70% {
+        transform: scaleX(1.4);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(1.2);
+        opacity: 0;
+    }
+}
+
+/* はどうだん（ルカリオ）：青い波動球 */
+.vfx-aura-sphere {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, #4facfe 0%, #00f2fe 30%, transparent 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 25px #4facfe);
+    animation: aura-sphere-anim 0.5s ease-out forwards;
+}
+
+.vfx-aura-sphere::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    border: 4px solid rgba(79, 172, 254, 0.5);
+    border-radius: 50%;
+    animation: aura-ring 0.5s ease-out forwards;
+}
+
+@keyframes aura-sphere-anim {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+@keyframes aura-ring {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* スカーレットストーム（優木せつ菜）：赤い炎の渦 */
+.vfx-scarlet-storm {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(255, 50, 50, 0.5) 0%, transparent 70%);
+    filter: drop-shadow(0 0 20px #ff4500);
+    animation: scarlet-spin 0.7s ease-out forwards;
+}
+
+.vfx-flame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 35px;
+    height: 70px;
+    background: linear-gradient(to top, #ff4500, #ff8c00, transparent);
+    border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+    filter: blur(2px);
+    transform-origin: bottom center;
+    animation: flame-dance 0.4s ease-out forwards;
+}
+
+.vfx-flame:nth-child(1) {
+    transform: translate(-50%, -100%) rotate(0deg);
+}
+
+.vfx-flame:nth-child(2) {
+    transform: translate(-50%, -100%) rotate(72deg);
+    animation-delay: 0.05s;
+}
+
+.vfx-flame:nth-child(3) {
+    transform: translate(-50%, -100%) rotate(144deg);
+    animation-delay: 0.1s;
+}
+
+.vfx-flame:nth-child(4) {
+    transform: translate(-50%, -100%) rotate(216deg);
+    animation-delay: 0.15s;
+}
+
+.vfx-flame:nth-child(5) {
+    transform: translate(-50%, -100%) rotate(288deg);
+    animation-delay: 0.2s;
+}
+
+@keyframes scarlet-spin {
+    0% {
+        transform: scale(0.3) rotate(0deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.0) rotate(180deg);
+        opacity: 0;
+    }
+}
+
+@keyframes flame-dance {
+    0% {
+        transform: translate(-50%, -100%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -100%) scale(2.0) translateY(-40px);
+        opacity: 0;
+    }
+}
+
+/* フュージョンクラスト（セラス）：白い光柱 (強化版) */
+.vfx-fusion-crust {
+    position: absolute;
+    width: 120px;
+    height: 400px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8), transparent);
+    filter: drop-shadow(0 0 30px #fff) drop-shadow(0 0 60px #87ceeb);
+    animation: light-pillar 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    mix-blend-mode: overlay;
+}
+
+@keyframes light-pillar {
+    0% {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleY(1.8);
+        opacity: 0;
+    }
+}
+
+/* ドシャット（黒尾鉄朗）：オレンジの盾 (強化版) */
+.vfx-doshatto {
+    position: absolute;
+    width: 200px;
+    height: 220px;
+    border: 8px solid #f39c12;
+    border-radius: 10px 10px 50% 50%;
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(255, 200, 50, 0.1));
+    box-shadow: 0 0 20px #f39c12, inset 0 0 20px #f39c12;
+    animation: shield-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.vfx-doshatto::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    border: 4px solid #fff;
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+@keyframes shield-appear {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1.1);
+        opacity: 0;
+    }
+}
+
+/* デロリエラン（若菜四季）：水色のMP回復波 (強化版) */
+.vfx-delorieran {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 191, 255, 0.3) 0%, transparent 60%);
+    filter: drop-shadow(0 0 15px #00bfff);
+    animation: mp-wave 1s ease-out forwards;
+}
+
+.vfx-delorieran::before,
+.vfx-delorieran::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 4px solid rgba(0, 191, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00bfff;
+    animation: mp-ring 1s ease-out forwards;
+}
+
+.vfx-delorieran::before {
+    width: 60%;
+    height: 60%;
+}
+
+.vfx-delorieran::after {
+    width: 80%;
+    height: 80%;
+    animation-delay: 0.1s;
+}
+
+@keyframes mp-wave {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.0);
+        opacity: 0;
+    }
+}
+
+@keyframes mp-ring {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.0);
+        opacity: 0;
+    }
+}
+
+/* 穿天氷壁（轟焦凍）：青い氷柱群 */
+.vfx-ice-wall {
+    position: absolute;
+    width: 220px;
+    height: 160px;
+}
+
+.vfx-ice-pillar {
+    position: absolute;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(135, 206, 235, 0.8) 50%, rgba(0, 191, 255, 0.6) 100%);
+    clip-path: polygon(50% 0%, 80% 20%, 100% 100%, 0% 100%, 20% 20%);
+    border-top: 2px solid rgba(255, 255, 255, 0.8);
+    filter: drop-shadow(0 0 10px #00bfff);
+    animation: ice-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.vfx-ice-pillar:nth-child(1) {
+    left: 0%;
+    height: 100px;
+    animation-delay: 0s;
+}
+
+.vfx-ice-pillar:nth-child(2) {
+    left: 20%;
+    height: 140px;
+    animation-delay: 0.05s;
+}
+
+.vfx-ice-pillar:nth-child(3) {
+    left: 40%;
+    height: 180px;
+    animation-delay: 0.1s;
+}
+
+.vfx-ice-pillar:nth-child(4) {
+    left: 60%;
+    height: 140px;
+    animation-delay: 0.15s;
+}
+
+.vfx-ice-pillar:nth-child(5) {
+    left: 80%;
+    height: 100px;
+    animation-delay: 0.2s;
+}
+
+@keyframes ice-rise {
+    0% {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleY(1.2);
+        opacity: 0;
+    }
+}
+
+/* 雷切（カカシ）：黄色い雷撃 */
+.vfx-raikiri {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+}
+
+.vfx-lightning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 140px;
+    background: linear-gradient(to bottom, #dbeeff, #4facfe, transparent);
+    filter: drop-shadow(0 0 15px #4facfe) drop-shadow(0 0 30px #00f2fe);
+    transform-origin: top center;
+    animation: lightning-strike 0.25s ease-out forwards;
+}
+
+.vfx-lightning:nth-child(1) {
+    transform: translate(-50%, -50%) rotate(-25deg);
+}
+
+.vfx-lightning:nth-child(2) {
+    transform: translate(-50%, -50%) rotate(25deg);
+    animation-delay: 0.05s;
+}
+
+.vfx-lightning:nth-child(3) {
+    transform: translate(-50%, -50%) rotate(0deg);
+    width: 8px;
+    /* 中央は太く */
+    height: 160px;
+    animation-delay: 0.1s;
+}
+
+.vfx-lightning::after {
+    content: '';
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    width: 140%;
+    height: 70%;
+    transform: translateX(-50%) rotate(40deg);
+    background: inherit;
+    filter: inherit;
+    clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%);
+}
+
+@keyframes lightning-strike {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scaleY(0);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scaleY(1.5);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 抹消（相澤消太）：赤い目の光+束縛 */
+.vfx-erasure {
+    position: absolute;
+    width: 200px;
+    height: 140px;
+}
+
+.vfx-erasure-eye {
+    position: absolute;
+    top: 30%;
+    width: 40px;
+    height: 20px;
+    background: radial-gradient(ellipse, #ff0000, transparent);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 25px #ff0000);
+    animation: erasure-glow 0.6s ease-out forwards;
+}
+
+.vfx-erasure-eye:nth-child(1) {
+    left: 25%;
+}
+
+.vfx-erasure-eye:nth-child(2) {
+    left: 55%;
+}
+
+.vfx-erasure-band {
+    position: absolute;
+    top: 70%;
+    left: 0;
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(90deg, transparent, #aaa, transparent);
+    animation: erasure-wrap 0.5s ease-out forwards;
+}
+
+@keyframes erasure-glow {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    30% {
+        opacity: 1;
+        transform: scale(1.4);
+    }
+
+    70% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes erasure-wrap {
+    0% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(1.2);
+        opacity: 0;
+    }
+}
+
+/* Solitude Rain（桜坂しずく）：紫の雨エフェクト (強化版) */
+.vfx-solitude-rain {
+    position: absolute;
+    width: 240px;
+    height: 280px;
+    overflow: visible;
+}
+
+.vfx-raindrop {
+    position: absolute;
+    top: -50px;
+    width: 3px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, #a29bfe, #fff);
+    filter: drop-shadow(0 0 5px #a29bfe);
+    animation: rain-fall 0.5s linear infinite;
+}
+
+.vfx-raindrop:nth-child(1) {
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.vfx-raindrop:nth-child(2) {
+    left: 30%;
+    animation-delay: 0.1s;
+}
+
+.vfx-raindrop:nth-child(3) {
+    left: 45%;
+    animation-delay: 0.2s;
+}
+
+.vfx-raindrop:nth-child(4) {
+    left: 60%;
+    animation-delay: 0.05s;
+}
+
+.vfx-raindrop:nth-child(5) {
+    left: 75%;
+    animation-delay: 0.25s;
+}
+
+.vfx-raindrop:nth-child(6) {
+    left: 90%;
+    animation-delay: 0.15s;
+}
+
+@keyframes rain-fall {
+    to {
+        transform: translateY(300px);
+        opacity: 0;
+    }
+}
+
+
+/* === ボス固有技エフェクト === */
+
+/* バイキンパンチ（ばいきんまん）：紫の拳衝撃 */
+.vfx-baikin-punch {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(128, 0, 128, 0.7) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: baikin-impact 0.5s ease-out forwards;
+}
+
+.vfx-baikin-punch::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    border: 8px solid rgba(128, 0, 128, 0.5);
+    border-radius: 50%;
+    animation: baikin-ring 0.5s ease-out forwards;
+}
+
+@keyframes baikin-impact {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(3.0);
+        opacity: 0;
+    }
+}
+
+@keyframes baikin-ring {
+    0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2.0);
+        opacity: 0;
+    }
+}
+
+/* 毒液噴射（ギギネブラ）：緑の毒霧 */
+.vfx-poison-spray {
+    position: absolute;
+    width: 300px;
+    height: 210px;
+}
+
+.vfx-poison-cloud {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(50, 205, 50, 0.6), transparent);
+    filter: blur(5px);
+    animation: poison-expand 0.7s ease-out forwards;
+}
+
+.vfx-poison-cloud:nth-child(1) {
+    width: 120px;
+    height: 90px;
+    top: 20%;
+    left: 10%;
+}
+
+.vfx-poison-cloud:nth-child(2) {
+    width: 150px;
+    height: 100px;
+    top: 30%;
+    left: 40%;
+    animation-delay: 0.1s;
+}
+
+.vfx-poison-cloud:nth-child(3) {
+    width: 100px;
+    height: 80px;
+    top: 50%;
+    left: 60%;
+    animation-delay: 0.2s;
+}
+
+@keyframes poison-expand {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(2.0);
+        opacity: 0;
+    }
+}
+
+/* 草薙の剣（大蛇丸）：緑の蛇エフェクト */
+.vfx-kusanagi {
+    position: absolute;
+    width: 240px;
+    height: 120px;
+}
+
+.vfx-snake {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(90deg, #228b22, #32cd32, #228b22);
+    filter: drop-shadow(0 0 15px #32cd32);
+    border-radius: 50%;
+    animation: snake-slither 0.5s ease-out forwards;
+}
+
+.vfx-snake::before {
+    content: '';
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 20px solid #32cd32;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+}
+
+@keyframes snake-slither {
+    0% {
+        transform: translateX(-100%) scaleX(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(50%) scaleX(1);
+        opacity: 0;
+    }
+}
+
+/* 呪霊操術（夏油傑）：黒い呪霊シルエット */
+.vfx-cursed-spirit {
+    position: absolute;
+    width: 160px;
+    height: 180px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.8) 30%, transparent 70%);
+    filter: drop-shadow(0 0 25px #000);
+    animation: spirit-manifest 0.6s ease-out forwards;
+}
+
+.vfx-cursed-spirit::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 25px;
+    height: 25px;
+    background: #ff0000;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 15px #ff0000);
+}
+
+.vfx-cursed-spirit::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 30%;
+    width: 25px;
+    height: 25px;
+    background: #ff0000;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 15px #ff0000);
+}
+
+@keyframes spirit-manifest {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1.1);
+        opacity: 0;
+    }
+}
+
+/* デスボール（フリーザ）：赤黒い球体 */
+.vfx-death-ball {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, #ff0000 0%, #800000 40%, #000 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 40px #ff0000);
+    animation: death-ball-anim 0.7s ease-out forwards;
+}
+
+.vfx-death-ball::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    transform: translate(-50%, -50%);
+    border: 5px solid rgba(255, 0, 0, 0.5);
+    border-radius: 50%;
+    animation: death-ring 0.7s ease-out forwards;
+}
+
+@keyframes death-ball-anim {
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+@keyframes death-ring {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(3.0);
+        opacity: 0;
+    }
+}
+
+/* ザ・ワールド（ディオ）：時計+黄金の時止め */
+.vfx-za-warudo {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+    animation: time-stop 0.8s ease-out forwards;
+}
+
+.vfx-za-warudo::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: 120px;
+    transform: translate(-50%, -50%);
+    border: 6px solid #ffd700;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 20px #ffd700);
+}
+
+.vfx-za-warudo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 50px;
+    background: #ffd700;
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%);
+    animation: clock-hand 0.8s ease-out forwards;
+}
+
+@keyframes time-stop {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes clock-hand {
+    0% {
+        transform: translate(-50%, -100%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -100%) rotate(360deg);
+    }
+}
+
+/* 鏡花水月（愛染惣右介）：鏡のような反射 */
+.vfx-kyoka-suigetsu {
+    position: absolute;
+    width: 200px;
+    height: 260px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(200, 200, 255, 0.2), rgba(255, 255, 255, 0.3));
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    filter: drop-shadow(0 0 25px rgba(200, 200, 255, 0.5));
+    animation: mirror-shimmer 0.7s ease-out forwards;
+}
+
+.vfx-kyoka-suigetsu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+    animation: mirror-shine 0.5s ease-out forwards;
+}
+
+@keyframes mirror-shimmer {
+    0% {
+        transform: scale(0.5) rotateY(90deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+        transform: scale(1) rotateY(0deg);
+    }
+
+    100% {
+        transform: scale(1.2) rotateY(-10deg);
+        opacity: 0;
+    }
+}
+
+@keyframes mirror-shine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* フォトンゲイザー（ネクロズマ）：光の柱 */
+.vfx-photon-geyser {
+    position: absolute;
+    width: 140px;
+    height: 400px;
+    background: linear-gradient(to top, transparent, rgba(255, 255, 200, 0.9), #fff, rgba(255, 255, 200, 0.9), transparent);
+    filter: blur(4px) drop-shadow(0 0 40px #ffd700);
+    animation: photon-burst 0.6s ease-out forwards;
+}
+
+@keyframes photon-burst {
+    0% {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleY(1);
+        opacity: 0;
+    }
+}
+
+/* グランドスラム（マスターハンド）：白い手形衝撃 */
+.vfx-grand-slam {
+    position: absolute;
+    width: 220px;
+    height: 260px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Cpath fill='white' d='M50 10 L60 50 L90 60 L60 70 L50 110 L40 70 L10 60 L40 50 Z'/%3E%3C/svg%3E") center/contain no-repeat;
+    filter: drop-shadow(0 0 30px #fff);
+    animation: slam-impact 0.5s ease-out forwards;
+}
+
+@keyframes slam-impact {
+    0% {
+        transform: scale(0.3) translateY(-50px);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.3) translateY(0);
+    }
+
+    100% {
+        transform: scale(1.8) translateY(10px);
+        opacity: 0;
+    }
+}
+
+/* 崩壊（死柄木弔）：ひび割れ演出 */
+.vfx-decay {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+}
+
+.vfx-crack {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 90px;
+    background: linear-gradient(to bottom, #888, #444);
+    transform-origin: top center;
+    animation: crack-spread 0.4s ease-out forwards;
+}
+
+.vfx-crack:nth-child(1) {
+    transform: translate(-50%, 0) rotate(0deg);
+}
+
+.vfx-crack:nth-child(2) {
+    transform: translate(-50%, 0) rotate(45deg);
+    animation-delay: 0.05s;
+}
+
+.vfx-crack:nth-child(3) {
+    transform: translate(-50%, 0) rotate(90deg);
+    animation-delay: 0.1s;
+}
+
+.vfx-crack:nth-child(4) {
+    transform: translate(-50%, 0) rotate(135deg);
+    animation-delay: 0.15s;
+}
+
+.vfx-crack:nth-child(5) {
+    transform: translate(-50%, 0) rotate(180deg);
+    animation-delay: 0.2s;
+}
+
+.vfx-crack:nth-child(6) {
+    transform: translate(-50%, 0) rotate(225deg);
+    animation-delay: 0.25s;
+}
+
+.vfx-crack:nth-child(7) {
+    transform: translate(-50%, 0) rotate(270deg);
+    animation-delay: 0.3s;
+}
+
+.vfx-crack:nth-child(8) {
+    transform: translate(-50%, 0) rotate(315deg);
+    animation-delay: 0.35s;
+}
+
+@keyframes crack-spread {
+    0% {
+        transform: translate(-50%, 0) scaleY(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, 0) scaleY(1);
+        opacity: 0;
+    }
+}
+
+/* クッパブレス（クッパ）：オレンジの炎 */
+.vfx-koopa-breath {
+    position: absolute;
+    width: 180px;
+    height: 100px;
+}
+
+.vfx-fire-stream {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(90deg, #ff6b00, #ffa500, #ffcc00, transparent);
+    border-radius: 50% 100% 100% 50%;
+    filter: blur(3px) drop-shadow(0 0 20px #ff6b00);
+    animation: fire-breath 0.6s ease-out forwards;
+}
+
+.vfx-fire-stream::before,
+.vfx-fire-stream::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 80%;
+    height: 20px;
+    background: linear-gradient(90deg, #ff6b00, #ffa500, transparent);
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: fire-wave 0.5s ease-out forwards;
+}
+
+.vfx-fire-stream::before {
+    top: -15px;
+}
+
+.vfx-fire-stream::after {
+    bottom: -15px;
+    animation-delay: 0.1s;
+}
+
+@keyframes fire-breath {
+    0% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes fire-wave {
+    0% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scaleX(1);
+        opacity: 0;
+    }
+}
+
+/* シールドオーラ（防御・バフ系共通） */
+.shield-aura {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 130%;
+    height: 130%;
+    border: 4px solid #ffd700;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+    filter: drop-shadow(0 0 15px #ffd700);
+    animation: shield-pulse 0.8s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+}
+
+@keyframes shield-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    70% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* フラッシュエフェクト（色違い追加） */
+.flash-gold {
+    animation: flash-gold-anim 0.3s ease-out;
+}
+
+@keyframes flash-gold-anim {
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(2) drop-shadow(0 0 20px #ffd700);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+.flash-purple {
+    animation: flash-purple-anim 0.3s ease-out;
+}
+
+@keyframes flash-purple-anim {
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.5) drop-shadow(0 0 20px #9b59b6);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
 }

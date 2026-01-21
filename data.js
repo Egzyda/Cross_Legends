@@ -29,12 +29,9 @@ const SKILLS = {
         name: '全力攻撃',
         type: 'physical_attack',
         target: 'single_enemy',
-        power: 250,
+        power: 200,
         mpCost: 60,
-        effects: [
-            { type: 'self_debuff', stat: 'physicalDefense', value: -0.3, duration: 1 }
-        ],
-        description: '単体に強力な物理攻撃（威力250%、次ターン防御-30%）'
+        description: '単体に強力な物理攻撃（威力200%）'
     },
     wide_attack: {
         id: 'wide_attack',
@@ -83,7 +80,7 @@ const SKILLS = {
         type: 'magic_attack',
         target: 'single_enemy',
         power: 200,
-        mpCost: 50,
+        mpCost: 60,
         description: '単体に魔法攻撃（威力200%）'
     },
     magic_storm: {
@@ -91,33 +88,31 @@ const SKILLS = {
         name: '魔力の嵐',
         type: 'magic_attack',
         target: 'all_enemies',
-        power: 110,
-        mpCost: 55,
-        description: '全体に魔法攻撃（威力110%）'
+        power: 100,
+        mpCost: 50,
+        description: '全体に魔法攻撃（威力100%）'
     },
     magic_impact: {
         id: 'magic_impact',
         name: '魔力衝撃',
         type: 'magic_attack',
         target: 'single_enemy',
-        power: 140,
-        mpCost: 45,
-        effects: [
-            { type: 'debuff', stat: 'speed', value: -0.2, duration: 2 }
-        ],
-        description: '単体魔法攻撃（威力140%、速度-20% 2ターン）'
-    },
-    magic_explosion: {
-        id: 'magic_explosion',
-        name: '魔力爆発',
-        type: 'magic_attack',
-        target: 'single_enemy',
-        power: 130,
-        mpCost: 40,
+        power: 120,
+        mpCost: 35,
         effects: [
             { type: 'status', status: 'paralysis', chance: 30 }
         ],
-        description: '単体魔法攻撃（威力130%、麻痺30%）'
+        description: '単体魔法攻撃（威力120%、麻痺30%）'
+    },
+    continuous_magic_shot: {
+        id: 'continuous_magic_shot',
+        name: '連続魔力弾',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        power: 80,
+        hits: 2,
+        mpCost: 40,
+        description: '単体に2回魔法攻撃（威力80%×2）'
     },
     magic_charge: {
         id: 'magic_charge',
@@ -141,9 +136,10 @@ const SKILLS = {
         priority: 'first',
         effects: [
             { type: 'taunt', duration: 2 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 }
+            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 },
+            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 }
         ],
-        description: '2ターン挑発状態、自分の物防+20%（先制）'
+        description: '2ターン挑発状態、自分の物防/魔防+20%（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -450,13 +446,37 @@ const SKILLS = {
             { type: 'buff', stat: 'speed', value: 0.2, duration: 2 }
         ],
         description: '全体の全ステータス+20% 2ターン'
+    },
+
+    // --- 敵専用スキル ---
+    poison_single: {
+        id: 'poison_single',
+        name: 'どくどく',
+        type: 'debuff',
+        target: 'single_enemy',
+        mpCost: 20,
+        effects: [
+            { type: 'status', status: 'poison', chance: 100, duration: 3 }
+        ],
+        description: '単体を毒状態にする（3ターン）'
+    },
+    paralyze_single: {
+        id: 'paralyze_single',
+        name: '拘束',
+        type: 'debuff',
+        target: 'single_enemy',
+        mpCost: 25,
+        effects: [
+            { type: 'status', status: 'paralysis', chance: 100, duration: 2 }
+        ],
+        description: '単体を麻痺状態にする（2ターン）'
     }
 };
 
 // タイプ別スキルプール
 const SKILL_POOLS = {
     physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack', 'physical_charge'],
-    magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'magic_explosion', 'magic_charge'],
+    magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'continuous_magic_shot', 'magic_charge'],
     tank: ['taunt', 'iron_wall', 'counter_stance', 'fortitude', 'evasion_boost'],
     healer: ['heal', 'heal_all', 'revive', 'cure_status'],
     support: ['attack_boost', 'attack_boost_all', 'defense_boost', 'defense_boost_all', 'speed_boost', 'speed_boost_all', 'luck_boost', 'luck_boost_all'],
@@ -558,7 +578,7 @@ const EVENTS = [
     },
     {
         id: 'trap',
-        title: '罠！',
+        title: '罠',
         description: '罠にかかってしまった！',
         options: [
             {
@@ -637,7 +657,7 @@ const MAP_CONFIG = {
         enemies: ['slime', 'kuribo', 'abo', 'wadorudo', 'kamec'],
         elites: ['arboc', 'buggy', 'shadow', 'kabaton'],
         bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru'],
-        multiplier: { start: 0.8, mid: 1.0, elite: 1.2, boss: 1.3 }
+        multiplier: { start: 1.0, mid: 1.2, elite: 1.5, boss: 1.8 }
     },
     act2: {
         nodes: 10,
@@ -652,6 +672,6 @@ const MAP_CONFIG = {
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
         elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
         bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
-        multiplier: { start: 1.5, mid: 1.7, elite: 1.9, boss: 2.2 }
+        multiplier: { start: 1.7, mid: 1.9, elite: 2.2, boss: 2.5 }
     }
 };
