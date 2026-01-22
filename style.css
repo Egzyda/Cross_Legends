@@ -20,6 +20,14 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none; /* システムメニューをグローバルで禁止 */
+}
+
+img {
+    -webkit-user-drag: none; /* 画像のドラッグを禁止 */
+    -webkit-touch-callout: none; /* 画像の長押しメニューを禁止 */
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 body {

@@ -23,7 +23,7 @@ const CHARACTERS = {
             id: 'taunt',
             displayName: '星屑クルージング',
             basePower: 0,
-            mpCost: 20,
+            mpCost: 40,
             priority: 'first',
             effects: [
                 { type: 'taunt', duration: 3 },
@@ -118,7 +118,7 @@ const CHARACTERS = {
             displayName: '堕天龍鳳凰縛',
             basePower: 0,
             mpCost: 80,
-            type: 'magic_attack',
+            type: 'debuff',
             target: 'single_enemy',
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
@@ -279,7 +279,7 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'delorieran',
             displayName: 'デロリエラン',
-            mpCost: 20,
+            mpCost: 50,
             type: 'mp_heal',
             target: 'all_allies',
             mpHealPercent: 20,
@@ -376,7 +376,7 @@ const CHARACTERS = {
             id: 'erasure',
             displayName: '抹消',
             mpCost: 80,
-            type: 'magic_attack',
+            type: 'debuff',
             target: 'single_enemy',
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
@@ -409,7 +409,7 @@ const CHARACTERS = {
             displayName: 'Solitude Rain',
             basePower: 0,
             mpCost: 20,
-            type: 'magic_attack',
+            type: 'debuff',
             target: 'single_enemy',
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }

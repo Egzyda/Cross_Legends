@@ -147,6 +147,9 @@ class Game {
 
     // イベントバインド
     bindEvents() {
+        // グローバルでコンテキストメニュー（長押しメニュー）を禁止
+        window.addEventListener('contextmenu', e => e.preventDefault());
+
         // タイトル画面
         document.getElementById('start-btn').addEventListener('click', () => {
             if (this.hasSaveData()) {
@@ -1218,30 +1221,22 @@ class Game {
 
     // コマンドフェーズ開始
     async startCommandPhase() {
-        // 毎ターン開始時にMP10%回復（演出付き）
-        const recoverPromises = this.state.party.map(async (member) => {
+        // 毎ターン開始時にMP10%回復（内部処理のみ）
+        this.state.party.forEach(member => {
             if (member.currentHp > 0 && member.stats.mp > 0) {
                 const mpRecover = Math.floor(member.stats.mp * 0.1);
                 if (mpRecover > 0) {
                     member.currentMp = Math.min(member.stats.mp, member.currentMp + mpRecover);
-                    // MP回復演出（非同期で待機しない、またはPromise.allで待つ）
-                    this.showDamagePopup(member, mpRecover, 'mp-heal');
-                    // ログは過多になるので省略するか、まとめて出すか。ここではシンプルにポップアップのみ。
                 }
             }
         });
 
-        // ポップアップ表示とUI更新
-        await Promise.all(recoverPromises);
         this.updateBarsUI();
 
-        // ユーザーが回復を確認できる間を作る
-        if (recoverPromises.length > 0) {
-            await this.delay(800);
-        }
-
         this.state.battle.commands = [];
-        this.state.battle.currentCharIndex = 0;
+        // 最初の生存キャラクターを探してインデックスをセット
+        const firstAlive = this.state.party.findIndex(p => p.currentHp > 0);
+        this.state.battle.currentCharIndex = firstAlive !== -1 ? firstAlive : 0;
         this.state.battle.phase = 'command';
         this.updateCommandUI();
     }
@@ -1645,7 +1640,8 @@ class Game {
         this.generateEnemyCommands();
 
         // 全行動を速度順にソート（防御は最優先）
-        const allCommands = [...this.state.battle.commands];
+        // filter(c => c) で死亡キャラ等の undefined なコマンドを除外してエラーを防ぐ
+        const allCommands = this.state.battle.commands.filter(c => c);
         this.state.battle.enemies.forEach((enemy, idx) => {
             if (enemy.currentHp > 0 && enemy.command) {
                 allCommands.push({
@@ -1682,92 +1678,56 @@ class Game {
         this.state.battle.enemies.forEach(enemy => {
             if (enemy.currentHp <= 0) return;
 
+            // 1. 先にターゲットを決定する
+            let targetIdx = this.selectTarget();
+            let targetUnit = this.state.party[targetIdx];
             let action = null;
 
             // ボム兵の特殊処理（固有技のみ使用）
             if (enemy.templateId === 'bombhei') {
                 action = { type: 'skill', skillId: enemy.uniqueSkill.id };
             } else {
-                // スタン/沈黙チェック
                 const stunned = enemy.statusEffects.find(e => e.type === 'stun');
                 const silenced = enemy.statusEffects.find(e => e.type === 'silence');
 
                 if (stunned || silenced) {
                     action = { type: 'attack' };
                 } else {
-                    // サブ技の条件チェック（20%確率で使用）
+                    // 2. 決定したターゲット(targetUnit)の状態を見てスキル使用を判断
                     if (enemy.skills.length > 0 && Math.random() < 0.2) {
                         const subSkillId = enemy.skills[0];
                         const subSkill = SKILLS[subSkillId];
-
                         if (subSkill) {
                             let canUse = true;
-
-                            // バフ系: 自身に同じバフがない
                             if (subSkill.type === 'buff' && subSkill.effects) {
                                 const buffEffect = subSkill.effects.find(e => e.type === 'buff' || e.type === 'self_buff');
-                                if (buffEffect) {
-                                    canUse = !enemy.buffs.some(b => b.stat === buffEffect.stat);
-                                }
-                            }
-                            // デバフ系: 対象に同じデバフがない
-                            else if (subSkill.type === 'debuff' && subSkill.effects) {
+                                if (buffEffect) canUse = !enemy.buffs.some(b => b.stat === buffEffect.stat);
+                            } else if (subSkill.type === 'debuff' && subSkill.effects) {
                                 const debuffEffect = subSkill.effects.find(e => e.type === 'debuff');
-                                if (debuffEffect) {
-                                    const targetAlly = this.state.party.find(p => p.currentHp > 0);
-                                    if (targetAlly) {
-                                        canUse = !targetAlly.debuffs.some(d => d.stat === debuffEffect.stat);
-                                    }
-                                }
-                                // 状態異常付与系
+                                if (debuffEffect) canUse = !targetUnit.debuffs.some(d => d.stat === debuffEffect.stat);
                                 const statusEffect = subSkill.effects.find(e => e.type === 'status');
-                                if (statusEffect) {
-                                    const targetAlly = this.state.party.find(p => p.currentHp > 0);
-                                    if (targetAlly) {
-                                        canUse = !targetAlly.statusEffects.some(s => s.type === statusEffect.status);
-                                    }
-                                }
+                                if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
                             }
-
-                            if (canUse) {
-                                action = { type: 'skill', skillId: subSkillId };
-                            }
+                            if (canUse) action = { type: 'skill', skillId: subSkillId };
                         }
                     }
 
-                    // 固有技の使用判定（70%確率）
                     if (!action && enemy.uniqueSkill && Math.random() < 0.7) {
                         let canUse = true;
-
-                        // 状態異常付与系の固有技の場合、重複チェック
                         if (enemy.uniqueSkill.effects) {
                             const statusEffect = enemy.uniqueSkill.effects.find(e => e.type === 'status');
-                            if (statusEffect) {
-                                const targetAlly = this.state.party.find(p => p.currentHp > 0);
-                                if (targetAlly) {
-                                    canUse = !targetAlly.statusEffects.some(s => s.type === statusEffect.status);
-                                }
-                            }
+                            if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
                         }
-
-                        if (canUse) {
-                            action = { type: 'skill', skillId: enemy.uniqueSkill.id };
-                        }
+                        if (canUse) action = { type: 'skill', skillId: enemy.uniqueSkill.id };
                     }
 
-                    // 通常攻撃
-                    if (!action) {
-                        action = { type: 'attack' };
-                    }
+                    if (!action) action = { type: 'attack' };
                 }
             }
 
-            // ターゲット決定
-            let target = this.selectTarget();
-
             enemy.command = {
                 ...action,
-                target: target,
+                target: targetIdx,
                 targetType: 'ally',
                 speed: enemy.stats.speed
             };
@@ -1915,15 +1875,26 @@ class Game {
         const skill = this.getSkillData(cmd.skillId, actor);
         if (!skill) return;
 
+        // 不屈などの発動条件チェック
+        if (skill.hpThreshold) {
+            const thresholdHp = actor.stats.hp * (skill.hpThreshold / 100);
+            if (actor.currentHp > thresholdHp) {
+                this.addLog(`${actorName}はまだ余力がある！（HP${skill.hpThreshold}%以下で発動可能）`);
+                return;
+            }
+        }
+
         const mpCost = skill.mpCost || 0;
         if (actor.currentMp < mpCost) {
             this.addLog(`${actorName}はMPが足りない！`);
             return;
         }
+
         // 敵はMP消費しない（MP無限）
         const isEnemy = this.state.battle.enemies.includes(actor);
         if (!isEnemy) {
             actor.currentMp -= mpCost;
+            this.updateBarsUI(); // コスト支払いを即座にUI反映
         }
 
         const skillName = skill.displayName || skill.name;
@@ -1949,17 +1920,14 @@ class Game {
         }
 
         // スキル効果適用
-        if (skill.type === 'physical_attack' || skill.type === 'magic_attack') {
+        if (skill.type === 'physical_attack' || skill.type === 'magic_attack' || skill.type === 'special') {
             const damageType = skill.type === 'physical_attack' ? 'physical' : 'magic';
             const hits = skill.hits || 1;
-
-            // ターゲット再選択用設定
-            let nextRetargetStrategy = 'right'; // 最初は左(上記)で選んでいるので、次は右
+            let nextRetargetStrategy = 'right';
             const isSingleTarget = (cmd.targetType === 'enemy');
             const targetGroup = cmd.isEnemy ? this.state.party : this.state.battle.enemies;
 
             for (let i = 0; i < hits; i++) {
-                // ターゲット全員に対して同時にエフェクトとダメージを発生させる
                 await Promise.all(targets.map(async (target, tIdx) => {
                     if (isSingleTarget && target.currentHp <= 0) {
                         const newTarget = this.getAliveTarget(targetGroup, i === 0 ? 'left' : nextRetargetStrategy);
@@ -1975,6 +1943,27 @@ class Game {
                 nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
                 await this.delay(200);
             }
+        } else if (skill.type === 'debuff' || skill.type === 'buff' || skill.type === 'cure') {
+            // 攻撃以外のスキル演出実行
+            await Promise.all(targets.map(async (target) => {
+                if (target.currentHp <= 0 && skill.type !== 'revive') return;
+
+                if (skill.type === 'cure') {
+                    const badStatuses = ['poison', 'paralysis', 'silence', 'stun', 'burn'];
+                    const beforeCount = target.statusEffects.length;
+                    target.statusEffects = target.statusEffects.filter(e => !badStatuses.includes(e.type));
+
+                    if (target.statusEffects.length < beforeCount) {
+                        await this.showAttackEffect(actor, target, skill, 'magic');
+                        this.addLog(`${target.displayName}の悪い状態が浄化された！`);
+                        this.updateStatusAilmentsUI(target);
+                    } else {
+                        this.addLog(`しかし${target.displayName}には何も起こらなかった。`);
+                    }
+                } else {
+                    await this.showAttackEffect(actor, target, skill, 'magic');
+                }
+            }));
         } else if (skill.type === 'heal') {
             await Promise.all(targets.map(async (target) => {
                 await this.showEffectIcon(target, skill, 'heal');
@@ -2028,6 +2017,7 @@ class Game {
                     } else {
                         t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
+                    this.renderBattle(); // UI即時同期
                 }
                 break;
             case 'debuff':
@@ -2042,6 +2032,7 @@ class Game {
                     } else {
                         t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
+                    this.renderBattle(); // UI即時同期
                 }
                 break;
             case 'taunt':
@@ -2052,6 +2043,7 @@ class Game {
                 } else {
                     actor.statusEffects.push({ type: 'taunt', duration: effect.duration });
                 }
+                this.renderBattle(); // UI即時同期
                 break;
             case 'status':
                 // 並列処理だとログ順序が乱れる可能性があるが、エフェクト同期優先
@@ -2092,6 +2084,26 @@ class Game {
                 for (const t of counterTargets) {
                     await this.showEffectIcon(t, skill, 'shield');
                     t.statusEffects.push({ type: 'counter', power: effect.power, duration: effect.duration });
+                }
+                break;
+            case 'mp_drain': // メトロイドの技：敵への吸収ではなく一律20減少
+                for (const t of targets) {
+                    const drainAmount = 20;
+                    t.currentMp = Math.max(0, t.currentMp - drainAmount);
+                    this.showDamagePopup(t, drainAmount, 'mp-heal');
+                    this.addLog(`${t.displayName}のMPが${drainAmount}減少した！`);
+                }
+                break;
+            case 'self_ko': // ボム兵等の自壊
+                actor.currentHp = 0;
+                this.addLog(`${actor.displayName}は力尽きた！`);
+                break;
+            case 'countdown': // カウントダウン付与
+                actor.statusEffects.push({ type: 'countdown', duration: effect.turns, action: effect.action });
+                break;
+            case 'critBoost': // クリティカル率バフ
+                for (const t of targets) {
+                    t.statusEffects.push({ type: 'critBoost', value: effect.value, duration: effect.duration });
                 }
                 break;
         }
@@ -2136,25 +2148,26 @@ class Game {
             defense = this.getEffectiveStat(defender, 'magicDefense');
         }
 
-        // 基本ダメージ（ハイブリッド方式: 割合軽減 + 固定値軽減）
+        // 基本ダメージ（除算方式：ダメージ0を回避し、防御の価値を安定させる）
         let baseDamage = attack * (power / 100);
 
-        // 善子の固有技などのダメージ0スキル対応
         if (power === 0) {
             return { value: 0, critical: false };
         }
 
-        let defenseRatio = defense / (defense + 150); // 防御150で50%軽減
-        let defenseFlat = defense * 0.4; // 防御値の40%を固定軽減
-        let damage = baseDamage * (1 - defenseRatio) - defenseFlat;
-        damage = Math.max(baseDamage * 0.1, damage); // 最低10%貫通
+        // 防御力100につき被ダメージを約50%軽減する計算式
+        let damage = baseDamage / (1 + (defense / 100));
 
         // 乱数
         damage *= 0.9 + Math.random() * 0.2;
 
         // クリティカル判定
         const luck = this.getEffectiveStat(attacker, 'luck');
-        const critRate = 5 + (luck / 4) + critBonus;
+        let critRate = 5 + (luck / 4) + critBonus;
+        // critBoost状態異常を反映
+        const critStatus = attacker.statusEffects.find(e => e.type === 'critBoost');
+        if (critStatus) critRate += critStatus.value;
+
         const isCritical = Math.random() * 100 < critRate;
         if (isCritical) {
             damage *= 2;
@@ -2208,9 +2221,21 @@ class Game {
     // ダメージ適用
     applyDamage(target, damage) {
         target.currentHp = Math.max(0, target.currentHp - damage.value);
+
+        // 死亡時のステータスリセット（MP以外）
+        if (target.currentHp <= 0) {
+            target.buffs = [];
+            target.debuffs = [];
+            target.statusEffects = [];
+        }
+
         this.showDamagePopup(target, damage.value, damage.critical ? 'critical' : 'damage');
         // 全体描画ではなくバーの幅だけを更新してアニメーションを維持
         this.updateBarsUI();
+
+        // 死亡状態の見た目（グレーアウト等）を即座に反映させるため再描画
+        this.renderAllies();
+        this.renderEnemies();
     }
 
     updateBarsUI() {
@@ -2221,10 +2246,17 @@ class Game {
             const selector = isEnemy ? `[data-enemy-index="${this.state.battle.enemies.indexOf(unit)}"]` : `[data-ally-index="${this.state.party.indexOf(unit)}"]`;
             const unitEl = document.querySelector(selector);
             if (unitEl) {
+                // HP更新
                 const hpFill = unitEl.querySelector('.unit-hp-bar .fill');
                 if (hpFill) hpFill.style.width = `${(unit.currentHp / unit.stats.hp) * 100}%`;
                 const hpText = unitEl.querySelector('.unit-hp-bar .bar-text');
                 if (hpText) hpText.innerText = `${Math.floor(unit.currentHp)}/${unit.stats.hp}`;
+
+                // MP更新（味方ユニットのみ要素が存在するため、存在チェックを入れて適用）
+                const mpFill = unitEl.querySelector('.unit-mp-bar .fill');
+                if (mpFill) mpFill.style.width = `${(unit.currentMp / unit.stats.mp) * 100}%`;
+                const mpText = unitEl.querySelector('.unit-mp-bar .bar-text');
+                if (mpText) mpText.innerText = `${Math.floor(unit.currentMp)}/${unit.stats.mp}`;
             }
         });
     }
@@ -2281,6 +2313,27 @@ class Game {
                 const heal = Math.floor(unit.stats.hp * regen.value);
                 unit.currentHp = Math.min(unit.stats.hp, unit.currentHp + heal);
                 this.addLog(`${unit.displayName}はHP${heal}回復！`);
+            }
+
+            // カウントダウン処理
+            const countdownIdx = unit.statusEffects.findIndex(e => e.type === 'countdown');
+            if (countdownIdx !== -1) {
+                const e = unit.statusEffects[countdownIdx];
+                if (--e.duration <= 0) {
+                    if (e.action === 'explode') {
+                        this.addLog(`${unit.displayName}が大爆発！`);
+                        const bTargets = this.state.battle.enemies.includes(unit) ? this.state.party : this.state.battle.enemies;
+                        bTargets.forEach(t => {
+                            if (t.currentHp > 0) {
+                                // 威力280%相当のダメージ（計算にはattackerが必要なため生存ユニットとして計算）
+                                const damage = this.calculateDamage(unit, t, 'magic', 280);
+                                this.applyDamage(t, damage);
+                            }
+                        });
+                        unit.currentHp = 0;
+                    }
+                    unit.statusEffects.splice(countdownIdx, 1);
+                }
             }
 
             // 効果時間減少
@@ -2600,6 +2653,7 @@ class Game {
     handleEventOption(option) {
         const effect = option.effect;
         let message = '';
+        const targets = this.state.party; // targets変数を定義
 
         switch (effect.type) {
             case 'none':
@@ -2676,14 +2730,12 @@ class Game {
                     }
                 });
                 if (effect.reward === 'random_skill') {
-                    // ランダムスキル獲得（ランダムな1名）
                     const randomChar = this.state.party[Math.floor(Math.random() * this.state.party.length)];
-                    // 簡易的にスキルプールから付与（本来はshowDetailReward相当のロジックが良いが自動付与にする）
                     const pool = SKILL_POOLS[randomChar.type] || SKILL_POOLS.physical_attacker;
                     const newSkillId = pool[Math.floor(Math.random() * pool.length)];
                     const newSkill = SKILLS[newSkillId];
-                    if (newSkill && !randomChar.skills.some(s => s === newSkillId)) {
-                        randomChar.skills.push(newSkillId);
+                    if (newSkill && !randomChar.skills.some(s => s.id === newSkillId)) {
+                        randomChar.skills.push({ id: newSkill.id, displayName: newSkill.name }); // データ構造を統一
                         message = `HPを捧げ、${randomChar.displayName}は${newSkill.name}を習得した！`;
                     } else {
                         message = `HPを捧げたが、何も起こらなかった...`;
@@ -2784,17 +2836,14 @@ class Game {
 
     // 前のキャラクターに戻る
     backCharacter() {
-        let prevIdx = this.state.battle.currentCharIndex;
-
-        // 現在のキャラがまだ入力前なら、その前から探す
-        if (!this.state.battle.commands[prevIdx]) {
-            prevIdx--;
-        }
+        // 現在の入力中インデックスより前から、生存しているキャラを逆順に探す
+        let prevIdx = this.state.battle.currentCharIndex - 1;
 
         while (prevIdx >= 0) {
             if (this.state.party[prevIdx].currentHp > 0) {
-                // 見つかった生存キャラのコマンドを消去してそこにインデックスを戻す
+                // 見つかった生存キャラのコマンドを消去
                 delete this.state.battle.commands[prevIdx];
+                // インデックスをそのキャラに戻す
                 this.state.battle.currentCharIndex = prevIdx;
                 this.updateCommandUI();
                 return;
@@ -3120,6 +3169,10 @@ class Game {
         // === 味方固有技 ===
         if (skillId === 'taunt') { // 唐可可
             const el = document.createElement('div'); el.className = 'vfx-stardust'; vfx.appendChild(el);
+        } else if (skillId === 'iron_wall' || skillId === 'defense_boost' || (skill && skill.type === 'buff')) {
+            const el = document.createElement('div'); el.className = 'shield-aura'; vfx.appendChild(el);
+        } else if (skillId === 'cure_status') {
+            this.showFlashEffect(target, 'green'); // 浄化は緑のフラッシュ
         } else if (skillId === 'ultra_attack' && actor.id === 'sky') { // キュアスカイ
             const el = document.createElement('div'); el.className = 'vfx-sky-punch'; vfx.appendChild(el);
         } else if (skillId === 'heal' && actor.id === 'josuke') { // 東方仗助

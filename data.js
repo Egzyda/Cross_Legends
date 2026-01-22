@@ -132,7 +132,7 @@ const SKILLS = {
         name: '挑発',
         type: 'buff',
         target: 'self',
-        mpCost: 20,
+        mpCost: 40,
         priority: 'first',
         effects: [
             { type: 'taunt', duration: 2 },
@@ -181,17 +181,7 @@ const SKILLS = {
         ],
         description: 'HP30%以下で発動可、HP50%回復+物防/魔防+40% 3ターン'
     },
-    evasion_boost: {
-        id: 'evasion_boost',
-        name: '回避上昇',
-        type: 'buff',
-        target: 'self',
-        mpCost: 25,
-        effects: [
-            { type: 'damageReduction', value: 0.3, duration: 2 }
-        ],
-        description: '2ターン被ダメージ30%軽減'
-    },
+
 
     // --- ヒーラー系 ---
     heal: {
@@ -422,16 +412,7 @@ const SKILLS = {
 
 
     // --- その他サポート系 ---
-    mp_restore: {
-        id: 'mp_restore',
-        name: 'MP回復',
-        type: 'heal',
-        target: 'single_ally',
-        mpCost: 0,
-        hpCost: 0.1,
-        mpHealPercent: 30,
-        description: 'HP10%消費、単体MP30%回復'
-    },
+
     all_boost: {
         id: 'all_boost',
         name: '全能力強化',
@@ -477,7 +458,7 @@ const SKILLS = {
 const SKILL_POOLS = {
     physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack', 'physical_charge'],
     magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'continuous_magic_shot', 'magic_charge'],
-    tank: ['taunt', 'iron_wall', 'counter_stance', 'fortitude', 'evasion_boost'],
+    tank: ['taunt', 'iron_wall', 'counter_stance', 'fortitude'],
     healer: ['heal', 'heal_all', 'revive', 'cure_status'],
     support: ['attack_boost', 'attack_boost_all', 'defense_boost', 'defense_boost_all', 'speed_boost', 'speed_boost_all', 'luck_boost', 'luck_boost_all'],
     debuffer: ['weaken', 'weaken_all', 'armor_break', 'armor_break_all', 'speed_down', 'speed_down_all', 'luck_down', 'luck_down_all']
@@ -657,7 +638,7 @@ const MAP_CONFIG = {
         enemies: ['slime', 'kuribo', 'abo', 'wadorudo', 'kamec'],
         elites: ['arboc', 'buggy', 'shadow', 'kabaton'],
         bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru'],
-        multiplier: { start: 1.0, mid: 1.2, elite: 1.5, boss: 1.8 }
+        multiplier: { start: 0.9, mid: 1.1, elite: 1.25, boss: 1.4 }
     },
     act2: {
         nodes: 10,
@@ -672,6 +653,6 @@ const MAP_CONFIG = {
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
         elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
         bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
-        multiplier: { start: 1.7, mid: 1.9, elite: 2.2, boss: 2.5 }
+        multiplier: { start: 1.5, mid: 1.7, elite: 1.9, boss: 2.2 }
     }
 };
