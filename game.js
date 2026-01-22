@@ -154,7 +154,6 @@ class Game {
         document.getElementById('start-btn').addEventListener('click', () => {
             if (this.hasSaveData()) {
                 this.showModal('確認', '進行中のデータがあります。<br>新しいゲームを始めるとデータは消去されます。<br>よろしいですか？', [
-                    { text: 'キャンセル', onClick: () => this.closeModal(), className: 'btn-primary' },
                     {
                         text: 'はじめる',
                         onClick: () => {
@@ -162,8 +161,9 @@ class Game {
                             this.clearSaveData();
                             this.showPartyScreen();
                         },
-                        className: 'btn-danger' // Style definition needed if not exists, defaulting to primary if not handled in css
-                    }
+                        className: 'btn-danger'
+                    },
+                    { text: 'キャンセル', onClick: () => this.closeModal(), className: 'btn-primary' }
                 ]);
             } else {
                 this.showPartyScreen();
@@ -1691,8 +1691,8 @@ class Game {
             const cmd = pendingCommands.shift();
             await this.executeCommand(cmd);
 
-            // キャラが完全に動作を終えて、HPバーが減るのを待つ余韻
-            await this.delay(1200);
+            // キャラが完全に動作を終えて、HPバーが減るのを待つ余韻（最後のアクションは600msに短縮）
+            await this.delay(pendingCommands.length > 0 ? 1200 : 600);
             this.renderBattle(); // 状態異常バッジ等の最終同期
 
             if (this.checkBattleEnd()) return;
@@ -2551,40 +2551,46 @@ class Game {
                 options.appendChild(option);
             });
         } else if (type === 'skill') {
-            if (char.skills.length >= 3) {
-                this.showToast('スキル枠がいっぱいです', 'error');
-                this.showRewardForCharacter(charIdx); // 戻る
-                return;
-            }
-
-            // スキル候補生成
             const candidateSkills = [];
-            const myPool = SKILL_POOLS[char.type] || SKILL_POOLS.balance;
+            const myPoolIds = SKILL_POOLS[char.type] || [];
 
-            // 他のプールのスキルを収集
-            let otherPools = [];
-            Object.keys(SKILL_POOLS).forEach(key => {
-                if (key !== char.type) {
-                    otherPools = otherPools.concat(SKILL_POOLS[key]);
-                }
+            // 全プールから習得可能な全スキルをリストアップ
+            let allAvailableSkills = [];
+            Object.keys(SKILL_POOLS).forEach(role => {
+                SKILL_POOLS[role].forEach(skillId => {
+                    const isDuplicate = allAvailableSkills.some(s => s.id === skillId);
+                    const alreadyHas = char.skills.some(cs => cs.id === skillId) || (char.uniqueSkill && char.uniqueSkill.id === skillId);
+                    const isExcluded = char.excludeSkills && char.excludeSkills.includes(skillId);
+
+                    if (!isDuplicate && !alreadyHas && !isExcluded) {
+                        allAvailableSkills.push({
+                            id: skillId,
+                            isMyRole: myPoolIds.includes(skillId)
+                        });
+                    }
+                });
             });
 
-            // 3つの候補を生成
+            // 最大3つ選出するまで繰り返す
             for (let i = 0; i < 3; i++) {
-                const isMyRole = Math.random() < 0.7; // 70%
-                let pool = isMyRole ? myPool : otherPools;
+                if (allAvailableSkills.length === 0) break;
 
-                // 重複除外 & 下位互換スキル除外
-                const available = pool.filter(s =>
-                    s !== char.uniqueSkill?.id &&
-                    !char.skills.some(cs => cs.id === s) &&
-                    !candidateSkills.some(c => c.id === s) &&
-                    (!char.excludeSkills || !char.excludeSkills.includes(s))
-                );
+                const myRoleOptions = allAvailableSkills.filter(s => s.isMyRole);
+                const otherOptions = allAvailableSkills.filter(s => !s.isMyRole);
 
-                if (available.length > 0) {
-                    const skillId = available[Math.floor(Math.random() * available.length)];
-                    candidateSkills.push(SKILLS[skillId]);
+                let selectedIdx = -1;
+                // 70%の確率で自ロールのスキルを優先的に抽選（自ロールの在庫がある場合のみ）
+                if (myRoleOptions.length > 0 && (Math.random() < 0.7 || otherOptions.length === 0)) {
+                    const targetSkill = myRoleOptions[Math.floor(Math.random() * myRoleOptions.length)];
+                    selectedIdx = allAvailableSkills.findIndex(s => s.id === targetSkill.id);
+                } else if (otherOptions.length > 0) {
+                    const targetSkill = otherOptions[Math.floor(Math.random() * otherOptions.length)];
+                    selectedIdx = allAvailableSkills.findIndex(s => s.id === targetSkill.id);
+                }
+
+                if (selectedIdx !== -1) {
+                    const skill = allAvailableSkills.splice(selectedIdx, 1)[0];
+                    candidateSkills.push(SKILLS[skill.id]);
                 }
             }
 
@@ -2603,8 +2609,12 @@ class Game {
                         <div class="reward-desc">${skill.description}</div>
                     `;
                     option.addEventListener('click', () => {
-                        char.skills.push({ id: skill.id, displayName: skill.name });
-                        this.nextReward(charIdx);
+                        if (char.skills.length < 3) {
+                            char.skills.push({ id: skill.id, displayName: skill.name });
+                            this.nextReward(charIdx);
+                        } else {
+                            this.showSkillSwap(charIdx, skill);
+                        }
                     });
                     options.appendChild(option);
                 });
@@ -2614,6 +2624,66 @@ class Game {
             // Skip
             this.nextReward(charIdx);
         }
+    }
+
+    // スキル入れ替え画面
+    showSkillSwap(charIdx, newSkill) {
+        const char = this.state.party[charIdx];
+        const options = document.getElementById('reward-options');
+        document.getElementById('reward-character-name').textContent = `${char.displayName}：入れ替えるスキルを選択`;
+        options.innerHTML = '';
+
+        // 新しいスキルの情報を表示
+        const info = document.createElement('div');
+        info.style.padding = '10px';
+        info.style.marginBottom = '10px';
+        info.style.background = 'rgba(79, 172, 254, 0.1)';
+        info.style.borderRadius = '8px';
+        info.style.border = '1px solid var(--primary)';
+        info.innerHTML = `
+            <div style="color:var(--primary);font-weight:bold;font-size:12px;">新規習得候補：</div>
+            <div style="font-weight:bold;">${newSkill.name}</div>
+            <div style="font-size:11px;color:var(--text-sub);">${newSkill.description}</div>
+        `;
+        options.appendChild(info);
+
+        // 既存の3つのスキルを表示
+        char.skills.forEach((oldSkill, idx) => {
+            const skillData = SKILLS[oldSkill.id] || {};
+            const option = document.createElement('div');
+            option.className = 'reward-option';
+            option.innerHTML = `
+                <div class="reward-title">【入れ替え】${oldSkill.displayName || skillData.name}</div>
+                <div class="reward-desc">${skillData.description || ''}</div>
+            `;
+            option.addEventListener('click', () => {
+                this.showModal('確認', `${oldSkill.displayName || skillData.name} を忘れて ${newSkill.name} を覚えますか？`, [
+                    {
+                        text: '入れ替える',
+                        onClick: () => {
+                            this.closeModal();
+                            char.skills[idx] = { id: newSkill.id, displayName: newSkill.name };
+                            this.nextReward(charIdx);
+                        },
+                        className: 'btn-danger'
+                    },
+                    { text: 'キャンセル', onClick: () => this.closeModal(), className: 'btn-primary' }
+                ]);
+            });
+            options.appendChild(option);
+        });
+
+        // 習得を諦めるボタン
+        const skipOption = document.createElement('div');
+        skipOption.className = 'reward-option';
+        skipOption.style.marginTop = '20px';
+        skipOption.style.borderColor = '#666';
+        skipOption.innerHTML = `
+            <div class="reward-title" style="color:#aaa;">習得を諦める</div>
+            <div class="reward-desc">現在のスキルを維持します</div>
+        `;
+        skipOption.addEventListener('click', () => this.nextReward(charIdx));
+        options.appendChild(skipOption);
     }
 
     // 次の報酬へ
@@ -3274,9 +3344,23 @@ class Game {
             vfx.appendChild(el);
         } else if (skillId === 'aura_sphere') { // ルカリオ
             const el = document.createElement('div'); el.className = 'vfx-aura-sphere'; vfx.appendChild(el);
-        } else if (skillId === 'scarlet_storm') { // 優木せつ菜
+        } else if (skillId === 'scarlet_storm') { // 優木せつ菜：多層爆発演出
+            const screen = document.getElementById('battle-screen');
+            // 衝撃の瞬間に反転と揺れ（50%タイミング前後）
+            setTimeout(() => {
+                screen.classList.add('void-invert', 'screen-shake');
+                setTimeout(() => screen.classList.remove('void-invert', 'screen-shake'), 300);
+            }, 450);
+
             const el = document.createElement('div'); el.className = 'vfx-scarlet-storm';
-            el.innerHTML = '<div class="vfx-flame"></div><div class="vfx-flame"></div><div class="vfx-flame"></div><div class="vfx-flame"></div><div class="vfx-flame"></div>';
+            let layers = '<div class="vfx-explosion-layer outer"></div>' +
+                         '<div class="vfx-explosion-layer mid"></div>' +
+                         '<div class="vfx-explosion-layer inner"></div>';
+            // 放射状の閃光を生成
+            for (let i = 0; i < 12; i++) {
+                layers += `<div class="vfx-flare" style="--r:${i * 30}deg"></div>`;
+            }
+            el.innerHTML = layers;
             vfx.appendChild(el);
         } else if (skillId === 'fusion_crust') { // セラス
             const el = document.createElement('div'); el.className = 'vfx-fusion-crust'; vfx.appendChild(el);
@@ -3422,8 +3506,8 @@ class Game {
         if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 800; // ラッシュ後回復
 
-        // エフェクト消去は裏側で行い、ダメージ処理には早めに完了を報告する
-        setTimeout(() => vfx.remove(), vfxDuration);
+        // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
+        setTimeout(() => vfx.remove(), vfxDuration + 500);
         await this.delay(damageTiming);
     }
 

@@ -2868,27 +2868,50 @@ h3 {
     }
 }
 
-/* スカーレットストーム（優木せつ菜）：赤い炎の渦 */
+/* スカーレットストーム（優木せつ菜）：多層爆発と閃光 */
 .vfx-scarlet-storm {
     position: absolute;
-    width: 240px;
-    height: 240px;
-    background: radial-gradient(circle, rgba(255, 50, 50, 0.5) 0%, transparent 70%);
-    filter: drop-shadow(0 0 20px #ff4500);
-    animation: scarlet-spin 0.7s ease-out forwards;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.vfx-flame {
+/* 爆発の多層レイヤー */
+.vfx-explosion-layer {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 35px;
-    height: 70px;
-    background: linear-gradient(to top, #ff4500, #ff8c00, transparent);
-    border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
-    filter: blur(2px);
-    transform-origin: bottom center;
-    animation: flame-dance 0.4s ease-out forwards;
+    border-radius: 50%;
+    opacity: 0;
+    animation: explosion-burst 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.vfx-explosion-layer.inner { width: 100px; height: 100px; background: #fff; box-shadow: 0 0 40px #fff; z-index: 3; animation-delay: 0.1s; }
+.vfx-explosion-layer.mid { width: 200px; height: 200px; background: #ff8c00; box-shadow: 0 0 60px #ff4500; z-index: 2; animation-delay: 0.05s; }
+.vfx-explosion-layer.outer { width: 300px; height: 300px; background: radial-gradient(circle, #ff4500, #800000, #000); filter: blur(10px); z-index: 1; }
+
+/* 放射状の閃光 */
+.vfx-flare {
+    position: absolute;
+    width: 400px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fff, transparent);
+    transform: rotate(var(--r));
+    opacity: 0;
+    animation: flare-flash 0.6s ease-out forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes explosion-burst {
+    0% { transform: scale(0.1); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes flare-flash {
+    0% { transform: rotate(var(--r)) scaleX(0); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: rotate(var(--r)) scaleX(1.5); opacity: 0; }
 }
 
 .vfx-flame:nth-child(1) {

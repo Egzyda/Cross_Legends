@@ -181,12 +181,14 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'scarlet_storm',
             displayName: 'せつ菜⭐︎スカーレットストーム',
-            basePower: 110,
+            basePower: 90,
             mpCost: 50,
             target: 'all_enemies',
-            type: 'physical_attack',
-            effects: [],
-            description: '全体に物理攻撃（威力110%）',
+            type: 'magic_attack',
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '全体に魔法攻撃（威力90%）＋火傷にする（3T）',
         },
         image: {
             full: 'img/setsuna_full.png',
@@ -253,7 +255,7 @@ const CHARACTERS = {
                 { type: 'buff', stat: 'magicDefense', value: 0.15, duration: 2 },
                 { type: 'counter', power: 180, duration: 2 }
             ],
-            description: '物防・魔防+15%、攻撃受けた時に全属性反撃（威力180%）2ターン',
+            description: '物防・魔防+15%、反撃状態（威力180%）2T',
         },
         image: {
             full: 'img/kuroo_full.png',
@@ -382,7 +384,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
             ],
-            description: '敵単体をスタンにする（1ターン行動不能）',
+            description: '敵単体をスタンにする（1T行動不能）',
         },
         image: {
             full: 'img/shota_full.png',
@@ -415,7 +417,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }
             ],
-            description: '敵単体を毒状態にする（3ターン継続ダメージ）',
+            description: '敵単体を毒状態にする（3T）',
         },
         image: {
             full: 'img/shizuku_full.png',

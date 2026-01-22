@@ -139,7 +139,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 },
             { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 }
         ],
-        description: '2ターン挑発状態、自分の物防/魔防+20%（先制）'
+        description: '2T挑発状態、自分の物防/魔防+20%（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -152,7 +152,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 2 },
             { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 2 }
         ],
-        description: '2ターン自分の物防/魔防+50%（先制）'
+        description: '2T自分の物防/魔防+50%（先制）'
     },
 
     counter_stance: {
@@ -166,7 +166,7 @@ const SKILLS = {
             { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 2 },
             { type: 'counter', power: 150, duration: 2 }
         ],
-        description: '物防・魔防+10%、攻撃受けた時に全属性反撃（威力150%）2ターン'
+        description: '物防・魔防+10%、反撃状態（威力150%）2T'
     },
     fortitude: {
         id: 'fortitude',
@@ -180,7 +180,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
         ],
-        description: 'HP30%以下で発動可、HP50%回復+物防/魔防+40% 3ターン'
+        description: 'HP30%以下で発動、HP50%回復+物防/魔防+40% 3T'
     },
 
 
@@ -232,7 +232,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalAttack', value: 0.35, duration: 3 },
             { type: 'buff', stat: 'magicAttack', value: 0.35, duration: 3 }
         ],
-        description: '単体の物攻/魔攻+35% 3ターン'
+        description: '単体の物攻/魔攻+35% 3T'
     },
     attack_boost_all: {
         id: 'attack_boost_all',
@@ -244,7 +244,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 2 },
             { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 2 }
         ],
-        description: '全体の物攻/魔攻+20% 2ターン'
+        description: '全体の物攻/魔攻+20% 2T'
     },
     defense_boost: {
         id: 'defense_boost',
@@ -256,7 +256,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
         ],
-        description: '単体の物防/魔防+40% 3ターン'
+        description: '単体の物防/魔防+40% 3T'
     },
     defense_boost_all: {
         id: 'defense_boost_all',
@@ -268,7 +268,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 2 },
             { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 2 }
         ],
-        description: '全体の物防/魔防+25% 2ターン'
+        description: '全体の物防/魔防+25% 2T'
     },
     speed_boost: {
         id: 'speed_boost',
@@ -279,7 +279,7 @@ const SKILLS = {
         effects: [
             { type: 'buff', stat: 'speed', value: 0.6, duration: 3 }
         ],
-        description: '単体の速度+60% 3ターン'
+        description: '単体の速度+60% 3T'
     },
     speed_boost_all: {
         id: 'speed_boost_all',
@@ -290,7 +290,7 @@ const SKILLS = {
         effects: [
             { type: 'buff', stat: 'speed', value: 0.35, duration: 2 }
         ],
-        description: '全体の速度+35% 2ターン'
+        description: '全体の速度+35% 2T'
     },
     luck_boost: {
         id: 'luck_boost',
@@ -302,7 +302,7 @@ const SKILLS = {
             { type: 'buff', stat: 'luck', value: 0.5, duration: 3 },
             { type: 'critBoost', value: 30, duration: 3 }
         ],
-        description: '単体の運+50%+クリ率+30% 3ターン'
+        description: '単体の運+50%+クリ率+30% 3T'
     },
     luck_boost_all: {
         id: 'luck_boost_all',
@@ -314,7 +314,7 @@ const SKILLS = {
             { type: 'buff', stat: 'luck', value: 0.3, duration: 2 },
             { type: 'critBoost', value: 15, duration: 2 }
         ],
-        description: '全体の運+30%+クリ率+15% 2ターン'
+        description: '全体の運+30%+クリ率+15% 2T'
     },
 
     // --- デバッファー系（デバフ） ---
@@ -328,7 +328,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalAttack', value: -0.3, duration: 3 },
             { type: 'debuff', stat: 'magicAttack', value: -0.3, duration: 3 }
         ],
-        description: '単体の物攻/魔攻-30% 3ターン'
+        description: '単体の物攻/魔攻-30% 3T'
     },
     weaken_all: {
         id: 'weaken_all',
@@ -340,7 +340,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalAttack', value: -0.2, duration: 2 },
             { type: 'debuff', stat: 'magicAttack', value: -0.2, duration: 2 }
         ],
-        description: '全体の物攻/魔攻-20% 2ターン'
+        description: '全体の物攻/魔攻-20% 2T'
     },
     armor_break: {
         id: 'armor_break',
@@ -352,7 +352,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 2 },
             { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 2 }
         ],
-        description: '単体の物防/魔防-35% 2ターン'
+        description: '単体の物防/魔防-35% 2T'
     },
     armor_break_all: {
         id: 'armor_break_all',
@@ -364,7 +364,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 2 },
             { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 2 }
         ],
-        description: '全体の物防/魔防-20% 2ターン'
+        description: '全体の物防/魔防-20% 2T'
     },
     speed_down: {
         id: 'speed_down',
@@ -375,7 +375,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
         ],
-        description: '単体の速度-30% 3ターン'
+        description: '単体の速度-30% 3T'
     },
     speed_down_all: {
         id: 'speed_down_all',
@@ -386,7 +386,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'speed', value: -0.2, duration: 2 }
         ],
-        description: '全体の速度-20% 2ターン'
+        description: '全体の速度-20% 2T'
     },
     luck_down: {
         id: 'luck_down',
@@ -397,7 +397,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'luck', value: -0.4, duration: 3 }
         ],
-        description: '単体の運-40% 3ターン'
+        description: '単体の運-40% 3T'
     },
     luck_down_all: {
         id: 'luck_down_all',
@@ -408,7 +408,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'luck', value: -0.25, duration: 2 }
         ],
-        description: '全体の運-25% 2ターン'
+        description: '全体の運-25% 2T'
     },
 
 
@@ -427,7 +427,7 @@ const SKILLS = {
             { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 },
             { type: 'buff', stat: 'speed', value: 0.2, duration: 2 }
         ],
-        description: '全体の全ステータス+20% 2ターン'
+        description: '全体の全ステータス+20% 2T'
     },
 
     // --- 敵専用スキル ---
@@ -440,7 +440,7 @@ const SKILLS = {
         effects: [
             { type: 'status', status: 'poison', chance: 100, duration: 3 }
         ],
-        description: '単体を毒状態にする（3ターン）'
+        description: '単体を毒状態にする（3T）'
     },
     paralyze_single: {
         id: 'paralyze_single',
@@ -451,7 +451,7 @@ const SKILLS = {
         effects: [
             { type: 'status', status: 'paralysis', chance: 100, duration: 2 }
         ],
-        description: '単体を麻痺状態にする（2ターン）'
+        description: '単体を麻痺状態にする（2T）'
     }
 };
 
