@@ -2230,7 +2230,14 @@ class Game {
     applyDamage(target, damage) {
         target.currentHp = Math.max(0, target.currentHp - damage.value);
 
-        // 死亡時のステータスリセット（MP以外）
+        // 被弾時の2連白フラッシュを適用
+        const selector = this.getUnitSelector(target);
+        const unitEl = document.querySelector(selector);
+        if (unitEl) {
+            unitEl.classList.add('flash-flicker-white');
+            setTimeout(() => unitEl.classList.remove('flash-flicker-white'), 300);
+        }
+
         if (target.currentHp <= 0) {
             target.buffs = [];
             target.debuffs = [];
@@ -2238,12 +2245,19 @@ class Game {
         }
 
         this.showDamagePopup(target, damage.value, damage.critical ? 'critical' : 'damage');
-        // 全体描画ではなくバーの幅だけを更新してアニメーションを維持
+
+        // バーの幅のみを更新（これによりCSSのtransition: 1sが効き、ぬるぬる動く）
         this.updateBarsUI();
 
-        // 死亡状態の見た目（グレーアウト等）を即座に反映させるため再描画
-        this.renderAllies();
-        this.renderEnemies();
+        // 死亡時の処理：即座にrenderせず、クラス付与のみで演出を完結させる
+        if (target.currentHp <= 0) {
+            if (unitEl) {
+                unitEl.classList.add('dead');
+                // バフ・状態異常表示を即座にクリア
+                const overlays = unitEl.querySelectorAll('.buff-overlay, .status-ailments');
+                overlays.forEach(o => o.innerHTML = '');
+            }
+        }
     }
 
     updateBarsUI() {
@@ -3185,7 +3199,7 @@ class Game {
             // 画面揺れと色彩反転を適用（1秒間維持）
             const screen = document.getElementById('battle-screen');
             screen.classList.add('void-invert', 'screen-shake');
-            setTimeout(() => screen.classList.remove('void-invert', 'screen-shake'), 1000);
+            setTimeout(() => screen.classList.remove('void-invert', 'screen-shake'), 600);
 
             // 多層レイヤーによる高輝度エフェクト
             const burst = document.createElement('div'); burst.className = 'vfx-sky-burst'; vfx.appendChild(burst);
@@ -3290,11 +3304,26 @@ class Game {
             vfx.appendChild(s1); vfx.appendChild(s2);
         }
 
-        this.showFlashEffect(target, isPhysical ? 'white' : 'blue');
-        // 特定の強力な技のみ、余韻を長く持たせる（1.2秒）
-        const vfxDuration = (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 : 800;
-        await this.delay(vfxDuration);
-        vfx.remove();
+        // 可可の星屑クルージング：5つの星を生成してボリュームアップ
+        if (skillId === 'taunt' && actor.id === 'keke') {
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('div');
+                star.className = 'vfx-star-particle';
+                star.innerText = '★';
+                star.style.setProperty('--delay', `${i * 0.1}s`);
+                star.style.setProperty('--angle', `${i * 72}deg`);
+                vfx.appendChild(star);
+            }
+        }
+
+        // ダメージ発生タイミング：演出の5割（50%）に短縮してテンポアップ
+        const vfxDuration = (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
+                           (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 : 1000;
+        const damageTiming = vfxDuration * 0.5;
+
+        // エフェクト消去は裏側で行い、ダメージ処理には早めに完了を報告する
+        setTimeout(() => vfx.remove(), vfxDuration);
+        await this.delay(damageTiming);
     }
 
     getUnitSelector(unit) {

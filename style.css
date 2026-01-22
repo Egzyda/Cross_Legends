@@ -2487,31 +2487,38 @@ h3 {
     width: 220px;
     height: 220px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 223, 0, 0.4) 0%, transparent 70%);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-    animation: stardust-spin 1s ease-out forwards;
+    background: radial-gradient(circle, rgba(160, 216, 239, 0.4) 0%, transparent 70%);
+    box-shadow: 0 0 30px rgba(79, 172, 254, 0.3);
+    /* 演出時間を1.2sに伸ばし、広がりすぎないよう調整 */
+    animation: stardust-spin 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.vfx-stardust::before,
-.vfx-stardust::after {
-    content: '★';
+/* 個別の星粒子設定 */
+.vfx-star-particle {
     position: absolute;
-    font-size: 24px;
-    color: #ffd700;
-    text-shadow: 0 0 10px #ffeb3b, 0 0 20px #fff;
-    animation: stardust-orbit 0.8s ease-out forwards;
+    font-size: 30px;
+    color: #a0d8ef;
+    text-shadow: 0 0 15px #4facfe, 0 0 30px #fff;
+    opacity: 0;
+    pointer-events: none;
+    /* 螺旋を描いて広がるアニメーション */
+    animation: star-particle-anim 1.3s ease-out forwards;
+    animation-delay: var(--delay);
 }
 
-.vfx-stardust::before {
-    top: 10%;
-    left: 50%;
-}
-
-.vfx-stardust::after {
-    top: 50%;
-    left: 10%;
-    font-size: 18px;
-    animation-delay: 0.1s;
+@keyframes star-particle-anim {
+    0% {
+        transform: rotate(var(--angle)) translateY(0) scale(0.3) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+        transform: rotate(var(--angle)) translateY(-30px) scale(1.1) rotate(45deg);
+    }
+    100% {
+        transform: rotate(var(--angle)) translateY(-90px) scale(0.6) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 @keyframes stardust-spin {
@@ -3851,12 +3858,13 @@ h3 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 130%;
-    height: 130%;
-    border: 4px solid #ffd700;
+    /* カードが縦長でも楕円にならないよう固定ピクセルを指定 */
+    width: 145px;
+    height: 145px;
+    border: 4px solid #4facfe;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
-    filter: drop-shadow(0 0 15px #ffd700);
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.2) 0%, transparent 70%);
+    filter: drop-shadow(0 0 15px #4facfe);
     animation: shield-pulse 0.8s ease-out forwards;
     pointer-events: none;
     z-index: 100;
@@ -3917,4 +3925,14 @@ h3 {
     100% {
         filter: brightness(1);
     }
+}
+
+/* 被弾時の2連フラッシュ（フリッカー）演出 */
+.flash-flicker-white {
+    animation: flash-flicker-white-anim 0.25s ease-out;
+}
+
+@keyframes flash-flicker-white-anim {
+    0%, 40%, 100% { filter: brightness(1); }
+    20%, 70% { filter: brightness(3) drop-shadow(0 0 15px #fff); }
 }
