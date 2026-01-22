@@ -2546,61 +2546,64 @@ h3 {
     }
 }
 
-/* スカイパンチ（キュアスカイ）：青い拳衝撃波 (強化版) */
-.vfx-sky-punch {
+/* スカイパンチ（キュアスカイ）：蒼のスーパースター・バースト（超強化版） */
+.vfx-sky-burst {
     position: absolute;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, rgba(135, 206, 250, 0.9) 0%, rgba(30, 144, 255, 0.4) 60%, transparent 80%);
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, #fff 0%, #4facfe 30%, transparent 70%);
     border-radius: 50%;
-    filter: drop-shadow(0 0 20px #00bfff);
-    animation: sky-punch-anim 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    mix-blend-mode: screen;
+    /* 1.0sかけてじっくり魅せる */
+    animation: sky-burst-anim 1.0s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-.vfx-sky-punch::before {
+.vfx-sky-cross {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.vfx-sky-cross::before, .vfx-sky-cross::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 140%;
-    height: 140%;
-    transform: translate(-50%, -50%);
-    border: 8px solid rgba(135, 206, 250, 0.8);
-    border-radius: 50%;
-    box-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
-    animation: sky-ring-expand 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    background: #fff;
+    box-shadow: 0 0 30px #00f2fe, 0 0 60px #fff;
+    animation: sky-cross-anim 1.0s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-@keyframes sky-punch-anim {
-    0% {
-        transform: scale(0.3);
-        opacity: 0;
-    }
+.vfx-sky-cross::before { width: 100%; height: 2px; } /* 横線 */
+.vfx-sky-cross::after { width: 2px; height: 100%; } /* 縦線 */
 
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(3);
-        opacity: 0;
-    }
+@keyframes sky-burst-anim {
+    0% { transform: scale(0); opacity: 0; filter: brightness(5); }
+    10% { transform: scale(0.8); opacity: 1; } /* 最初の一撃 */
+    25% { transform: scale(0.7); filter: brightness(3); } /* エネルギーの圧縮（溜め） */
+    50% { transform: scale(3.5); opacity: 1; filter: brightness(2); } /* 大爆発 */
+    100% { transform: scale(4.5); opacity: 0; filter: brightness(1); } /* 霧散 */
 }
 
-@keyframes sky-ring-expand {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0;
-    }
+@keyframes sky-cross-anim {
+    0% { transform: scale(0); opacity: 0; }
+    15% { opacity: 1; transform: scale(1.8); } /* 鋭い閃光 */
+    45% { transform: scale(1.6); opacity: 0.8; } /* 余韻の維持 */
+    100% { transform: scale(2.2); opacity: 0; } /* ゆっくり消える */
+}
 
-    30% {
-        opacity: 1;
-    }
+/* 画面振動（衝撃演出） */
+.screen-shake {
+    animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
 
-    100% {
-        transform: translate(-50%, -50%) scale(2.5);
-        opacity: 0;
-    }
+@keyframes shake-anim {
+    10%, 90% { transform: translate3d(-2px, -1px, 0); }
+    20%, 80% { transform: translate3d(4px, 2px, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, -3px, 0); }
+    40%, 60% { transform: translate3d(6px, 3px, 0); }
 }
 
 /* クレイジー・D（東方仗助）：緑の回復オーラ (強化版) */

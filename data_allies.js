@@ -249,10 +249,11 @@ const CHARACTERS = {
             type: 'buff',
             target: 'self',
             effects: [
-                { type: 'buff', stat: 'physicalDefense', value: 0.36, duration: 2 },
-                { type: 'counter', power: 96, duration: 2 }
+                { type: 'buff', stat: 'physicalDefense', value: 0.15, duration: 2 },
+                { type: 'buff', stat: 'magicDefense', value: 0.15, duration: 2 },
+                { type: 'counter', power: 180, duration: 2 }
             ],
-            description: '防御+36%、攻撃受けた時に反撃（威力96%）2ターン',
+            description: '物防・魔防+15%、攻撃受けた時に全属性反撃（威力180%）2ターン',
         },
         image: {
             full: 'img/kuroo_full.png',

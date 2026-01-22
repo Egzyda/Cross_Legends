@@ -1630,11 +1630,12 @@ class Game {
     // ターン実行
     async executeTurn() {
         this.state.battle.phase = 'execution';
-        this.state.battle.phase = 'execution';
         document.getElementById('execute-turn-btn').classList.add('hidden');
         document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = true);
         const backBtn = document.getElementById('back-btn');
         if (backBtn) backBtn.disabled = true; // 確実に無効化
+
+        await this.delay(1000);
 
         // 敵の行動を追加
         this.generateEnemyCommands();
@@ -1818,6 +1819,7 @@ class Game {
                     await this.showEffectIcon(actor, null, 'shield');
                     await this.delay(600);
                     actor.statusEffects.push({ type: 'defending', duration: 1 });
+                    this.updateStatusAilmentsUI(actor);
                     break;
                 case 'item':
                     await this.executeItem(cmd, actorName);
@@ -1853,6 +1855,9 @@ class Game {
             const damage = this.calculateDamage(actor, target, damageType, 100);
             this.applyDamage(target, damage);
             this.addLog(`${target.displayName}に${damage.value}ダメージ！${damage.critical ? '（Critical）' : ''}`);
+
+            // 反撃チェック（属性不問・生存確認）
+            await this.processCounter(target, actor);
         }));
     }
 
@@ -1939,6 +1944,9 @@ class Game {
                     const damage = this.calculateDamage(actor, target, damageType, skill.power || skill.basePower || 100, skill.critBonus);
                     this.applyDamage(target, damage);
                     this.addLog(`${target.displayName}に${damage.value}ダメージ！`);
+
+                    // 反撃チェック（属性不問・生存確認）
+                    await this.processCounter(target, actor);
                 }));
                 nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
                 await this.delay(200);
@@ -3174,7 +3182,14 @@ class Game {
         } else if (skillId === 'cure_status') {
             this.showFlashEffect(target, 'green'); // 浄化は緑のフラッシュ
         } else if (skillId === 'ultra_attack' && actor.id === 'sky') { // キュアスカイ
-            const el = document.createElement('div'); el.className = 'vfx-sky-punch'; vfx.appendChild(el);
+            // 画面揺れと色彩反転を適用（1秒間維持）
+            const screen = document.getElementById('battle-screen');
+            screen.classList.add('void-invert', 'screen-shake');
+            setTimeout(() => screen.classList.remove('void-invert', 'screen-shake'), 1000);
+
+            // 多層レイヤーによる高輝度エフェクト
+            const burst = document.createElement('div'); burst.className = 'vfx-sky-burst'; vfx.appendChild(burst);
+            const cross = document.createElement('div'); cross.className = 'vfx-sky-cross'; vfx.appendChild(cross);
         } else if (skillId === 'heal' && actor.id === 'josuke') { // 東方仗助
             const el = document.createElement('div'); el.className = 'vfx-crazy-diamond'; vfx.appendChild(el);
         } else if (skillId === 'daten_bind') { // 津島善子
@@ -3276,7 +3291,9 @@ class Game {
         }
 
         this.showFlashEffect(target, isPhysical ? 'white' : 'blue');
-        await this.delay(800); // 演出時間を少し長めに確保
+        // 特定の強力な技のみ、余韻を長く持たせる（1.2秒）
+        const vfxDuration = (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 : 800;
+        await this.delay(vfxDuration);
         vfx.remove();
     }
 
@@ -3322,6 +3339,29 @@ class Game {
     async showCriticalEffect() {
         // 中央の演出は廃止（applyDamage時のポップアップに統合）
         return Promise.resolve();
+    }
+
+    // 反撃処理ロジック（全属性対応・指定倍率準拠）
+    async processCounter(defender, attacker) {
+        // 反撃側・攻撃側が共に生存している必要がある
+        if (defender.currentHp <= 0 || attacker.currentHp <= 0) return;
+
+        // カウンター状態の確認
+        const counter = defender.statusEffects.find(e => e.type === 'counter');
+        if (counter) {
+            await this.delay(500);
+            this.addLog(`${defender.displayName}の反撃！`);
+
+            // 反撃演出（物理・魔法問わず現在の設定倍率で殴り返す）
+            await this.showAttackEffect(defender, attacker, null, 'physical');
+
+            // 倍率計算（counter.power に格納された150%や180%を使用）
+            const cDamage = this.calculateDamage(defender, attacker, 'physical', counter.power || 100);
+            this.applyDamage(attacker, cDamage);
+            this.addLog(`${attacker.displayName}に${cDamage.value}ダメージ！`);
+
+            await this.delay(500);
+        }
     }
 }
 

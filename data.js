@@ -162,10 +162,11 @@ const SKILLS = {
         target: 'self',
         mpCost: 35,
         effects: [
-            { type: 'buff', stat: 'physicalDefense', value: 0.3, duration: 2 },
-            { type: 'counter', power: 80, duration: 2 }
+            { type: 'buff', stat: 'physicalDefense', value: 0.1, duration: 2 },
+            { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 2 },
+            { type: 'counter', power: 150, duration: 2 }
         ],
-        description: '物防+30%、攻撃受けた時に反撃（威力80%）2ターン'
+        description: '物防・魔防+10%、攻撃受けた時に全属性反撃（威力150%）2ターン'
     },
     fortitude: {
         id: 'fortitude',
