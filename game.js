@@ -219,6 +219,22 @@ class Game {
                 this.handleRest(e.target.dataset.type);
             });
         });
+
+        // モーダル背景タップで閉じる設定
+        const modalOverlays = ['custom-modal', 'character-detail-modal', 'item-modal'];
+        modalOverlays.forEach(id => {
+            const overlay = document.getElementById(id);
+            if (overlay) {
+                overlay.addEventListener('click', (e) => {
+                    // クリックされたのが背景（オーバーレイ自体）である場合のみ閉じる
+                    if (e.target === overlay) {
+                        if (id === 'custom-modal') this.closeModal();
+                        else if (id === 'character-detail-modal') this.closeCharacterDetail();
+                        else if (id === 'item-modal') this.closeItemModal();
+                    }
+                });
+            }
+        });
     }
 
     // --- Save System ---
@@ -3279,7 +3295,7 @@ class Game {
                 <svg width="150" height="350" viewBox="0 0 150 350" style="overflow:visible;">
                     <!-- メイン: 下から上へ先細り (座標は計算済み) -->
                     <polygon points="70,350 80,350 60,300 100,250 50,180 90,100 65,50 75,0 75,0 65,50 82,100 42,180 92,250 52,300" class="raikiri-shape" />
-                    
+
                     <!-- 分岐: 細いテーパー -->
                     <polygon points="55,300 58,300 30,280" class="raikiri-shape branch" />
                     <polygon points="45,180 48,180 20,150" class="raikiri-shape branch" />
