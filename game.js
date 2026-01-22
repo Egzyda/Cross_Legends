@@ -1381,6 +1381,7 @@ class Game {
         this.hideSelectionPanels();
         const panel = document.getElementById('target-selection');
         panel.classList.remove('hidden');
+        panel.scrollTop = 0; // スクロール位置リセット
         panel.innerHTML = '<h4>対象を選択</h4>';
 
         const skill = skillId ? this.getSkillData(skillId, this.state.party[this.state.battle.currentCharIndex]) : null;
@@ -1491,6 +1492,7 @@ class Game {
         this.hideSelectionPanels();
         const panel = document.getElementById('skill-selection');
         panel.classList.remove('hidden');
+        panel.scrollTop = 0; // スクロール位置リセット
         panel.innerHTML = '<h4>スキルを選択</h4>';
 
         const currentChar = this.state.party[this.state.battle.currentCharIndex];
@@ -1653,16 +1655,26 @@ class Game {
             }
         });
 
-        allCommands.sort((a, b) => {
-            if ((a.priority || 0) !== (b.priority || 0)) {
-                return (b.priority || 0) - (a.priority || 0);
-            }
-            return (b.speed || 0) - (a.speed || 0);
-        });
+        // 行動実行（動的順序評価）
+        // コマンドリストをコピーして管理
+        let pendingCommands = [...allCommands];
 
-        // 行動実行
-        for (const cmd of allCommands) {
+        while (pendingCommands.length > 0) {
+            // 毎回速度を再評価してソート
+            pendingCommands.sort((a, b) => {
+                if ((a.priority || 0) !== (b.priority || 0)) {
+                    return (b.priority || 0) - (a.priority || 0);
+                }
+                // 現在のスピードを取得
+                const speedA = this.getUnitSpeed(a);
+                const speedB = this.getUnitSpeed(b);
+                return speedB - speedA;
+            });
+
+            // 先頭のコマンドを実行
+            const cmd = pendingCommands.shift();
             await this.executeCommand(cmd);
+
             // キャラが完全に動作を終えて、HPバーが減るのを待つ余韻
             await this.delay(1200);
             this.renderBattle(); // 状態異常バッジ等の最終同期
@@ -1672,6 +1684,18 @@ class Game {
 
         // ターン終了処理
         this.endTurn();
+    }
+
+    // ユニットの現在の速度を取得
+    getUnitSpeed(cmd) {
+        let unit;
+        if (cmd.isEnemy) {
+            unit = this.state.battle.enemies[cmd.enemyIndex];
+        } else {
+            unit = this.state.party[cmd.charIndex];
+        }
+        if (!unit || unit.currentHp <= 0) return -1; // 死亡時は最後尾へ
+        return this.getEffectiveStat(unit, 'speed');
     }
 
     // 敵の行動生成
@@ -1815,11 +1839,14 @@ class Game {
                     break;
                 case 'defend':
                     this.addLog(`${actorName}は身を守っている！`);
-                    await this.delay(400);
+                    await this.delay(100);
                     await this.showEffectIcon(actor, null, 'shield');
-                    await this.delay(600);
+
+                    // エフェクトと同時にバッジを表示
                     actor.statusEffects.push({ type: 'defending', duration: 1 });
                     this.updateStatusAilmentsUI(actor);
+
+                    await this.delay(200); // 少し余韻
                     break;
                 case 'item':
                     await this.executeItem(cmd, actorName);
@@ -1836,7 +1863,16 @@ class Game {
     async executeAttack(actor, cmd, actorName) {
         let targets = [];
         if (cmd.isEnemy) {
-            targets = [this.state.party[cmd.target]];
+            let target = this.state.party[cmd.target];
+            // ターゲットが死亡していた場合、生存している別の味方を狙う
+            if (target && target.currentHp <= 0) {
+                const aliveList = this.state.party.filter(p => p.currentHp > 0);
+                if (aliveList.length > 0) {
+                    target = aliveList[Math.floor(Math.random() * aliveList.length)];
+                    // ログ出しは削除
+                }
+            }
+            targets = target && target.currentHp > 0 ? [target] : [];
         } else {
             let target = this.state.battle.enemies[cmd.target];
             if (target && target.currentHp <= 0) target = this.getAliveTarget(this.state.battle.enemies, 'left');
@@ -1844,7 +1880,7 @@ class Game {
         }
 
         this.addLog(`${actorName}の攻撃！`);
-        await this.delay(800);
+        await this.delay(600); // 共通0.6秒に短縮
 
         const damageType = this.getPrimaryAttackType(actor);
 
@@ -1904,7 +1940,7 @@ class Game {
 
         const skillName = skill.displayName || skill.name;
         this.addLog(`${actorName}の${skillName}！`);
-        await this.delay(1000); // プレイヤーが技名を認識する「タメ」
+        await this.delay(600); // 共通0.6秒に短縮
 
         // ターゲット決定
         let targets = [];
@@ -1921,7 +1957,16 @@ class Game {
             }
             targets = target ? [target] : [];
         } else {
-            targets = [this.state.party[cmd.target]];
+            let target = this.state.party[cmd.target];
+            // 敵が味方単体を狙うスキルで、対象が死んでいる場合のリターゲット
+            if (cmd.isEnemy && target && target.currentHp <= 0) {
+                const aliveList = this.state.party.filter(p => p.currentHp > 0);
+                if (aliveList.length > 0) {
+                    target = aliveList[Math.floor(Math.random() * aliveList.length)];
+                    // ログ出しは削除
+                }
+            }
+            targets = target && target.currentHp > 0 ? [target] : [];
         }
 
         // スキル効果適用
@@ -2004,9 +2049,9 @@ class Game {
 
         // 追加効果
         if (skill.effects) {
-            for (const effect of skill.effects) {
-                await this.applyEffect(actor, targets, effect, skill);
-            }
+            await Promise.all(skill.effects.map(effect =>
+                this.applyEffect(actor, targets, effect, skill)
+            ));
         }
     }
 
@@ -2016,7 +2061,7 @@ class Game {
             case 'buff':
             case 'self_buff':
                 const buffTargets = effect.type === 'self_buff' ? [actor] : targets;
-                for (const t of buffTargets) {
+                await Promise.all(buffTargets.map(async (t) => {
                     await this.showEffectIcon(t, skill, 'buff');
                     const existing = t.buffs.find(b => b.stat === effect.stat);
                     if (existing) {
@@ -2025,13 +2070,13 @@ class Game {
                     } else {
                         t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
-                    this.renderBattle(); // UI即時同期
-                }
+                }));
+                this.renderBattle(); // UI同期（全対象完了後）
                 break;
             case 'debuff':
             case 'self_debuff':
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
-                for (const t of debuffTargets) {
+                await Promise.all(debuffTargets.map(async (t) => {
                     await this.showEffectIcon(t, skill, 'debuff');
                     const existing = t.debuffs.find(d => d.stat === effect.stat);
                     if (existing) {
@@ -2040,8 +2085,8 @@ class Game {
                     } else {
                         t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                     }
-                    this.renderBattle(); // UI即時同期
-                }
+                }));
+                this.renderBattle(); // UI同期（全対象完了後）
                 break;
             case 'taunt':
                 await this.showEffectIcon(actor, skill, 'shield');
@@ -2089,10 +2134,11 @@ class Game {
                 break;
             case 'counter':
                 const counterTargets = effect.target === 'self' || effect.type === 'self_buff' ? [actor] : targets;
-                for (const t of counterTargets) {
+                await Promise.all(counterTargets.map(async (t) => {
                     await this.showEffectIcon(t, skill, 'shield');
                     t.statusEffects.push({ type: 'counter', power: effect.power, duration: effect.duration });
-                }
+                }));
+                this.renderBattle(); // UI同期
                 break;
             case 'mp_drain': // メトロイドの技：敵への吸収ではなく一律20減少
                 for (const t of targets) {
@@ -3227,9 +3273,32 @@ class Game {
             el.innerHTML = '<div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div>';
             vfx.appendChild(el);
         } else if (skillId === 'raikiri') { // はたけカカシ
-            const el = document.createElement('div'); el.className = 'vfx-raikiri';
-            el.innerHTML = '<div class="vfx-lightning"></div><div class="vfx-lightning"></div><div class="vfx-lightning"></div>';
+            const el = document.createElement('div'); el.className = 'vfx-raikiri-arc';
+            // SVGでテーパーのついた鋭いポリゴン雷を描画
+            el.innerHTML = `
+                <svg width="150" height="350" viewBox="0 0 150 350" style="overflow:visible;">
+                    <!-- メイン: 下から上へ先細り (座標は計算済み) -->
+                    <polygon points="70,350 80,350 60,300 100,250 50,180 90,100 65,50 75,0 75,0 65,50 82,100 42,180 92,250 52,300" class="raikiri-shape" />
+                    
+                    <!-- 分岐: 細いテーパー -->
+                    <polygon points="55,300 58,300 30,280" class="raikiri-shape branch" />
+                    <polygon points="45,180 48,180 20,150" class="raikiri-shape branch" />
+                    <polygon points="85,100 88,100 115,70" class="raikiri-shape branch" />
+                </svg>
+            `;
+
+            const impact = document.createElement('div');
+            impact.className = 'vfx-raikiri-impact';
+            el.appendChild(impact);
             vfx.appendChild(el);
+
+            // 0.5秒後にフェードアウト開始
+            setTimeout(() => el.classList.add('fade-out'), 500);
+
+            // 画面一瞬反転
+            const screen = document.getElementById('battle-screen');
+            setTimeout(() => screen.classList.add('void-invert'), 150);
+            setTimeout(() => screen.classList.remove('void-invert'), 350);
         } else if (skillId === 'erasure') { // 相澤消太
             const el = document.createElement('div'); el.className = 'vfx-erasure';
             el.innerHTML = '<div class="vfx-erasure-eye"></div><div class="vfx-erasure-eye"></div><div class="vfx-erasure-band"></div>';
@@ -3316,10 +3385,26 @@ class Game {
             }
         }
 
-        // ダメージ発生タイミング：演出の5割（50%）に短縮してテンポアップ
-        const vfxDuration = (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
-                           (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 : 1000;
-        const damageTiming = vfxDuration * 0.5;
+        // ダメージ発生タイミング：演出強化に合わせて調整
+        const vfxDuration =
+            (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
+                (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 :
+                    (skillId === 'daten_bind') ? 1500 : // 堕天: 1.5s
+                        (skillId === 'heal' && actor.id === 'josuke') ? 1600 : // ドラララ: 1.6s
+                            (skillId === 'aura_sphere') ? 1300 : // 波動弾: 1.3s
+                                (skillId === 'scarlet_storm') ? 1200 : // 竜巻: 1.2s
+                                    (skillId === 'ice_wall') ? 1000 : // 氷河: 1.0s
+                                        (skillId === 'raikiri') ? 600 : // 雷切（一閃）: 0.6s
+                                            1000;
+
+        // ダメージタイミング：基本50%だが、技によっては微調整
+        let damageTiming = vfxDuration * 0.5;
+        // 通常攻撃（スキルIDがない場合）は0.3秒
+        if (!skillId || skillId === 'normal_attack') damageTiming = 300;
+
+        // Raikiriは1000ms / 0.5 = 500msの標準タイミングを使用するため削除
+        if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
+        if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 800; // ラッシュ後回復
 
         // エフェクト消去は裏側で行い、ダメージ処理には早めに完了を報告する
         setTimeout(() => vfx.remove(), vfxDuration);

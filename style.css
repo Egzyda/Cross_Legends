@@ -20,12 +20,15 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none; /* システムメニューをグローバルで禁止 */
+    -webkit-touch-callout: none;
+    /* システムメニューをグローバルで禁止 */
 }
 
 img {
-    -webkit-user-drag: none; /* 画像のドラッグを禁止 */
-    -webkit-touch-callout: none; /* 画像の長押しメニューを禁止 */
+    -webkit-user-drag: none;
+    /* 画像のドラッグを禁止 */
+    -webkit-touch-callout: none;
+    /* 画像の長押しメニューを禁止 */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -2511,10 +2514,12 @@ h3 {
         transform: rotate(var(--angle)) translateY(0) scale(0.3) rotate(0deg);
         opacity: 0;
     }
+
     20% {
         opacity: 1;
         transform: rotate(var(--angle)) translateY(-30px) scale(1.1) rotate(45deg);
     }
+
     100% {
         transform: rotate(var(--angle)) translateY(-90px) scale(0.6) rotate(360deg);
         opacity: 0;
@@ -2575,7 +2580,8 @@ h3 {
     pointer-events: none;
 }
 
-.vfx-sky-cross::before, .vfx-sky-cross::after {
+.vfx-sky-cross::before,
+.vfx-sky-cross::after {
     content: '';
     position: absolute;
     background: #fff;
@@ -2583,34 +2589,107 @@ h3 {
     animation: sky-cross-anim 1.0s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-.vfx-sky-cross::before { width: 100%; height: 2px; } /* 横線 */
-.vfx-sky-cross::after { width: 2px; height: 100%; } /* 縦線 */
+.vfx-sky-cross::before {
+    width: 100%;
+    height: 2px;
+}
+
+/* 横線 */
+.vfx-sky-cross::after {
+    width: 2px;
+    height: 100%;
+}
+
+/* 縦線 */
 
 @keyframes sky-burst-anim {
-    0% { transform: scale(0); opacity: 0; filter: brightness(5); }
-    10% { transform: scale(0.8); opacity: 1; } /* 最初の一撃 */
-    25% { transform: scale(0.7); filter: brightness(3); } /* エネルギーの圧縮（溜め） */
-    50% { transform: scale(3.5); opacity: 1; filter: brightness(2); } /* 大爆発 */
-    100% { transform: scale(4.5); opacity: 0; filter: brightness(1); } /* 霧散 */
+    0% {
+        transform: scale(0);
+        opacity: 0;
+        filter: brightness(5);
+    }
+
+    10% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+
+    /* 最初の一撃 */
+    25% {
+        transform: scale(0.7);
+        filter: brightness(3);
+    }
+
+    /* エネルギーの圧縮（溜め） */
+    50% {
+        transform: scale(3.5);
+        opacity: 1;
+        filter: brightness(2);
+    }
+
+    /* 大爆発 */
+    100% {
+        transform: scale(4.5);
+        opacity: 0;
+        filter: brightness(1);
+    }
+
+    /* 霧散 */
 }
 
 @keyframes sky-cross-anim {
-    0% { transform: scale(0); opacity: 0; }
-    15% { opacity: 1; transform: scale(1.8); } /* 鋭い閃光 */
-    45% { transform: scale(1.6); opacity: 0.8; } /* 余韻の維持 */
-    100% { transform: scale(2.2); opacity: 0; } /* ゆっくり消える */
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+        transform: scale(1.8);
+    }
+
+    /* 鋭い閃光 */
+    45% {
+        transform: scale(1.6);
+        opacity: 0.8;
+    }
+
+    /* 余韻の維持 */
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+
+    /* ゆっくり消える */
 }
 
 /* 画面振動（衝撃演出） */
 .screen-shake {
-    animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake-anim 0.3s cubic-bezier(.36, .07, .19, .97) both;
 }
 
 @keyframes shake-anim {
-    10%, 90% { transform: translate3d(-2px, -1px, 0); }
-    20%, 80% { transform: translate3d(4px, 2px, 0); }
-    30%, 50%, 70% { transform: translate3d(-6px, -3px, 0); }
-    40%, 60% { transform: translate3d(6px, 3px, 0); }
+
+    10%,
+    90% {
+        transform: translate3d(-2px, -1px, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(4px, 2px, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-6px, -3px, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(6px, 3px, 0);
+    }
 }
 
 /* クレイジー・D（東方仗助）：緑の回復オーラ (強化版) */
@@ -3071,74 +3150,112 @@ h3 {
     }
 }
 
-/* 雷切（カカシ）：黄色い雷撃 */
-.vfx-raikiri {
+/* 雷切（はたけカカシ）：SVGによる連結雷撃（突き上げ・強化版） */
+.vfx-raikiri-arc {
     position: absolute;
-    width: 220px;
-    height: 220px;
-}
-
-.vfx-lightning {
-    position: absolute;
-    top: 50%;
+    bottom: -50px;
     left: 50%;
-    width: 6px;
-    height: 140px;
-    background: linear-gradient(to bottom, #dbeeff, #4facfe, transparent);
-    filter: drop-shadow(0 0 15px #4facfe) drop-shadow(0 0 30px #00f2fe);
-    transform-origin: top center;
-    animation: lightning-strike 0.25s ease-out forwards;
+    width: 150px;
+    /* 少し太く */
+    height: 350px;
+    /* 少し長く */
+    transform: translateX(-50%);
+    filter: drop-shadow(0 0 10px #00bfff) drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 40px #00bfff);
+    /* 発光強化 */
+    z-index: 10;
 }
 
-.vfx-lightning:nth-child(1) {
-    transform: translate(-50%, -50%) rotate(-25deg);
+.raikiri-shape {
+    fill: #e0ffff;
+    filter: drop-shadow(0 0 5px #00bfff);
+    clip-path: inset(100% 0 0 0);
+    /* 下から上へワイプ用初期値 */
+    animation: raikiri-wipe 0.15s linear forwards;
+    /* 超高速ワイプ */
 }
 
-.vfx-lightning:nth-child(2) {
-    transform: translate(-50%, -50%) rotate(25deg);
+.raikiri-shape.branch {
+    fill: #87cefa;
     animation-delay: 0.05s;
 }
 
-.vfx-lightning:nth-child(3) {
-    transform: translate(-50%, -50%) rotate(0deg);
-    width: 8px;
-    /* 中央は太く */
-    height: 160px;
-    animation-delay: 0.1s;
-}
-
-.vfx-lightning::after {
-    content: '';
-    position: absolute;
-    top: 90%;
-    left: 50%;
-    width: 140%;
-    height: 70%;
-    transform: translateX(-50%) rotate(40deg);
-    background: inherit;
-    filter: inherit;
-    clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%);
-}
-
-@keyframes lightning-strike {
+@keyframes raikiri-wipe {
     0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scaleY(0);
+        clip-path: inset(100% 0 0 0);
+        opacity: 1;
     }
 
-    20% {
+    100% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+    }
+}
+
+/* フェードアウト用のアニメーションはJavaScriptでクラス付与、または別定義 */
+.vfx-raikiri-arc.fade-out .raikiri-shape {
+    transition: opacity 0.3s;
+    opacity: 0;
+}
+
+/* インパクト時の衝撃波 */
+.vfx-raikiri-impact {
+    position: absolute;
+    top: 20px;
+    /* 突き上げの到達点付近 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, #00bfff, transparent);
+    box-shadow: 0 0 50px #fff, 0 0 100px #00bfff;
+    opacity: 0;
+    animation: raikiri-impact-burst 0.5s ease-out 0.4s forwards;
+    /* 0.4s地点から発生 */
+}
+
+@keyframes raikiri-flash-arc {
+    0% {
+        stroke-dashoffset: 800;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    50% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke-width: 10;
+        /* 最も太く */
+        filter: brightness(2.0);
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 0;
+        stroke-width: 4;
+    }
+}
+
+@keyframes raikiri-impact-burst {
+    0% {
+        transform: translate(-50%, -50%) scale(0.1);
         opacity: 1;
     }
 
     50% {
         opacity: 1;
-        transform: translate(-50%, -50%) scaleY(1.5);
     }
 
     100% {
+        transform: translate(-50%, -50%) scale(4.0);
         opacity: 0;
     }
 }
+
+
 
 /* 抹消（相澤消太）：赤い目の光+束縛 */
 .vfx-erasure {
@@ -3933,6 +4050,15 @@ h3 {
 }
 
 @keyframes flash-flicker-white-anim {
-    0%, 40%, 100% { filter: brightness(1); }
-    20%, 70% { filter: brightness(3) drop-shadow(0 0 15px #fff); }
+
+    0%,
+    40%,
+    100% {
+        filter: brightness(1);
+    }
+
+    20%,
+    70% {
+        filter: brightness(3) drop-shadow(0 0 15px #fff);
+    }
 }
