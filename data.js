@@ -579,41 +579,159 @@ const EVENTS = [
     }
 ];
 
-// アイテムデータ
+// アイテムデータ（12種類）
 const ITEMS = {
+    // === 単体バフ系（3ターン） ===
+    power_crystal: {
+        id: 'power_crystal',
+        name: '力の結晶',
+        description: '単体の物攻/魔攻+30%（3T）',
+        type: 'buff_item',
+        target: 'single_ally',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'physicalAttack', value: 0.3, duration: 3 },
+                { stat: 'magicAttack', value: 0.3, duration: 3 }
+            ]
+        }
+    },
+    guard_crystal: {
+        id: 'guard_crystal',
+        name: '守護の結晶',
+        description: '単体の物防/魔防+30%（3T）',
+        type: 'buff_item',
+        target: 'single_ally',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'physicalDefense', value: 0.3, duration: 3 },
+                { stat: 'magicDefense', value: 0.3, duration: 3 }
+            ]
+        }
+    },
+    swift_crystal: {
+        id: 'swift_crystal',
+        name: '迅速の結晶',
+        description: '単体の速度+50%（3T）',
+        type: 'buff_item',
+        target: 'single_ally',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'speed', value: 0.5, duration: 3 }
+            ]
+        }
+    },
+    crit_crystal: {
+        id: 'crit_crystal',
+        name: '会心の結晶',
+        description: '単体の会心率+30%（3T）',
+        type: 'buff_item',
+        target: 'single_ally',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'critBoost', value: 30, duration: 3 }
+            ]
+        }
+    },
+    // === 全体バフ系（3ターン） ===
+    power_spread_crystal: {
+        id: 'power_spread_crystal',
+        name: '力の拡散結晶',
+        description: '全体の物攻/魔攻+15%（3T）',
+        type: 'buff_item',
+        target: 'all_allies',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'physicalAttack', value: 0.15, duration: 3 },
+                { stat: 'magicAttack', value: 0.15, duration: 3 }
+            ]
+        }
+    },
+    guard_spread_crystal: {
+        id: 'guard_spread_crystal',
+        name: '守護の拡散結晶',
+        description: '全体の物防/魔防+15%（3T）',
+        type: 'buff_item',
+        target: 'all_allies',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'physicalDefense', value: 0.15, duration: 3 },
+                { stat: 'magicDefense', value: 0.15, duration: 3 }
+            ]
+        }
+    },
+    swift_spread_crystal: {
+        id: 'swift_spread_crystal',
+        name: '迅速の拡散結晶',
+        description: '全体の速度+30%（3T）',
+        type: 'buff_item',
+        target: 'all_allies',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'speed', value: 0.3, duration: 3 }
+            ]
+        }
+    },
+    crit_spread_crystal: {
+        id: 'crit_spread_crystal',
+        name: '会心の拡散結晶',
+        description: '全体の会心率+15%（3T）',
+        type: 'buff_item',
+        target: 'all_allies',
+        effect: {
+            type: 'buff',
+            effects: [
+                { stat: 'critBoost', value: 15, duration: 3 }
+            ]
+        }
+    },
+    // === 回復系 ===
     hp_potion: {
         id: 'hp_potion',
         name: 'HP回復薬',
-        description: 'HP50%回復',
+        description: '単体HP30%回復',
         type: 'consumable',
-        effect: { type: 'heal', percent: 50 },
-        maxStack: 3
+        target: 'single_ally',
+        effect: { type: 'heal', percent: 30 }
     },
     mp_potion: {
         id: 'mp_potion',
         name: 'MP回復薬',
-        description: 'MP50%回復',
+        description: '単体MP30%回復',
         type: 'consumable',
-        effect: { type: 'mp_heal', percent: 50 },
-        maxStack: 3
+        target: 'single_ally',
+        effect: { type: 'mp_heal', percent: 30 }
     },
-    revive_stone: {
-        id: 'revive_stone',
-        name: '蘇生石',
-        description: '戦闘不能から復活、HP30%',
+    hp_potion_all: {
+        id: 'hp_potion_all',
+        name: 'HP全体回復薬',
+        description: '全体HP20%回復',
         type: 'consumable',
-        effect: { type: 'revive', percent: 30 },
-        maxStack: 3
+        target: 'all_allies',
+        effect: { type: 'heal', percent: 20 }
     },
-    stat_crystal: {
-        id: 'stat_crystal',
-        name: 'ステータス結晶',
-        description: '誰か1人のステータス×1.1',
+    mp_potion_all: {
+        id: 'mp_potion_all',
+        name: 'MP全体回復薬',
+        description: '全体MP20%回復',
         type: 'consumable',
-        effect: { type: 'stat_boost', multiplier: 1.1 },
-        maxStack: 3
+        target: 'all_allies',
+        effect: { type: 'mp_heal', percent: 20 }
     }
 };
+
+// アイテム出現プール（ランダム獲得用）
+const ITEM_POOL = [
+    'power_crystal', 'guard_crystal', 'swift_crystal', 'crit_crystal',
+    'power_spread_crystal', 'guard_spread_crystal', 'swift_spread_crystal', 'crit_spread_crystal',
+    'hp_potion', 'mp_potion', 'hp_potion_all', 'mp_potion_all'
+];
 
 // ノードタイプ定義
 const NODE_TYPES = {

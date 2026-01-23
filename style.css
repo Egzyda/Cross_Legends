@@ -1690,9 +1690,21 @@ h3 {
 
 #modal-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     margin-top: 20px;
+}
+
+#modal-actions button {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 2px !important;
+    font-size: 14px !important;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 /* Toast */
@@ -4084,4 +4096,57 @@ h3 {
     70% {
         filter: brightness(3) drop-shadow(0 0 15px #fff);
     }
+}
+
+/* 強化画面レイアウト */
+.enhance-layout { max-width: 500px; width: 95%; margin-top: 15px; }
+.enhance-char-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+.enhance-tab-btn { padding: 5px; border: 2px solid transparent; border-radius: 8px; opacity: 0.6; cursor: pointer; transition: 0.2s; }
+.enhance-tab-btn.active { border-color: var(--primary); opacity: 1; transform: scale(1.1); }
+.enhance-tab-btn img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+
+.enhance-stat-list { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+.enhance-stat-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+.stat-label { width: 60px; font-weight: bold; }
+.stat-values { flex-grow: 1; text-align: right; font-weight: bold; padding-right: 15px; }
+.stat-delta { color: var(--success); font-size: 0.8rem; }
+.enhance-btns { display: flex; gap: 4px; }
+.enhance-btns button { width: 34px; height: 32px; font-size: 0.75rem; padding: 0; display: flex; align-items: center; justify-content: center; }
+
+/* アイテム入れ替え */
+.item-swap-grid { display: grid; gap: 10px; margin-top: 15px; }
+.item-swap-card { background: rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; text-align: left; }
+.item-swap-card:hover { background: rgba(255,64,129,0.15); border-color: var(--primary); }
+.item-swap-card strong { color: var(--primary); display: block; margin-bottom: 4px; }
+.item-swap-card.new-item { border-color: var(--warning); background: rgba(245, 175, 25, 0.05); }
+
+/* 強化画面ボタン配色：+は赤、-は青 */
+.btn-plus { color: var(--danger) !important; border: 1px solid var(--danger) !important; font-weight: bold; }
+.btn-minus { color: var(--primary) !important; border: 1px solid var(--primary) !important; font-weight: bold; }
+
+/* マップ画面：強化ボタンを他と統一 */
+#enhance-btn {
+    background: rgba(245, 175, 25, 0.2);
+    border: 1px solid var(--warning);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-left: 8px;
+}
+
+#enhance-btn:hover {
+    background: rgba(245, 175, 25, 0.4);
+}
+
+/* モーダル内のボタン配置を均等にするための調整 */
+#modal-actions .btn-primary {
+    box-shadow: none !important;
+    border: 1px solid transparent !important;
+}
+
+#modal-actions button {
+    margin: 0; /* 念のためのマージンリセット */
 }

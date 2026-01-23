@@ -10,15 +10,11 @@ class Game {
             currentAct: 1,
             currentNode: 0,
             nodeMap: [],
-            items: {
-                hp_potion: 0,
-                mp_potion: 0,
-                revive_stone: 0,
-                stat_crystal: 0
-            },
+            items: [],
+            spPool: 0,
             battle: null,
             currentTab: 'all',
-            selectedChar: null // For 2-step selection
+            selectedChar: null
         };
 
         this.init();
@@ -71,6 +67,7 @@ class Game {
     // --- UI Helpers ---
 
     showToast(message, type = 'info') {
+        return; // 全トースト機能を廃止
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -95,7 +92,6 @@ class Game {
         actionsEl.innerHTML = '';
 
         if (actions.length === 0) {
-            // Default close button
             actions.push({ text: '閉じる', onClick: () => this.closeModal() });
         }
 
@@ -108,6 +104,10 @@ class Game {
         });
 
         modal.classList.remove('hidden');
+
+        if (title === 'ステータス強化') {
+            setTimeout(() => this.bindEnhanceEvents(), 0);
+        }
     }
 
     closeModal() {
@@ -570,7 +570,8 @@ class Game {
     startRun() {
         this.state.currentAct = 1;
         this.state.currentNode = 0;
-        this.state.items = { hp_potion: 0, mp_potion: 0, revive_stone: 0, stat_crystal: 0 };
+        this.state.items = [];
+        this.state.spPool = 0;
         this.generateMap();
         this.showMapScreen();
     }
@@ -720,6 +721,12 @@ class Game {
         itemBtn.textContent = 'アイテム';
         itemBtn.onclick = () => this.showItemModal('map');
         controlsRow.appendChild(itemBtn);
+
+        const enhanceBtn = document.createElement('button');
+        enhanceBtn.id = 'enhance-btn';
+        enhanceBtn.textContent = '強化';
+        enhanceBtn.onclick = () => this.showEnhanceScreen();
+        controlsRow.appendChild(enhanceBtn);
 
         bar.appendChild(controlsRow);
 
@@ -1056,6 +1063,9 @@ class Game {
         };
 
         this.showScreen('battle');
+        // 前のバトルの敵・味方の表示を確実にリセットし、描画バグを防ぐ
+        document.getElementById('enemy-area').innerHTML = '';
+        document.getElementById('ally-area').innerHTML = '';
         // ボタンの無効化を解除（2ndバトル対策）
         document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
         this.renderBattle();
@@ -1094,11 +1104,20 @@ class Game {
         };
     }
 
-    // 戦闘描画
+    // 戦闘描画（スマホ向け軽量化：初回以外は個別更新のみ行う）
     renderBattle() {
-        this.renderEnemies();
-        this.renderVSDivider();
-        this.renderAllies();
+        const enemyArea = document.getElementById('enemy-area');
+        const allyArea = document.getElementById('ally-area');
+
+        // ユニット要素がまだ無い（初回）場合はフル描画、あれば個別更新のみ
+        if (enemyArea.children.length === 0 || allyArea.children.length === 0) {
+            this.renderEnemies();
+            this.renderVSDivider();
+            this.renderAllies();
+        } else {
+            const allUnits = [...this.state.party, ...this.state.battle.enemies];
+            allUnits.forEach(unit => this.updateUnitUI(unit));
+        }
         this.renderBattleLog();
     }
 
@@ -1177,16 +1196,36 @@ class Game {
         });
     }
 
-    // 状態異常表示のみ更新（個別）
-    updateStatusAilmentsUI(unit) {
+    // ユニットのUIをピンポイントで更新（軽量化：画像はそのまま、数値とバーだけ書き換え）
+    updateUnitUI(unit) {
+        if (!unit) return;
         const selector = this.getUnitSelector(unit);
         const unitEl = document.querySelector(selector);
-        if (unitEl) {
-            const ailmentsContainer = unitEl.querySelector('.status-ailments');
-            if (ailmentsContainer) {
-                ailmentsContainer.innerHTML = this.renderStatusAilments(unit);
-            }
+        if (!unitEl) return;
+
+        // バフ・状態異常表示の更新（innerHTMLの範囲を最小限に）
+        const buffOverlay = unitEl.querySelector('.buff-overlay');
+        if (buffOverlay) buffOverlay.innerHTML = this.renderBuffOverlay(unit);
+
+        const ailmentsContainer = unitEl.querySelector('.status-ailments');
+        if (ailmentsContainer) ailmentsContainer.innerHTML = this.renderStatusAilments(unit);
+
+        // バーと数値の更新
+        const hpFill = unitEl.querySelector('.unit-hp-bar .fill');
+        if (hpFill) hpFill.style.width = `${Math.max(0, (unit.currentHp / unit.stats.hp) * 100)}%`;
+        const hpText = unitEl.querySelector('.unit-hp-bar .bar-text');
+        if (hpText) hpText.innerText = `${Math.floor(unit.currentHp)}/${unit.stats.hp}`;
+
+        const mpFill = unitEl.querySelector('.unit-mp-bar .fill');
+        if (mpFill) {
+            mpFill.style.width = `${Math.max(0, (unit.currentMp / unit.stats.mp) * 100)}%`;
+            const mpText = unitEl.querySelector('.unit-mp-bar .bar-text');
+            if (mpText) mpText.innerText = `${Math.floor(unit.currentMp)}/${unit.stats.mp}`;
         }
+
+        // 死亡状態のクラス切り替え
+        if (unit.currentHp <= 0) unitEl.classList.add('dead');
+        else unitEl.classList.remove('dead');
     }
 
     // バフ/デバフオーバーレイ表示（画像左上に重ねて表示）
@@ -1403,7 +1442,7 @@ class Game {
         const skill = skillId ? this.getSkillData(skillId, this.state.party[this.state.battle.currentCharIndex]) : null;
         const targetType = skill?.target || 'single_enemy';
 
-        if (targetType === 'single_enemy' || targetType === 'all_enemies' || !targetType.includes('ally')) {
+        if (targetType.includes('enemy')) {
             this.state.battle.enemies.forEach((enemy, idx) => {
                 if (enemy.currentHp > 0) {
                     const btn = document.createElement('button');
@@ -1719,12 +1758,10 @@ class Game {
         this.state.battle.enemies.forEach(enemy => {
             if (enemy.currentHp <= 0) return;
 
-            // 1. 先にターゲットを決定する
             let targetIdx = this.selectTarget();
             let targetUnit = this.state.party[targetIdx];
             let action = null;
 
-            // ボム兵の特殊処理（固有技のみ使用）
             if (enemy.templateId === 'bombhei') {
                 action = { type: 'skill', skillId: enemy.uniqueSkill.id };
             } else {
@@ -1734,7 +1771,6 @@ class Game {
                 if (stunned || silenced) {
                     action = { type: 'attack' };
                 } else {
-                    // 2. 決定したターゲット(targetUnit)の状態を見てスキル使用を判断
                     if (enemy.skills.length > 0 && Math.random() < 0.2) {
                         const subSkillId = enemy.skills[0];
                         const subSkill = SKILLS[subSkillId];
@@ -1766,10 +1802,25 @@ class Game {
                 }
             }
 
+            let finalTargetIdx = targetIdx;
+            let finalTargetType = 'ally';
+
+            if (action.type === 'skill' && action.skillId) {
+                const skillData = this.getSkillData(action.skillId, enemy);
+                if (skillData.type === 'buff' || skillData.type === 'heal' || skillData.type === 'mp_heal') {
+                    const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
+                    if (aliveAllies.length > 0) {
+                        const allyTarget = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
+                        finalTargetIdx = this.state.battle.enemies.indexOf(allyTarget);
+                        finalTargetType = 'enemy';
+                    }
+                }
+            }
+
             enemy.command = {
                 ...action,
-                target: targetIdx,
-                targetType: 'ally',
+                target: finalTargetIdx,
+                targetType: finalTargetType,
                 speed: enemy.stats.speed
             };
         });
@@ -1860,7 +1911,7 @@ class Game {
 
                     // エフェクトと同時にバッジを表示
                     actor.statusEffects.push({ type: 'defending', duration: 1 });
-                    this.updateStatusAilmentsUI(actor);
+                    this.updateUnitUI(actor);
 
                     await this.delay(200); // 少し余韻
                     break;
@@ -2025,7 +2076,7 @@ class Game {
                     if (target.statusEffects.length < beforeCount) {
                         await this.showAttackEffect(actor, target, skill, 'magic');
                         this.addLog(`${target.displayName}の悪い状態が浄化された！`);
-                        this.updateStatusAilmentsUI(target);
+                        this.updateUnitUI(target);
                     } else {
                         this.addLog(`しかし${target.displayName}には何も起こらなかった。`);
                     }
@@ -2128,7 +2179,7 @@ class Game {
                             this.addLog(`${t.displayName}は${statusLabels[effect.status] || effect.status}状態になった！`);
                         }
                         // 追加: アライメント即時反映（エフェクト終了直後）
-                        this.updateStatusAilmentsUI(t);
+                        this.updateUnitUI(t);
                     }
                 }));
                 break;
@@ -2447,6 +2498,19 @@ class Game {
             p.statusEffects = [];
         });
 
+        // SP獲得
+        let spGain = 0;
+        switch (this.state.battle.rank) {
+            case 'normal': spGain = 2; break;
+            case 'elite': spGain = 5; break;
+            case 'boss':
+            case 'last_boss': spGain = 10; break;
+        }
+        if (spGain > 0) {
+            this.state.spPool += spGain;
+            this.addLog(`戦闘に勝利した！ ${spGain} SP獲得`);
+        }
+
         // 報酬フェーズ
         setTimeout(() => {
             this.startRewardPhase();
@@ -2460,11 +2524,10 @@ class Game {
         this.showRewardForCharacter(0);
     }
 
-    // キャラ別報酬表示
+    // キャラ別報酬表示（4択化）
     showRewardForCharacter(charIdx) {
         const char = this.state.party[charIdx];
         if (!char || char.currentHp <= 0) {
-            // 戦闘不能キャラはスキップ
             if (charIdx + 1 < this.state.party.length) {
                 this.showRewardForCharacter(charIdx + 1);
             } else {
@@ -2474,12 +2537,10 @@ class Game {
         }
 
         this.showScreen('reward');
-        // パーティ情報表示領域があればそこに描画、なければ作成
         let partyStatusContainer = document.getElementById('reward-party-status');
         if (!partyStatusContainer) {
             partyStatusContainer = document.createElement('div');
             partyStatusContainer.id = 'reward-party-status';
-            // reward-character-nameの前に挿入
             const rewardScreen = document.getElementById('reward-screen');
             rewardScreen.insertBefore(partyStatusContainer, document.getElementById('reward-character-name'));
         }
@@ -2491,66 +2552,111 @@ class Game {
         const options = document.getElementById('reward-options');
         options.innerHTML = '';
 
-        // 3択ボタンを表示
+        const spInfo = document.createElement('div');
+        spInfo.style.cssText = 'text-align:center;margin-bottom:16px;color:var(--warning);font-weight:bold;';
+        spInfo.textContent = `共有SP: ${this.state.spPool}`;
+        options.appendChild(spInfo);
+
         const choices = [
-            { id: 'stat', text: 'ステータス強化', desc: 'ステータスを上昇させる' },
             { id: 'skill', text: 'スキル習得', desc: '新しいスキルを覚える' },
-            { id: 'skip', text: '報酬をスキップ', desc: '何も受け取らずに進む' }
+            { id: 'sp', text: 'SPボーナス', desc: '共有SPを+1獲得' },
+            { id: 'item', text: 'アイテム獲得', desc: 'ランダムなアイテムを1つ獲得' },
+            { id: 'skip', text: 'スキップ', desc: '何も受け取らずに進む' }
         ];
 
         choices.forEach(choice => {
             const option = document.createElement('div');
             option.className = 'reward-option';
-            option.innerHTML = `
-                <div class="reward-title">${choice.text}</div>
-                <div class="reward-desc">${choice.desc}</div>
-            `;
-            option.addEventListener('click', () => {
-                this.showDetailReward(charIdx, choice.id);
-            });
+            option.innerHTML = `<div class="reward-title">${choice.text}</div><div class="reward-desc">${choice.desc}</div>`;
+            option.addEventListener('click', () => this.handleRewardChoice(charIdx, choice.id));
             options.appendChild(option);
         });
     }
 
-    // 詳細報酬表示
+    handleRewardChoice(charIdx, choiceId) {
+        switch (choiceId) {
+            case 'skill':
+                this.showDetailReward(charIdx, 'skill');
+                break;
+            case 'sp':
+                this.state.spPool += 1;
+                this.showToast(`SP +1 獲得！（累計: ${this.state.spPool}）`, 'success');
+                this.nextReward(charIdx);
+                break;
+            case 'item':
+                this.grantRandomItem(charIdx);
+                break;
+            case 'skip':
+                this.nextReward(charIdx);
+                break;
+        }
+    }
+
+    grantRandomItem(charIdx) {
+        const randomItemId = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+        const item = ITEMS[randomItemId];
+
+        if (this.state.items.length < 3) {
+            this.state.items.push(randomItemId);
+            this.showToast(`${item.name}を獲得！`, 'success');
+            this.nextReward(charIdx);
+        } else {
+            this.showItemSwapScreen(charIdx, randomItemId);
+        }
+    }
+
+    showItemSwapScreen(charIdx, newItemId) {
+        const newItem = ITEMS[newItemId];
+        const options = document.getElementById('reward-options');
+        document.getElementById('reward-character-name').textContent = 'アイテム入れ替え';
+        options.innerHTML = '';
+
+        const info = document.createElement('div');
+        info.className = 'item-swap-card new-item';
+        info.innerHTML = `<strong>新規獲得：${newItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${newItem.description}</div>`;
+        options.appendChild(info);
+
+        const label = document.createElement('div');
+        label.style.cssText = 'margin:16px 0 8px;font-size:12px;color:var(--text-sub);';
+        label.textContent = '捨てるアイテムを選択（またはキャンセル）：';
+        options.appendChild(label);
+
+        const grid = document.createElement('div');
+        grid.className = 'item-swap-grid';
+
+        this.state.items.forEach((existingItemId, idx) => {
+            const existingItem = ITEMS[existingItemId];
+            const card = document.createElement('div');
+            card.className = 'item-swap-card';
+            card.innerHTML = `<strong>${existingItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${existingItem.description}</div>`;
+            card.onclick = () => {
+                this.state.items.splice(idx, 1);
+                this.state.items.push(newItemId);
+                this.showToast(`${existingItem.name}を捨てて${newItem.name}を獲得`, 'success');
+                this.nextReward(charIdx);
+            };
+            grid.appendChild(card);
+        });
+        options.appendChild(grid);
+
+        const cancelBtn = document.createElement('div');
+        cancelBtn.className = 'reward-option';
+        cancelBtn.style.cssText = 'margin-top:16px;border-color:#666;';
+        cancelBtn.innerHTML = `<div class="reward-title" style="color:#aaa;">獲得をキャンセル</div><div class="reward-desc">新アイテムを捨てる</div>`;
+        cancelBtn.onclick = () => {
+            this.showToast(`${newItem.name}を見送った`, 'info');
+            this.nextReward(charIdx);
+        };
+        options.appendChild(cancelBtn);
+    }
+
+    // 詳細報酬表示（スキル習得のみ）
     showDetailReward(charIdx, type) {
         const char = this.state.party[charIdx];
         const options = document.getElementById('reward-options');
-        options.innerHTML = ''; // クリア
+        options.innerHTML = '';
 
-        const isElite = this.state.battle.rank === 'elite';
-        const boostPercent = isElite ? 10 : 8;
-
-        if (type === 'stat') {
-            const stats = ['hp', 'mp', 'physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
-            const statLabels = {
-                hp: 'HP', mp: 'MP', physicalAttack: '物理攻撃', magicAttack: '魔法攻撃',
-                physicalDefense: '物理防御', magicDefense: '魔法防御', speed: '速度', luck: '運'
-            };
-
-            // ランダム3つ
-            const shuffledStats = [...stats].sort(() => Math.random() - 0.5).slice(0, 3);
-
-            shuffledStats.forEach(stat => {
-                const currentValue = char.stats[stat];
-                const baseValue = CHARACTERS[char.id].stats[stat];
-                const boost = Math.floor(baseValue * boostPercent / 100);
-
-                const option = document.createElement('div');
-                option.className = 'reward-option';
-                option.innerHTML = `
-                    <div class="reward-title">${statLabels[stat]} UP</div>
-                    <div class="reward-desc">${currentValue} → ${currentValue + boost} (+${boost})</div>
-                `;
-                option.addEventListener('click', () => {
-                    char.stats[stat] += boost;
-                    if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boost);
-                    if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boost);
-                    this.nextReward(charIdx);
-                });
-                options.appendChild(option);
-            });
-        } else if (type === 'skill') {
+        if (type === 'skill') {
             const candidateSkills = [];
             const myPoolIds = SKILL_POOLS[char.type] || [];
 
@@ -2830,10 +2936,9 @@ class Game {
                 message = effect.message || `全員HP${effect.percent}%ダメージ...`;
                 break;
             case 'item':
-                const itemId = effect.item === 'random' ?
-                    ['hp_potion', 'mp_potion'][Math.floor(Math.random() * 2)] : effect.item;
-                if (this.state.items[itemId] < 3) {
-                    this.state.items[itemId]++;
+                const itemId = effect.item === 'random' ? ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)] : effect.item;
+                if (this.state.items.length < 3) {
+                    this.state.items.push(itemId);
                     message = effect.message || `${ITEMS[itemId].name}を入手！`;
                 } else {
                     message = 'アイテムがいっぱいだ...';
@@ -2934,29 +3039,73 @@ class Game {
         ]);
     }
 
-    // 宝箱画面表示
+    // 宝箱画面表示（配列形式対応）
     showTreasureScreen() {
         this.showScreen('treasure');
         const options = document.getElementById('treasure-options');
         options.innerHTML = '';
 
-        const items = ['hp_potion', 'mp_potion', 'revive_stone'];
-        items.forEach(itemId => {
+        const shuffled = [...ITEM_POOL].sort(() => Math.random() - 0.5).slice(0, 3);
+        shuffled.forEach(itemId => {
             const item = ITEMS[itemId];
             const btn = document.createElement('button');
             btn.className = 'treasure-btn';
             btn.innerHTML = `${item.name}<br><small>${item.description}</small>`;
             btn.addEventListener('click', () => {
-                if (this.state.items[itemId] < 3) {
-                    this.state.items[itemId]++;
+                if (this.state.items.length < 3) {
+                    this.state.items.push(itemId);
                     this.showToast(`${item.name}を入手！`, 'success');
                     this.finishNode();
                 } else {
-                    this.showToast('アイテムがいっぱいだ...', 'error');
+                    this.showTreasureSwapScreen(itemId);
                 }
             });
             options.appendChild(btn);
         });
+    }
+
+    showTreasureSwapScreen(newItemId) {
+        const newItem = ITEMS[newItemId];
+        const options = document.getElementById('treasure-options');
+        options.innerHTML = '';
+
+        const info = document.createElement('div');
+        info.className = 'item-swap-card new-item';
+        info.innerHTML = `<strong>獲得候補：${newItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${newItem.description}</div>`;
+        options.appendChild(info);
+
+        const label = document.createElement('div');
+        label.style.cssText = 'margin:16px 0 8px;font-size:12px;color:var(--text-sub);';
+        label.textContent = '捨てるアイテムを選択：';
+        options.appendChild(label);
+
+        const grid = document.createElement('div');
+        grid.className = 'item-swap-grid';
+
+        this.state.items.forEach((existingItemId, idx) => {
+            const existingItem = ITEMS[existingItemId];
+            const card = document.createElement('div');
+            card.className = 'item-swap-card';
+            card.innerHTML = `<strong>${existingItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${existingItem.description}</div>`;
+            card.onclick = () => {
+                this.state.items.splice(idx, 1);
+                this.state.items.push(newItemId);
+                this.showToast(`${existingItem.name}を捨てて${newItem.name}を獲得`, 'success');
+                this.finishNode();
+            };
+            grid.appendChild(card);
+        });
+        options.appendChild(grid);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'treasure-btn';
+        cancelBtn.style.cssText = 'margin-top:16px;border-color:#666;';
+        cancelBtn.innerHTML = '獲得をキャンセル<br><small>新アイテムを見送る</small>';
+        cancelBtn.onclick = () => {
+            this.showToast(`${newItem.name}を見送った`, 'info');
+            this.finishNode();
+        };
+        options.appendChild(cancelBtn);
     }
 
     // ゲームオーバー
@@ -2976,7 +3125,8 @@ class Game {
             currentLayer: 0,
             currentNode: null,
             nodeMap: [],
-            items: { hp_potion: 0, mp_potion: 0, revive_stone: 0, stat_crystal: 0 },
+            items: [],
+            spPool: 0,
             battle: null,
             currentTab: 'all'
         };
@@ -3178,45 +3328,26 @@ class Game {
         document.getElementById('character-detail-modal').classList.add('hidden');
     }
 
-    // アイテムモーダル表示
+    // アイテムモーダル表示（配列形式対応）
     showItemModal(context) {
         const modal = document.getElementById('item-modal');
         const listEl = document.getElementById('item-list');
         listEl.innerHTML = '';
 
-        const hasItems = Object.values(this.state.items).some(count => count > 0);
-
-        if (!hasItems) {
+        if (this.state.items.length === 0) {
             listEl.innerHTML = '<p style="text-align:center;color:var(--text-sub);padding:20px;">アイテムがありません</p>';
             modal.classList.remove('hidden');
             return;
         }
 
-        Object.entries(this.state.items).forEach(([itemId, count]) => {
-            if (count === 0) return;
-
+        this.state.items.forEach((itemId, idx) => {
             const item = ITEMS[itemId];
             if (!item) return;
 
-            // Stat crystal can't be used in battle
-            const canUse = !(context === 'battle' && itemId === 'stat_crystal');
-
             const entry = document.createElement('div');
             entry.className = 'item-entry';
-            if (!canUse) entry.classList.add('disabled');
-
-            entry.innerHTML = `
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-desc">${item.description}</div>
-                </div>
-                <div class="item-count">×${count}</div>
-            `;
-
-            if (canUse) {
-                entry.onclick = () => this.useItemFromModal(itemId, context);
-            }
-
+            entry.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.description}</div></div><div class="item-count">#${idx + 1}</div>`;
+            entry.onclick = () => this.useItemFromModal(itemId, context, idx);
             listEl.appendChild(entry);
         });
 
@@ -3227,56 +3358,167 @@ class Game {
         document.getElementById('item-modal').classList.add('hidden');
     }
 
-    // アイテム使用
-    useItemFromModal(itemId, context) {
+    // ========================================
+    // 強化画面
+    // ========================================
+
+    showEnhanceScreen() {
+        this.enhanceBackup = JSON.parse(JSON.stringify(this.state.party));
+        this.enhanceSpBackup = this.state.spPool;
+        this.enhanceSelectedCharIdx = 0;
+        this.enhanceInvestments = {};
+        this.state.party.forEach(p => {
+            this.enhanceInvestments[p.id] = { hp: 0, mp: 0, physicalAttack: 0, magicAttack: 0, physicalDefense: 0, magicDefense: 0, speed: 0, luck: 0 };
+        });
+
+        this.showModal('ステータス強化', this.buildEnhanceContent(), [
+            { text: 'リセット', onClick: () => this.resetEnhance(), className: 'btn-cancel' },
+            { text: '戻る', onClick: () => this.cancelEnhance(), className: 'btn-cancel' },
+            { text: '決定', onClick: () => this.confirmEnhance(), className: 'btn-primary' }
+        ]);
+    }
+
+    buildEnhanceContent() {
+        const char = this.state.party[this.enhanceSelectedCharIdx];
+        const baseStats = CHARACTERS[char.id].stats;
+        const investments = this.enhanceInvestments[char.id];
+        const statLabels = { hp: 'HP', mp: 'MP', physicalAttack: '物攻', magicAttack: '魔攻', physicalDefense: '物防', magicDefense: '魔防', speed: '速度', luck: '運' };
+
+        let html = `<div class="enhance-layout">`;
+        html += `<div class="enhance-char-tabs">`;
+        this.state.party.forEach((p, idx) => {
+            const activeClass = idx === this.enhanceSelectedCharIdx ? 'active' : '';
+            html += `<div class="enhance-tab-btn ${activeClass}" data-char-idx="${idx}"><img src="${p.image.face}" alt="${p.displayName}"></div>`;
+        });
+        html += `</div>`;
+        html += `<div style="text-align:center;margin-bottom:12px;color:var(--warning);font-weight:bold;">残りSP: ${this.state.spPool}</div>`;
+        html += `<div class="enhance-stat-list">`;
+        const stats = ['hp', 'mp', 'physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
+        stats.forEach(stat => {
+            const current = char.stats[stat];
+            const invested = investments[stat];
+            html += `<div class="enhance-stat-item"><span class="stat-label">${statLabels[stat]}</span><span class="stat-values">${current} ${invested > 0 ? `<span class="stat-delta">(+${invested})</span>` : ''}</span><div class="enhance-btns"><button class="btn-minus" data-stat="${stat}" data-delta="-5">-5</button><button class="btn-minus" data-stat="${stat}" data-delta="-1">-1</button><button class="btn-plus" data-stat="${stat}" data-delta="+1">+1</button><button class="btn-plus" data-stat="${stat}" data-delta="+5">+5</button></div></div>`;
+        });
+        html += `</div></div>`;
+        return html;
+    }
+
+    bindEnhanceEvents() {
+        document.querySelectorAll('.enhance-tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                this.enhanceSelectedCharIdx = parseInt(btn.dataset.charIdx);
+                this.refreshEnhanceUI();
+            };
+        });
+        document.querySelectorAll('.enhance-btns button').forEach(btn => {
+            btn.onclick = () => {
+                this.adjustEnhanceStat(btn.dataset.stat, parseInt(btn.dataset.delta));
+            };
+        });
+    }
+
+    adjustEnhanceStat(stat, delta) {
+        const char = this.state.party[this.enhanceSelectedCharIdx];
+        const baseStats = CHARACTERS[char.id].stats;
+        const investments = this.enhanceInvestments[char.id];
+        const boostPerPoint = Math.floor(baseStats[stat] * 0.05);
+
+        if (delta > 0) {
+            if (this.state.spPool < delta) {
+                this.showToast('SPが足りません', 'error');
+                return;
+            }
+            this.state.spPool -= delta;
+            investments[stat] += delta;
+            char.stats[stat] += boostPerPoint * delta;
+            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boostPerPoint * delta);
+            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boostPerPoint * delta);
+        } else if (delta < 0) {
+            const absD = Math.abs(delta);
+            if (investments[stat] < absD) {
+                this.showToast('これ以上下げられません', 'error');
+                return;
+            }
+            this.state.spPool += absD;
+            investments[stat] -= absD;
+            char.stats[stat] -= boostPerPoint * absD;
+            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp);
+            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp);
+        }
+        this.refreshEnhanceUI();
+    }
+
+    refreshEnhanceUI() {
+        document.getElementById('modal-body').innerHTML = this.buildEnhanceContent();
+        this.bindEnhanceEvents();
+    }
+
+    resetEnhance() {
+        this.state.party = JSON.parse(JSON.stringify(this.enhanceBackup));
+        this.state.spPool = this.enhanceSpBackup;
+        this.state.party.forEach(p => {
+            this.enhanceInvestments[p.id] = { hp: 0, mp: 0, physicalAttack: 0, magicAttack: 0, physicalDefense: 0, magicDefense: 0, speed: 0, luck: 0 };
+        });
+        this.refreshEnhanceUI();
+        this.showToast('リセットしました', 'info');
+    }
+
+    cancelEnhance() {
+        this.state.party = JSON.parse(JSON.stringify(this.enhanceBackup));
+        this.state.spPool = this.enhanceSpBackup;
+        this.closeModal();
+    }
+
+    confirmEnhance() {
+        this.closeModal();
+        this.renderPartyStatusBar();
+        this.showToast('強化を適用しました', 'success');
+    }
+
+    // アイテム使用（配列形式対応）
+    useItemFromModal(itemId, context, itemIndex) {
         const item = ITEMS[itemId];
         if (!item) return;
 
-        // Close item modal
         this.closeItemModal();
 
-        // Show target selection
+        if (item.target === 'all_allies') {
+            this.applyItemEffectToAll(itemId, itemIndex);
+            if (context === 'map') this.renderPartyStatusBar();
+            return;
+        }
+
         const targets = this.state.party.map(member => {
-            const isValidTarget = item.effect.type === 'revive'
-                ? member.currentHp <= 0
-                : member.currentHp > 0;
-
-            if (!isValidTarget) return null;
-
+            if (member.currentHp <= 0) return null;
             return {
                 text: member.displayName,
                 className: 'btn-primary',
                 onClick: () => {
-                    this.applyItemEffect(itemId, member);
+                    this.applyItemEffect(itemId, member, itemIndex);
                     this.closeModal();
-                    if (context === 'map') {
-                        this.renderPartyStatusBar();
-                    }
+                    if (context === 'map') this.renderPartyStatusBar();
                 }
             };
         }).filter(Boolean);
 
-        // キャンセルボタン追加
         targets.push({
             text: 'キャンセル',
             className: 'btn-cancel',
             onClick: () => {
                 this.closeModal();
-                if (context === 'map' || context === 'battle') {
-                    this.showItemModal(context); // アイテム一覧に戻る
-                }
+                if (context === 'map' || context === 'battle') this.showItemModal(context);
             }
         });
 
         this.showModal('対象を選択', '', targets);
     }
 
-    // アイテム効果適用
-    applyItemEffect(itemId, target) {
+    // アイテム効果適用（単体対象・配列形式対応）
+    applyItemEffect(itemId, target, itemIndex) {
         const item = ITEMS[itemId];
         if (!item) return;
 
-        this.state.items[itemId]--;
+        if (typeof itemIndex === 'number') this.state.items.splice(itemIndex, 1);
 
         switch (item.effect.type) {
             case 'heal':
@@ -3289,15 +3531,69 @@ class Game {
                 target.currentMp = Math.min(target.stats.mp, target.currentMp + mpAmount);
                 this.showToast(`${target.displayName}のMPが${mpAmount}回復！`, 'success');
                 break;
-            case 'revive':
-                target.currentHp = Math.floor(target.stats.hp * (item.effect.percent / 100));
-                this.showToast(`${target.displayName}が復活した！`, 'success');
+            case 'buff':
+                if (item.effect.effects) {
+                    item.effect.effects.forEach(eff => {
+                        if (eff.stat === 'critBoost') {
+                            target.statusEffects.push({ type: 'critBoost', value: eff.value, duration: eff.duration });
+                        } else {
+                            const existing = target.buffs.find(b => b.stat === eff.stat);
+                            if (existing) {
+                                existing.duration = Math.max(existing.duration, eff.duration);
+                                if (eff.value > existing.value) existing.value = eff.value;
+                            } else {
+                                target.buffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
+                            }
+                        }
+                    });
+                }
+                this.showToast(`${target.displayName}に${item.name}を使用！`, 'success');
                 break;
-            case 'stat_boost':
-                Object.keys(target.stats).forEach(stat => {
-                    target.stats[stat] = Math.floor(target.stats[stat] * item.effect.multiplier);
+        }
+    }
+
+    applyItemEffectToAll(itemId, itemIndex) {
+        const item = ITEMS[itemId];
+        if (!item) return;
+
+        if (typeof itemIndex === 'number') this.state.items.splice(itemIndex, 1);
+
+        const targets = this.state.party.filter(p => p.currentHp > 0);
+
+        switch (item.effect.type) {
+            case 'heal':
+                targets.forEach(t => {
+                    const amt = Math.floor(t.stats.hp * (item.effect.percent / 100));
+                    t.currentHp = Math.min(t.stats.hp, t.currentHp + amt);
                 });
-                this.showToast(`${target.displayName}の全ステータスが上昇！`, 'success');
+                this.showToast(`全員のHPが回復！`, 'success');
+                break;
+            case 'mp_heal':
+                targets.forEach(t => {
+                    const amt = Math.floor(t.stats.mp * (item.effect.percent / 100));
+                    t.currentMp = Math.min(t.stats.mp, t.currentMp + amt);
+                });
+                this.showToast(`全員のMPが回復！`, 'success');
+                break;
+            case 'buff':
+                targets.forEach(t => {
+                    if (item.effect.effects) {
+                        item.effect.effects.forEach(eff => {
+                            if (eff.stat === 'critBoost') {
+                                t.statusEffects.push({ type: 'critBoost', value: eff.value, duration: eff.duration });
+                            } else {
+                                const existing = t.buffs.find(b => b.stat === eff.stat);
+                                if (existing) {
+                                    existing.duration = Math.max(existing.duration, eff.duration);
+                                    if (eff.value > existing.value) existing.value = eff.value;
+                                } else {
+                                    t.buffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
+                                }
+                            }
+                        });
+                    }
+                });
+                this.showToast(`全員に${item.name}を使用！`, 'success');
                 break;
         }
     }
