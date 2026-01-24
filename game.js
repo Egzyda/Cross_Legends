@@ -625,6 +625,10 @@ class Game {
 
     // ラン開始
     startRun() {
+        // パーティを選択したスロット位置（左・中・右）の順に並び替える
+        const posOrder = { 'left': 0, 'center': 1, 'right': 2 };
+        this.state.party.sort((a, b) => posOrder[a.position] - posOrder[b.position]);
+
         this.state.currentAct = 1;
         this.state.currentNode = 0;
         this.state.items = [];
@@ -920,12 +924,8 @@ class Game {
     // パーティアイコン描画（報酬画面用など）
     renderPartyIcons(container) {
         container.innerHTML = '';
-        container.className = 'party-status-bar'; // 既存スタイル流用
-
-        // Members Row
-        const membersRow = document.createElement('div');
-        membersRow.className = 'members-row';
-        membersRow.style.justifyContent = 'center'; // 中央揃え
+        // 報酬画面専用の識別クラスを追加し、構造を一段階浅くする
+        container.className = 'party-status-bar reward-layout-fix';
 
         this.state.party.forEach(member => {
             const el = document.createElement('div');
@@ -941,13 +941,9 @@ class Game {
                 <div class="mp-bar"><div class="fill" style="width: ${mpPercent}%"></div></div>
             `;
 
-            // 詳細表示
-            el.onclick = () => this.showCharacterDetail(member.id, 'map'); // mapモードの詳細表示を流用
-
-            membersRow.appendChild(el);
+            el.onclick = () => this.showCharacterDetail(member.id, 'map');
+            container.appendChild(el); // 直接追加することで構造を安定させる
         });
-
-        container.appendChild(membersRow);
     }
 
     renderMap() {
@@ -2373,7 +2369,8 @@ class Game {
             }));
         } else if (skill.type === 'heal') {
             await Promise.all(targets.map(async (target) => {
-                await this.showEffectIcon(target, skill, 'heal');
+                // リッチ演出を呼び出すように修正
+                await this.showAttackEffect(actor, target, skill, 'magic');
                 const healAmount = Math.floor(target.stats.hp * (skill.healPercent / 100));
                 target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
                 this.showDamagePopup(target, healAmount, 'heal');
@@ -3736,7 +3733,14 @@ class Game {
 
     // 前のキャラクターに戻る
     backCharacter() {
-        // 現在の入力中インデックスより前から、生存しているキャラを逆順に探す
+        // 現在のキャラクターが既にコマンドを入力済みなら、まずそれを消してそのキャラの再選択にする
+        if (this.state.battle.commands[this.state.battle.currentCharIndex]) {
+            delete this.state.battle.commands[this.state.battle.currentCharIndex];
+            this.updateCommandUI();
+            return;
+        }
+
+        // 未入力なら、一つ前の生存キャラクターを探す
         let prevIdx = this.state.battle.currentCharIndex - 1;
 
         while (prevIdx >= 0) {
@@ -4073,7 +4077,7 @@ class Game {
             investments[stat] += actualDelta; // negative add
             char.stats[stat] += boostPerPoint * actualDelta;
 
-            // HP/MP Cap Adjust (If max reduced, current might need clamp, though logic usually keeps current <= max automatically or allowed overflow? 
+            // HP/MP Cap Adjust (If max reduced, current might need clamp, though logic usually keeps current <= max automatically or allowed overflow?
             // Usually clamp current to new max if it exceeds.
             if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp);
             if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp);
@@ -4310,8 +4314,27 @@ class Game {
             // 多層レイヤーによる高輝度エフェクト
             const burst = document.createElement('div'); burst.className = 'vfx-sky-burst'; vfx.appendChild(burst);
             const cross = document.createElement('div'); cross.className = 'vfx-sky-cross'; vfx.appendChild(cross);
-        } else if (skillId === 'heal' && actor.id === 'josuke') { // 東方仗助
-            const el = document.createElement('div'); el.className = 'vfx-crazy-diamond'; vfx.appendChild(el);
+        } else if (skillId === 'heal' && actor.id === 'josuke') { // 東方仗助：クリスタル・リペア・ラッシュ
+            const screen = document.getElementById('battle-screen');
+            // 演出全体の50%（0.6s）でフラッシュ
+            setTimeout(() => {
+                screen.classList.add('void-invert', 'screen-shake');
+                setTimeout(() => screen.classList.remove('void-invert', 'screen-shake'), 400);
+            }, 600);
+
+            const el = document.createElement('div'); el.className = 'vfx-crazy-diamond';
+            for (let i = 0; i < 16; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'vfx-diamond-shard';
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 120 + Math.random() * 60;
+                shard.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                shard.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+                shard.style.setProperty('--delay', `${Math.random() * 0.3}s`);
+                shard.style.setProperty('--size', `${10 + Math.random() * 15}px`);
+                el.appendChild(shard);
+            }
+            vfx.appendChild(el);
         } else if (skillId === 'daten_bind') { // 津島善子
             const el = document.createElement('div'); el.className = 'vfx-fallen-bind';
             el.innerHTML = '<div class="vfx-chain"></div><div class="vfx-chain"></div><div class="vfx-chain"></div>';
@@ -4464,7 +4487,7 @@ class Game {
             (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
                 (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 :
                     (skillId === 'daten_bind') ? 1500 : // 堕天: 1.5s
-                        (skillId === 'heal' && actor.id === 'josuke') ? 1600 : // ドラララ: 1.6s
+                        (skillId === 'heal' && actor.id === 'josuke') ? 1200 : // ドラララ: 1.2s
                             (skillId === 'aura_sphere') ? 1300 : // 波動弾: 1.3s
                                 (skillId === 'scarlet_storm') ? 1200 : // 竜巻: 1.2s
                                     (skillId === 'ice_wall') ? 1000 : // 氷河: 1.0s
@@ -4478,7 +4501,7 @@ class Game {
 
         // Raikiriは1000ms / 0.5 = 500msの標準タイミングを使用するため削除
         if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
-        if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 800; // ラッシュ後回復
+        if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
 
         // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
         setTimeout(() => vfx.remove(), vfxDuration + 500);
