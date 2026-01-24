@@ -90,9 +90,9 @@ const SKILLS = {
         power: 120,
         mpCost: 35,
         effects: [
-            { type: 'status', status: 'paralysis', chance: 30 }
+            { type: 'status', status: 'paralysis', chance: 100 }
         ],
-        description: '単体魔法攻撃（威力120%、麻痺30%）'
+        description: '単体魔法攻撃（威力120%、麻痺100%）'
     },
     continuous_magic_shot: {
         id: 'continuous_magic_shot',
