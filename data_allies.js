@@ -642,13 +642,13 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'star_platinum',
             displayName: 'スタープラチナ',
-            basePower: 44,
+            basePower: 22,
             mpCost: 60,
             type: 'physical_attack',
             target: 'single_enemy',
-            hits: 5,
+            hits: 10,
             effects: [],
-            description: '単体物理攻撃（5回連続攻撃、威力44%）'
+            description: '単体物理攻撃（10回連続攻撃、威力22%）'
         },
         image: {
             full: 'img/jyotaro_full.png',

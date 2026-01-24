@@ -2424,7 +2424,9 @@ class Game {
                     await this.processCounter(target, actor);
                 }));
                 nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
-                await this.delay(200);
+                // スタープラチナは超高速連撃
+                const hitDelay = skill.id === 'star_platinum' ? 50 : 200;
+                await this.delay(hitDelay);
             }
         } else if (skill.type === 'debuff' || skill.type === 'buff' || skill.type === 'cure') {
             // 攻撃以外のスキル演出実行
@@ -4618,6 +4620,31 @@ class Game {
             const el = document.createElement('div'); el.className = 'vfx-solitude-rain';
             el.innerHTML = '<div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div>';
             vfx.appendChild(el);
+        } else if (skillId === 'star_platinum') { // 空条承太郎
+            // 高速ラッシュ演出：画面揺れ＋連続衝撃波
+            const screen = document.getElementById('battle-screen');
+            screen.classList.add('screen-shake-rapid');
+            setTimeout(() => screen.classList.remove('screen-shake-rapid'), 150);
+
+            // 拳の軌跡エフェクト（複数レイヤー）
+            const rush = document.createElement('div');
+            rush.className = 'vfx-star-platinum-rush';
+
+            // 連続パンチの軌跡を表現
+            for (let i = 0; i < 5; i++) {
+                const fist = document.createElement('div');
+                fist.className = 'vfx-punch-trail';
+                fist.style.setProperty('--angle', `${(i - 2) * 15}deg`);
+                fist.style.setProperty('--delay', `${i * 0.02}s`);
+                rush.appendChild(fist);
+            }
+
+            // 衝撃波
+            const impact = document.createElement('div');
+            impact.className = 'vfx-star-platinum-impact';
+            rush.appendChild(impact);
+
+            vfx.appendChild(rush);
         }
 
         // === ボス固有技 ===
@@ -4706,7 +4733,8 @@ class Game {
                                 (skillId === 'scarlet_storm') ? 1200 : // 竜巻: 1.2s
                                     (skillId === 'ice_wall') ? 1000 : // 氷河: 1.0s
                                         (skillId === 'raikiri') ? 600 : // 雷切（一閃）: 0.6s
-                                            1000;
+                                            (skillId === 'star_platinum') ? 100 : // スタープラチナ：超高速
+                                                1000;
 
         // ダメージタイミング：基本50%だが、技によっては微調整
         let damageTiming = vfxDuration * 0.5;
@@ -4716,6 +4744,7 @@ class Game {
         // Raikiriは1000ms / 0.5 = 500msの標準タイミングを使用するため削除
         if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
+        if (skillId === 'star_platinum') damageTiming = 0; // 即時ダメージ表示
 
         // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
         setTimeout(() => vfx.remove(), vfxDuration + 500);
