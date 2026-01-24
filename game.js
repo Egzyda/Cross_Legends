@@ -1345,7 +1345,11 @@ class Game {
         const stats = {};
 
         Object.keys(template.baseStats).forEach(stat => {
-            stats[stat] = Math.floor(template.baseStats[stat] * multiplier);
+            if (stat === 'speed') {
+                stats[stat] = template.baseStats[stat];
+            } else {
+                stats[stat] = Math.floor(template.baseStats[stat] * multiplier);
+            }
         });
 
         // エリートはHP+30%
@@ -1935,7 +1939,18 @@ class Game {
                 btn.className = 'item-btn';
                 btn.innerHTML = `${item.name} (${count}個) - ${item.description}`;
                 btn.addEventListener('click', () => {
-                    this.showItemTargetSelection(itemId);
+                    // 全体対象アイテムの場合はターゲット選択をスキップ
+                    if (item.target === 'all_allies' || item.target === 'all_enemies') {
+                        this.setCommand({
+                            type: 'item',
+                            itemId: itemId,
+                            actionName: item.name,
+                            target: 'all',
+                            targetType: item.target === 'all_allies' ? 'ally' : 'enemy'
+                        });
+                    } else {
+                        this.showItemTargetSelection(itemId);
+                    }
                 });
                 panel.appendChild(btn);
             }
@@ -1962,30 +1977,55 @@ class Game {
         const container = document.createElement('div');
         container.className = 'target-container';
 
-        this.state.party.forEach((ally, idx) => {
-            const isValidTarget = item.effect.type === 'revive'
-                ? ally.currentHp <= 0
-                : ally.currentHp > 0;
-
-            if (isValidTarget) {
-                const btn = document.createElement('button');
-                btn.className = 'target-btn'; // Use target-btn class for consistency
-                btn.innerHTML = `
-                    <img src="${ally.image.face}" alt="${ally.displayName}">
-                    <span>${ally.displayName}</span>
-                `;
-                btn.addEventListener('click', () => {
-                    this.setCommand({
-                        type: 'item',
-                        itemId: itemId,
-                        actionName: item.name + '→' + ally.displayName,
-                        target: idx,
-                        targetType: 'ally'
+        if (item.target && item.target.includes('enemy')) {
+            // 敵選択
+            this.state.battle.enemies.forEach((enemy, idx) => {
+                if (enemy.currentHp > 0) {
+                    const btn = document.createElement('button');
+                    btn.className = 'target-btn';
+                    btn.innerHTML = `
+                        <img src="${enemy.image.full}" alt="${enemy.displayName}" style="object-fit:contain;">
+                        <span>${enemy.displayName}</span>
+                    `;
+                    btn.addEventListener('click', () => {
+                        this.setCommand({
+                            type: 'item',
+                            itemId: itemId,
+                            actionName: item.name + '→' + enemy.displayName,
+                            target: idx,
+                            targetType: 'enemy'
+                        });
                     });
-                });
-                container.appendChild(btn);
-            }
-        });
+                    container.appendChild(btn);
+                }
+            });
+        } else {
+            // 味方選択 (既存ロジック)
+            this.state.party.forEach((ally, idx) => {
+                const isValidTarget = item.effect.type === 'revive'
+                    ? ally.currentHp <= 0
+                    : ally.currentHp > 0;
+
+                if (isValidTarget) {
+                    const btn = document.createElement('button');
+                    btn.className = 'target-btn';
+                    btn.innerHTML = `
+                        <img src="${ally.image.face}" alt="${ally.displayName}">
+                        <span>${ally.displayName}</span>
+                    `;
+                    btn.addEventListener('click', () => {
+                        this.setCommand({
+                            type: 'item',
+                            itemId: itemId,
+                            actionName: item.name + '→' + ally.displayName,
+                            target: idx,
+                            targetType: 'ally'
+                        });
+                    });
+                    container.appendChild(btn);
+                }
+            });
+        }
 
         panel.appendChild(container);
 
@@ -2619,12 +2659,18 @@ class Game {
         let targets = [];
         if (item.target === 'all_allies') {
             targets = this.state.party.filter(p => p.currentHp > 0);
-            // 蘇生アイテムで全体は無いと仮定、もしくは全体蘇生ならdeadも対象だが..今回は生存者のみでOK
+        } else if (item.target === 'all_enemies') {
+            targets = this.state.battle.enemies.filter(e => e.currentHp > 0);
         } else {
-            const t = this.state.party[cmd.target];
-            // 蘇生の場合は死んでてもOK
-            if (item.effect.type === 'revive' || (t && t.currentHp > 0)) {
-                targets = [t];
+            if (cmd.targetType === 'enemy') {
+                const t = this.state.battle.enemies[cmd.target];
+                if (t && t.currentHp > 0) targets = [t];
+            } else {
+                const t = this.state.party[cmd.target];
+                // 蘇生の場合は死んでてもOK
+                if (item.effect.type === 'revive' || (t && t.currentHp > 0)) {
+                    targets = [t];
+                }
             }
         }
 
@@ -2653,6 +2699,20 @@ class Game {
                     target.statusEffects = [];
                     this.addLog(`${target.displayName}が復活した！`);
                     this.showDamagePopup(target, '復活', 'heal');
+                    break;
+                case 'debuff':
+                    if (item.effect.effects) {
+                        item.effect.effects.forEach(eff => {
+                            const existing = target.debuffs.find(d => d.stat === eff.stat);
+                            if (existing) {
+                                existing.duration = Math.max(existing.duration, eff.duration);
+                                if (Math.abs(eff.value) > Math.abs(existing.value)) existing.value = eff.value;
+                            } else {
+                                target.debuffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
+                            }
+                        });
+                        this.addLog(`${target.displayName}の能力が低下した！`);
+                    }
                     break;
                 case 'buff':
                     if (item.effect.effects) {
@@ -3319,6 +3379,11 @@ class Game {
         // 中ボス撃破で第2幕へ
         if (this.state.battle?.rank === 'boss' && this.state.currentAct === 1) {
             this.state.currentAct = 2;
+            this.state.party.forEach(m => {
+                m.currentHp = m.stats.hp;
+                m.currentMp = m.stats.mp;
+            });
+            this.showToast('第2幕へ突入！全回復しました！', 'success');
             this.state.currentNode = null;
             this.generateMap();
             // generateMapでcurrentLayer=0になるのでOK
@@ -3668,7 +3733,9 @@ class Game {
     // ショップ画面表示
     showShopScreen() {
         this.showScreen('shop');
+        window.scrollTo(0, 0);
         const container = document.getElementById('shop-container');
+        if (container) container.scrollTop = 0;
         container.innerHTML = '';
         const leaveBtn = document.getElementById('leave-shop-btn');
         leaveBtn.onclick = () => {
@@ -3690,17 +3757,22 @@ class Game {
     generateShopStock() {
         const stock = { skills: [], items: [], special: [] };
 
-        // アイテム（6枠: 全アイテムからランダム）
-        for (let i = 0; i < 6; i++) {
-            const itemId = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+        // アイテム（6枠: 重複なし）
+        const itemPool = [...ITEM_POOL];
+        const itemStockCount = Math.min(6, itemPool.length);
+        
+        for (let i = 0; i < itemStockCount; i++) {
+            const randIdx = Math.floor(Math.random() * itemPool.length);
+            const itemId = itemPool[randIdx];
+            itemPool.splice(randIdx, 1); // Remove to prevent duplicates
+
             const itemData = ITEMS[itemId];
             const basePrice = itemData.price || 100;
             const price = Math.max(10, basePrice + Math.floor(Math.random() * 101) - 50);
             stock.items.push({ type: 'item', id: itemId, price, purchased: false });
         }
 
-        // スキル（6枠: 全汎用スキルからランダム）
-        // SKILL_POOLSから全てのスキルIDを収集
+        // スキル（6枠: 重複なし）
         const allGenericSkills = [
             ...SKILL_POOLS.physical_attacker,
             ...SKILL_POOLS.magic_attacker,
@@ -3709,11 +3781,14 @@ class Game {
             ...SKILL_POOLS.support,
             ...SKILL_POOLS.debuffer
         ];
-        // 重複排除
-        const uniqueSkills = [...new Set(allGenericSkills)];
+        const uniqueSkills = [...new Set(allGenericSkills)]; // Unique generic skills
+        
+        const skillStockCount = Math.min(6, uniqueSkills.length);
+        for (let i = 0; i < skillStockCount; i++) {
+            const randIdx = Math.floor(Math.random() * uniqueSkills.length);
+            const skillId = uniqueSkills[randIdx];
+            uniqueSkills.splice(randIdx, 1); // Remove from pool
 
-        for (let i = 0; i < 6; i++) {
-            const skillId = uniqueSkills[Math.floor(Math.random() * uniqueSkills.length)];
             // 価格: 200-400
             const price = 200 + Math.floor(Math.random() * 201);
             stock.skills.push({ type: 'skill', id: skillId, price, purchased: false });

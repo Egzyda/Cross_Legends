@@ -742,30 +742,30 @@ const ITEMS = {
     power_crystal: {
         id: 'power_crystal',
         name: '力の結晶',
-        description: '単体の物攻/魔攻+30%（3T）',
+        description: '単体の物攻/魔攻+50%（3T）',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'physicalAttack', value: 0.3, duration: 3 },
-                { stat: 'magicAttack', value: 0.3, duration: 3 }
+                { stat: 'physicalAttack', value: 0.5, duration: 3 },
+                { stat: 'magicAttack', value: 0.5, duration: 3 }
             ]
         }
     },
     guard_crystal: {
         id: 'guard_crystal',
         name: '守護の結晶',
-        description: '単体の物防/魔防+30%（3T）',
+        description: '単体の物防/魔防+50%（3T）',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'physicalDefense', value: 0.3, duration: 3 },
-                { stat: 'magicDefense', value: 0.3, duration: 3 }
+                { stat: 'physicalDefense', value: 0.5, duration: 3 },
+                { stat: 'magicDefense', value: 0.5, duration: 3 }
             ]
         }
     },
@@ -786,14 +786,14 @@ const ITEMS = {
     crit_crystal: {
         id: 'crit_crystal',
         name: '会心の結晶',
-        description: '単体の会心率+30%（3T）',
+        description: '単体の会心率+50%（3T）',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'critBoost', value: 30, duration: 3 }
+                { stat: 'critBoost', value: 50, duration: 3 }
             ]
         }
     },
@@ -801,30 +801,30 @@ const ITEMS = {
     power_spread_crystal: {
         id: 'power_spread_crystal',
         name: '力の拡散結晶',
-        description: '全体の物攻/魔攻+15%（3T）',
+        description: '全体の物攻/魔攻+30%（3T）',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'physicalAttack', value: 0.15, duration: 3 },
-                { stat: 'magicAttack', value: 0.15, duration: 3 }
+                { stat: 'physicalAttack', value: 0.3, duration: 3 },
+                { stat: 'magicAttack', value: 0.3, duration: 3 }
             ]
         }
     },
     guard_spread_crystal: {
         id: 'guard_spread_crystal',
         name: '守護の拡散結晶',
-        description: '全体の物防/魔防+15%（3T）',
+        description: '全体の物防/魔防+30%（3T）',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'physicalDefense', value: 0.15, duration: 3 },
-                { stat: 'magicDefense', value: 0.15, duration: 3 }
+                { stat: 'physicalDefense', value: 0.3, duration: 3 },
+                { stat: 'magicDefense', value: 0.3, duration: 3 }
             ]
         }
     },
@@ -845,14 +845,75 @@ const ITEMS = {
     crit_spread_crystal: {
         id: 'crit_spread_crystal',
         name: '会心の拡散結晶',
-        description: '全体の会心率+15%（3T）',
+        description: '全体の会心率+30%（3T）',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
         effect: {
             type: 'buff',
             effects: [
-                { stat: 'critBoost', value: 15, duration: 3 }
+                { stat: 'critBoost', value: 30, duration: 3 }
+            ]
+        }
+    },
+    // === デバフアイテム ===
+    weaken_crystal: {
+        id: 'weaken_crystal',
+        name: '力弱体の結晶',
+        description: '単体の物攻/魔攻-50%（3T）',
+        type: 'debuff_item',
+        price: 100,
+        target: 'single_enemy',
+        effect: {
+            type: 'debuff',
+            effects: [
+                { stat: 'physicalAttack', value: -0.5, duration: 3 },
+                { stat: 'magicAttack', value: -0.5, duration: 3 }
+            ]
+        }
+    },
+    guard_break_crystal: {
+        id: 'guard_break_crystal',
+        name: '守護弱体の結晶',
+        description: '単体の物防/魔防-50%（3T）',
+        type: 'debuff_item',
+        price: 100,
+        target: 'single_enemy',
+        effect: {
+            type: 'debuff',
+            effects: [
+                { stat: 'physicalDefense', value: -0.5, duration: 3 },
+                { stat: 'magicDefense', value: -0.5, duration: 3 }
+            ]
+        }
+    },
+    weaken_spread_crystal: {
+        id: 'weaken_spread_crystal',
+        name: '力弱体の拡散結晶',
+        description: '全体の物攻/魔攻-30%（3T）',
+        type: 'debuff_item',
+        price: 150,
+        target: 'all_enemies',
+        effect: {
+            type: 'debuff',
+            effects: [
+                { stat: 'physicalAttack', value: -0.3, duration: 3 },
+                { stat: 'magicAttack', value: -0.3, duration: 3 }
+            ]
+        }
+    },
+    guard_break_spread_crystal: {
+        id: 'guard_break_spread_crystal',
+        name: '守護弱体の拡散結晶',
+        description: '全体の物防/魔防-30%（3T）',
+        type: 'debuff_item',
+        price: 150,
+        target: 'all_enemies',
+        effect: {
+            type: 'debuff',
+            effects: [
+                { stat: 'physicalDefense', value: -0.3, duration: 3 },
+                { stat: 'magicDefense', value: -0.3, duration: 3 }
             ]
         }
     },
@@ -920,6 +981,7 @@ const ITEMS = {
 const ITEM_POOL = [
     'power_crystal', 'guard_crystal', 'swift_crystal', 'crit_crystal',
     'power_spread_crystal', 'guard_spread_crystal', 'swift_spread_crystal', 'crit_spread_crystal',
+    'weaken_crystal', 'guard_break_crystal', 'weaken_spread_crystal', 'guard_break_spread_crystal',
     'hp_potion', 'mp_potion', 'hp_potion_all', 'mp_potion_all',
     'revive_potion', 'status_recovery_potion'
 ];
