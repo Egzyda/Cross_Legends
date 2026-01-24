@@ -589,5 +589,204 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['cure_status']
+    },
+    mari: {
+        id: 'mari',
+        name: 'マリ',
+        displayName: 'マリ',
+        stats: {
+            hp: 185,
+            mp: 95,
+            physicalAttack: 60,
+            magicAttack: 120,
+            physicalDefense: 135,
+            magicDefense: 125,
+            speed: 65,
+            luck: 40
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'shiny_tornado',
+            displayName: 'シャイニートルネード',
+            basePower: 150,
+            mpCost: 60,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'taunt', duration: 3 }
+            ],
+            description: '単体魔法攻撃（威力150%）＋3T挑発状態'
+        },
+        image: {
+            full: 'img/mari_full.png',
+            face: 'img/mari_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    jyotaro: {
+        id: 'jyotaro',
+        name: '空条承太郎',
+        displayName: '空条承太郎',
+        stats: {
+            hp: 140,
+            mp: 85,
+            physicalAttack: 135,
+            magicAttack: 35,
+            physicalDefense: 95,
+            magicDefense: 75,
+            speed: 120,
+            luck: 65
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'star_platinum',
+            displayName: 'スタープラチナ',
+            basePower: 44,
+            mpCost: 60,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            hits: 5,
+            effects: [],
+            description: '単体物理攻撃（5回連続攻撃、威力44%）'
+        },
+        image: {
+            full: 'img/jyotaro_full.png',
+            face: 'img/jyotaro_face.png'
+        },
+        skills: [],
+        excludeSkills: ['ultra_attack']
+    },
+    blueeyes: {
+        id: 'blueeyes',
+        name: '青眼の白龍',
+        displayName: '青眼の白龍',
+        stats: {
+            hp: 120,
+            mp: 115,
+            physicalAttack: 55,
+            magicAttack: 150,
+            physicalDefense: 70,
+            magicDefense: 90,
+            speed: 90,
+            luck: 60
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'burst_stream',
+            displayName: '滅びの爆裂疾風弾',
+            basePower: 140,
+            mpCost: 50,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            critBonus: 40,
+            effects: [],
+            description: '単体魔法攻撃（威力140%、高クリティカル）'
+        },
+        image: {
+            full: 'img/blueeyes_full.png',
+            face: 'img/blueeyes_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    marco: {
+        id: 'marco',
+        name: 'マルコ',
+        displayName: 'マルコ',
+        stats: {
+            hp: 130,
+            mp: 120,
+            physicalAttack: 115,
+            magicAttack: 65,
+            physicalDefense: 80,
+            magicDefense: 90,
+            speed: 105,
+            luck: 70
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'pineapple_stake',
+            displayName: '鳳梨磔',
+            mpCost: 45,
+            type: 'heal',
+            target: 'all_allies',
+            healPercent: 20,
+            description: '味方全体HP 20%回復'
+        },
+        image: {
+            full: 'img/marco_full.png',
+            face: 'img/marco_face.png'
+        },
+        skills: [],
+        excludeSkills: ['heal_all']
+    },
+    doraemon: {
+        id: 'doraemon',
+        name: 'ドラえもん',
+        displayName: 'ドラえもん',
+        stats: {
+            hp: 125,
+            mp: 140,
+            physicalAttack: 80,
+            magicAttack: 95,
+            physicalDefense: 85,
+            magicDefense: 85,
+            speed: 100,
+            luck: 65
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'big_light',
+            displayName: 'ビッグライト',
+            mpCost: 50,
+            type: 'buff',
+            target: 'all_allies',
+            effects: [
+                { type: 'buff', stat: 'physicalAttack', value: 0.5, duration: 3 },
+                { type: 'buff', stat: 'magicAttack', value: 0.5, duration: 3 }
+            ],
+            description: '味方全体の物攻・魔攻+50%（3T）'
+        },
+        image: {
+            full: 'img/doraemon_full.png',
+            face: 'img/doraemon_face.png'
+        },
+        skills: [],
+        excludeSkills: ['attack_boost_all']
+    },
+    frieren: {
+        id: 'frieren',
+        name: 'フリーレン',
+        displayName: 'フリーレン',
+        stats: {
+            hp: 115,
+            mp: 125,
+            physicalAttack: 45,
+            magicAttack: 145,
+            physicalDefense: 75,
+            magicDefense: 110,
+            speed: 85,
+            luck: 55
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'judrajim',
+            displayName: '破滅の雷を放つ魔法 - ジュドラジルム',
+            basePower: 140,
+            mpCost: 65,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '単体魔法攻撃（威力140%）＋麻痺（3T）'
+        },
+        image: {
+            full: 'img/frieren_full.png',
+            face: 'img/frieren_face.png'
+        },
+        skills: [],
+        excludeSkills: ['magic_impact']
     }
 };
