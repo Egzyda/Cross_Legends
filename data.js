@@ -52,17 +52,7 @@ const SKILLS = {
         critBonus: 30,
         description: '単体攻撃（威力120%、クリ率+30%）'
     },
-    physical_charge: {
-        id: 'physical_charge',
-        name: '物理充填',
-        type: 'buff',
-        target: 'self',
-        mpCost: 15,
-        effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 1.0, duration: 1 }
-        ],
-        description: '次ターン物理攻撃+100%'
-    },
+
 
     // --- 魔法アタッカー系 ---
     magic_shot: {
@@ -114,17 +104,7 @@ const SKILLS = {
         mpCost: 40,
         description: '単体に2回魔法攻撃（威力80%×2）'
     },
-    magic_charge: {
-        id: 'magic_charge',
-        name: '魔力充填',
-        type: 'buff',
-        target: 'self',
-        mpCost: 15,
-        effects: [
-            { type: 'buff', stat: 'magicAttack', value: 1.0, duration: 1 }
-        ],
-        description: '次ターン魔法攻撃+100%'
-    },
+
 
     // --- タンク系 ---
     taunt: {
@@ -135,11 +115,11 @@ const SKILLS = {
         mpCost: 40,
         priority: 'first',
         effects: [
-            { type: 'taunt', duration: 2 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 }
+            { type: 'taunt', duration: 3 },
+            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 3 }
         ],
-        description: '2T挑発状態、自分の物防/魔防+20%（先制）'
+        description: '3T挑発状態、自分の物防/魔防+20%（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -149,10 +129,10 @@ const SKILLS = {
         mpCost: 30,
         priority: 'first',
         effects: [
-            { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 2 }
+            { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 3 }
         ],
-        description: '2T自分の物防/魔防+50%（先制）'
+        description: '3T自分の物防/魔防+50%（先制）'
     },
 
     counter_stance: {
@@ -162,11 +142,11 @@ const SKILLS = {
         target: 'self',
         mpCost: 35,
         effects: [
-            { type: 'buff', stat: 'physicalDefense', value: 0.1, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 2 },
-            { type: 'counter', power: 150, duration: 2 }
+            { type: 'buff', stat: 'physicalDefense', value: 0.1, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 3 },
+            { type: 'counter', power: 150, duration: 3 }
         ],
-        description: '物防・魔防+10%、反撃状態（威力150%）2T'
+        description: '物防・魔防+10%、反撃状態（威力150%）3T'
     },
     fortitude: {
         id: 'fortitude',
@@ -241,10 +221,10 @@ const SKILLS = {
         target: 'all_allies',
         mpCost: 50,
         effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 2 }
+            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 3 }
         ],
-        description: '全体の物攻/魔攻+20% 2T'
+        description: '全体の物攻/魔攻+20% 3T'
     },
     defense_boost: {
         id: 'defense_boost',
@@ -265,10 +245,10 @@ const SKILLS = {
         target: 'all_allies',
         mpCost: 50,
         effects: [
-            { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 2 }
+            { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 3 }
         ],
-        description: '全体の物防/魔防+25% 2T'
+        description: '全体の物防/魔防+25% 3T'
     },
     speed_boost: {
         id: 'speed_boost',
@@ -288,9 +268,9 @@ const SKILLS = {
         target: 'all_allies',
         mpCost: 50,
         effects: [
-            { type: 'buff', stat: 'speed', value: 0.35, duration: 2 }
+            { type: 'buff', stat: 'speed', value: 0.35, duration: 3 }
         ],
-        description: '全体の速度+35% 2T'
+        description: '全体の速度+35% 3T'
     },
     luck_boost: {
         id: 'luck_boost',
@@ -311,10 +291,10 @@ const SKILLS = {
         target: 'all_allies',
         mpCost: 50,
         effects: [
-            { type: 'buff', stat: 'luck', value: 0.3, duration: 2 },
-            { type: 'critBoost', value: 15, duration: 2 }
+            { type: 'buff', stat: 'luck', value: 0.3, duration: 3 },
+            { type: 'critBoost', value: 15, duration: 3 }
         ],
-        description: '全体の運+30%+クリ率+15% 2T'
+        description: '全体の運+30%+クリ率+15% 3T'
     },
 
     // --- デバッファー系（デバフ） ---
@@ -337,10 +317,10 @@ const SKILLS = {
         target: 'all_enemies',
         mpCost: 45,
         effects: [
-            { type: 'debuff', stat: 'physicalAttack', value: -0.2, duration: 2 },
-            { type: 'debuff', stat: 'magicAttack', value: -0.2, duration: 2 }
+            { type: 'debuff', stat: 'physicalAttack', value: -0.2, duration: 3 },
+            { type: 'debuff', stat: 'magicAttack', value: -0.2, duration: 3 }
         ],
-        description: '全体の物攻/魔攻-20% 2T'
+        description: '全体の物攻/魔攻-20% 3T'
     },
     armor_break: {
         id: 'armor_break',
@@ -349,10 +329,10 @@ const SKILLS = {
         target: 'single_enemy',
         mpCost: 25,
         effects: [
-            { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 2 },
-            { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 2 }
+            { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 3 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 3 }
         ],
-        description: '単体の物防/魔防-35% 2T'
+        description: '単体の物防/魔防-35% 3T'
     },
     armor_break_all: {
         id: 'armor_break_all',
@@ -361,10 +341,10 @@ const SKILLS = {
         target: 'all_enemies',
         mpCost: 45,
         effects: [
-            { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 2 },
-            { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 2 }
+            { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 3 }
         ],
-        description: '全体の物防/魔防-20% 2T'
+        description: '全体の物防/魔防-20% 3T'
     },
     speed_down: {
         id: 'speed_down',
@@ -384,9 +364,9 @@ const SKILLS = {
         target: 'all_enemies',
         mpCost: 40,
         effects: [
-            { type: 'debuff', stat: 'speed', value: -0.2, duration: 2 }
+            { type: 'debuff', stat: 'speed', value: -0.2, duration: 3 }
         ],
-        description: '全体の速度-20% 2T'
+        description: '全体の速度-20% 3T'
     },
     luck_down: {
         id: 'luck_down',
@@ -406,9 +386,9 @@ const SKILLS = {
         target: 'all_enemies',
         mpCost: 35,
         effects: [
-            { type: 'debuff', stat: 'luck', value: -0.25, duration: 2 }
+            { type: 'debuff', stat: 'luck', value: -0.25, duration: 3 }
         ],
-        description: '全体の運-25% 2T'
+        description: '全体の運-25% 3T'
     },
 
 
@@ -421,13 +401,13 @@ const SKILLS = {
         target: 'all_allies',
         mpCost: 60,
         effects: [
-            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 2 },
-            { type: 'buff', stat: 'speed', value: 0.2, duration: 2 }
+            { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 3 },
+            { type: 'buff', stat: 'speed', value: 0.2, duration: 3 }
         ],
-        description: '全体の全ステータス+20% 2T'
+        description: '全体の全ステータス+20% 3T'
     },
 
     // --- 敵専用スキル ---
@@ -449,16 +429,16 @@ const SKILLS = {
         target: 'single_enemy',
         mpCost: 25,
         effects: [
-            { type: 'status', status: 'paralysis', chance: 100, duration: 2 }
+            { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
         ],
-        description: '単体を麻痺状態にする（2T）'
+        description: '単体を麻痺状態にする（3T）'
     }
 };
 
 // タイプ別スキルプール
 const SKILL_POOLS = {
-    physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack', 'physical_charge'],
-    magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'continuous_magic_shot', 'magic_charge'],
+    physical_attacker: ['strong_attack', 'double_attack', 'ultra_attack', 'wide_attack', 'critical_attack'],
+    magic_attacker: ['magic_shot', 'strong_magic_shot', 'magic_storm', 'magic_impact', 'continuous_magic_shot'],
     tank: ['taunt', 'iron_wall', 'counter_stance', 'fortitude'],
     healer: ['heal', 'heal_all', 'revive', 'cure_status'],
     support: ['attack_boost', 'attack_boost_all', 'defense_boost', 'defense_boost_all', 'speed_boost', 'speed_boost_all', 'luck_boost', 'luck_boost_all'],
@@ -483,7 +463,7 @@ const EVENTS = [
                 effect: { type: 'none' }
             },
             {
-                text: '脅して奪う（中リスク: 成功率40-60%程度）',
+                text: '脅して奪う<br><span class="event-desc">商人の品物を奪う</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
@@ -499,11 +479,11 @@ const EVENTS = [
         description: '不思議な力を感じる祭壇だ。代償を払えば力が得られそうだ。',
         options: [
             {
-                text: 'HPを捧げる（全員HP-20% → ランダムスキル習得）',
+                text: 'HPを捧げる<br><span class="event-desc">全員HP-20% → ランダムスキル習得</span>',
                 effect: { type: 'sacrifice_hp', percent: 20, reward: 'random_skill' }
             },
             {
-                text: 'MPを捧げる（全員MP-30% → 全員ステータスUP）',
+                text: 'MPを捧げる<br><span class="event-desc">全員MP-30% → 全員ステータスUP</span>',
                 effect: { type: 'sacrifice_mp', percent: 30, reward: 'stat_boost_all' }
             },
             {
@@ -518,7 +498,7 @@ const EVENTS = [
         description: 'かなり古そうな宝箱がある。罠が仕掛けられているかもしれない。',
         options: [
             {
-                text: '開ける（高リスク: 成功ですごい薬）',
+                text: '開ける<br><span class="event-desc">成功ですごい薬</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'high',
@@ -538,7 +518,7 @@ const EVENTS = [
         description: 'キラキラと光る泉だ。',
         options: [
             {
-                text: '飲む（50%で全回復 / 50%でダメージ）',
+                text: '飲む<br><span class="event-desc">50%で全回復 / 50%でダメージ</span>',
                 effect: {
                     type: 'random',
                     outcomes: [
@@ -548,7 +528,7 @@ const EVENTS = [
                 }
             },
             {
-                text: 'ボトルに汲む（MP回復薬を入手）',
+                text: 'ボトルに汲む<br><span class="event-desc">MP回復薬を入手</span>',
                 effect: { type: 'item', item: 'mp_potion' }
             }
         ]
@@ -559,11 +539,11 @@ const EVENTS = [
         description: '足元の地面が突然崩れた！',
         options: [
             {
-                text: '受け身を取る（全員HP-10%）',
+                text: '受け身を取る<br><span class="event-desc">全員HP-10%</span>',
                 effect: { type: 'damage', percent: 10 }
             },
             {
-                text: '回避を試みる（中リスク: 失敗で大ダメージ）',
+                text: '回避を試みる<br><span class="event-desc">失敗で大ダメージ</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
@@ -579,11 +559,11 @@ const EVENTS = [
         description: '古い訓練用具が残されている。少し体を動かせそうだ。',
         options: [
             {
-                text: '軽く運動（SP+3）',
+                text: '軽く運動<br><span class="event-desc">SP+3</span>',
                 effect: { type: 'gain_sp', value: 3, message: 'いい運動になった。' }
             },
             {
-                text: 'ハードトレーニング（全員HP-30% → 全員 攻/防+5%永続）',
+                text: 'ハードトレーニング<br><span class="event-desc">全員HP-30% → 全員 攻/防+5%永続</span>',
                 effect: { type: 'stat_boost_all', stat: 'all', value: 0.05, cost: { type: 'hp', percent: 30 } }
             }
         ]
@@ -594,11 +574,11 @@ const EVENTS = [
         description: '禍々しいオーラを放つ像がある。「力を欲するか...？」',
         options: [
             {
-                text: '力を得る（全員の最大HP-10% → 全員の攻撃+15%永続）',
+                text: '力を得る<br><span class="event-desc">全員の最大HP-10% → 全員の攻撃+15%永続</span>',
                 effect: { type: 'stat_trade', targetStat: 'attack', targetValue: 0.15, costStat: 'max_hp', costValue: 0.10 }
             },
             {
-                text: '像を破壊する（低リスク: 成功でSP獲得）',
+                text: '像を破壊する<br><span class="event-desc">成功でSP獲得</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',
@@ -618,7 +598,7 @@ const EVENTS = [
         description: '道に迷った冒険者が困っている。「ポーションを恵んでくれませんか...」',
         options: [
             {
-                text: 'HP回復薬をあげる（SP+10）',
+                text: 'HP回復薬をあげる<br><span class="event-desc">SP+10</span>',
                 effect: { type: 'trade_item', reqItem: 'hp_potion', reward: { type: 'gain_sp', value: 10 } }
             },
             {
@@ -633,11 +613,11 @@ const EVENTS = [
         description: '「へい旦那、運試ししていかねぇかい？」',
         options: [
             {
-                text: '100円賭ける（50%で300円）',
+                text: '100円賭ける<br><span class="event-desc">50%で300円</span>',
                 effect: { type: 'gamble_gold', cost: 100, reward: 300, chance: 50 }
             },
             {
-                text: '500円賭ける（30%で1500円）',
+                text: '500円賭ける<br><span class="event-desc">30%で1500円</span>',
                 effect: { type: 'gamble_gold', cost: 500, reward: 1500, chance: 30 }
             },
             {
@@ -652,11 +632,11 @@ const EVENTS = [
         description: '清らかな空気が流れる場所だ。心が安らぐ。',
         options: [
             {
-                text: '休息する（全員HP30%回復）',
+                text: '休息する<br><span class="event-desc">全員HP30%回復</span>',
                 effect: { type: 'heal_all', percent: 30 }
             },
             {
-                text: '瞑想する（全員MP50%回復）',
+                text: '瞑想する<br><span class="event-desc">全員MP50%回復</span>',
                 effect: { type: 'heal_mp_all', percent: 50, message: '精神が研ぎ澄まされた！' }
             }
         ]
@@ -667,7 +647,7 @@ const EVENTS = [
         description: 'ボロボロの本が散らばっている。何か役に立つ知識があるかもしれない。',
         options: [
             {
-                text: '本を読む（全員MP-20% → SP+5）',
+                text: '本を読む<br><span class="event-desc">全員MP-20% → SP+5</span>',
                 effect: { type: 'gain_sp', value: 5, cost: { type: 'mp', percent: 20 } }
             },
             {
@@ -682,11 +662,11 @@ const EVENTS = [
         description: '「武器の手入れをしてやろうか？もちろんタダじゃないがな」',
         options: [
             {
-                text: '武器を磨く（300円: 誰か1人の攻撃+10%永続）',
+                text: '武器を磨く<br><span class="event-desc">300円: 誰か1人の攻撃+10%永続</span>',
                 effect: { type: 'upgrade_stat', stat: 'attack', value: 0.10, cost: 300, target: 'single' }
             },
             {
-                text: '防具を叩く（300円: 誰か1人の防御+10%永続）',
+                text: '防具を叩く<br><span class="event-desc">300円: 誰か1人の防御+10%永続</span>',
                 effect: { type: 'upgrade_stat', stat: 'defense', value: 0.10, cost: 300, target: 'single' }
             },
             {
@@ -701,11 +681,11 @@ const EVENTS = [
         description: '強力な魔物の気配がする...倒せば良い物を持っているかもしれない。',
         options: [
             {
-                text: '挑む（エリート戦闘開始）',
+                text: '挑む<br><span class="event-desc">エリート戦闘開始</span>',
                 effect: { type: 'battle_start', rank: 'elite' }
             },
             {
-                text: 'こっそり通り抜ける（中リスク）',
+                text: 'こっそり通り抜ける<br><span class="event-desc">見つかると戦闘開始</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
@@ -721,11 +701,11 @@ const EVENTS = [
         description: '妖精が目の前を飛び回っている。',
         options: [
             {
-                text: '遊んであげる（全員MP全回復）',
+                text: '遊んであげる<br><span class="event-desc">全員MP全回復</span>',
                 effect: { type: 'heal_mp_all', percent: 100 }
             },
             {
-                text: '踊ってもらう（低リスク: 全員全ステータス+3%永続）',
+                text: '踊ってもらう<br><span class="event-desc">全員全ステータス+3%永続</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',
@@ -741,11 +721,11 @@ const EVENTS = [
         description: 'コインを投げ入れると願いが叶うという井戸だ。',
         options: [
             {
-                text: '小銭を投げる（50円: 低確率でアイテム）',
+                text: '小銭を投げる<br><span class="event-desc">50円: 低確率でアイテム</span>',
                 effect: { type: 'gacha_item', cost: 50, chance: 30 }
             },
             {
-                text: '大金を投げる（300円: 高確率でレアアイテム）',
+                text: '大金を投げる<br><span class="event-desc">300円: 高確率でレアアイテム</span>',
                 effect: { type: 'gacha_item', cost: 300, chance: 80, rare: true }
             },
             {
@@ -918,11 +898,21 @@ const ITEMS = {
         id: 'revive_potion',
         price: 500,
         name: '蘇生薬',
-        description: '戦闘不能の味方1人をHP100%で復活（マップでも使用可）',
+        description: '戦闘不能の味方1人をHP100%で復活',
         type: 'consumable',
         target: 'single_ally_dead',
         usableOnMap: true,
         effect: { type: 'revive', percent: 100 }
+    },
+    status_recovery_potion: {
+        id: 'status_recovery_potion',
+        name: '状態異常回復薬',
+        description: '味方1人の全ての状態異常を回復',
+        basePrice: 150,
+        type: 'consumable',
+        target: 'single_ally',
+        usableOnMap: true,
+        effect: { type: 'status_cure' }
     }
 };
 
@@ -930,7 +920,8 @@ const ITEMS = {
 const ITEM_POOL = [
     'power_crystal', 'guard_crystal', 'swift_crystal', 'crit_crystal',
     'power_spread_crystal', 'guard_spread_crystal', 'swift_spread_crystal', 'crit_spread_crystal',
-    'hp_potion', 'mp_potion', 'hp_potion_all', 'mp_potion_all'
+    'hp_potion', 'mp_potion', 'hp_potion_all', 'mp_potion_all',
+    'revive_potion', 'status_recovery_potion'
 ];
 
 // ノードタイプ定義

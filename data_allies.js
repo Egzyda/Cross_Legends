@@ -117,13 +117,13 @@ const CHARACTERS = {
             id: 'daten_bind',
             displayName: '堕天龍鳳凰縛',
             basePower: 0,
-            mpCost: 80,
+            mpCost: 25,
             type: 'debuff',
             target: 'single_enemy',
             effects: [
-                { type: 'status', status: 'stun', chance: 100, duration: 1 }
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
-            description: '敵単体をスタン状態にする（1ターン行動不能）',
+            description: '敵単体を麻痺状態にする（3ターン）',
         },
         image: {
             full: 'img/yoshiko_full.png',
@@ -251,11 +251,11 @@ const CHARACTERS = {
             type: 'buff',
             target: 'self',
             effects: [
-                { type: 'buff', stat: 'physicalDefense', value: 0.15, duration: 2 },
-                { type: 'buff', stat: 'magicDefense', value: 0.15, duration: 2 },
-                { type: 'counter', power: 180, duration: 2 }
+                { type: 'buff', stat: 'physicalDefense', value: 0.15, duration: 3 },
+                { type: 'buff', stat: 'magicDefense', value: 0.15, duration: 3 },
+                { type: 'counter', power: 180, duration: 3 }
             ],
-            description: '物防・魔防+15%、反撃状態（威力180%）2T',
+            description: '物防・魔防+15%、反撃状態（威力180%）3T',
         },
         image: {
             full: 'img/kuroo_full.png',

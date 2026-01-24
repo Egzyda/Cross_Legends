@@ -21,14 +21,14 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    /* 繧ｷ繧ｹ繝・Β繝｡繝九Η繝ｼ繧偵げ繝ｭ繝ｼ繝舌Ν縺ｧ遖∵ｭ｢ */
+    /* システムメニューをグローバルで禁止 */
 }
 
 img {
     -webkit-user-drag: none;
-    /* 逕ｻ蜒上・繝峨Λ繝・げ繧堤ｦ∵ｭ｢ */
+    /* 画像のドラッグを禁止 */
     -webkit-touch-callout: none;
-    /* 逕ｻ蜒上・髟ｷ謚ｼ縺励Γ繝九Η繝ｼ繧堤ｦ∵ｭ｢ */
+    /* 画像の長押しメニューを禁止 */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -43,7 +43,7 @@ body {
     -webkit-user-select: none;
 }
 
-/* 郢晢ｽｭ郢晢ｽｼ郢晢ｿｽ縺・ｹ晢ｽｳ郢ｧ・ｰ騾包ｽｻ鬮ｱ・｢ */
+/* ローディングオーバーレイ */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -650,7 +650,7 @@ h3 {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* 闕ｳ鄙ｫﾂｰ郢ｧ謌托ｽｸ荵昶・髫補悪・ｴ・ｽ髴托ｽｽ陷会ｿｽ・ｽ・ｽame.js邵ｺ・ｧ陋ｻ・ｶ陟包ｽ｡・ｽ・ｽ */
+    /* ノードマップ：分岐マップのコンテナ game.jsで生成 */
     align-items: center;
     position: relative;
     overflow-y: auto;
@@ -664,22 +664,22 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 40px;
-    /* 鬮ｫ荳ｻ・ｱ・､鬮｢阮呻ｿｽ髴肴辨螻ｬ */
+    /* 分岐マップレイヤーコンテナ */
     width: 100%;
     z-index: 1;
     /* SVG郢ｧ蛹ｻ・願叉・ｽ */
 }
 
-/* 陷ｷ・ｽ蝴ｴ陞ｻ・､邵ｺ・ｮ髯ｦ・ｽ */
+/* 各レイヤーの行 */
 .map-layer-row {
     display: flex;
     justify-content: center;
-    /* 闕ｳ・ｭ陞滂ｽｮ隰・ｽ竏ｴ */
+    /* 中央揃え */
     align-items: center;
     width: 100%;
     position: relative;
     height: 60px;
-    /* 郢晏ｼｱ・ｽ郢晏ｳｨ・ｽ鬯ｮ蛟･・・￡・ｺ闖ｫ・ｽ */
+    /* 高さ固定 */
 }
 
 .map-node {
@@ -694,18 +694,16 @@ h3 {
     border: 2px solid var(--glass-border);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: absolute;
-    /* absolute鬩溷調・ｽ・ｮ邵ｺ・ｧ陋ｻ・ｽ・ｸ・ｽ・・ｸｺ蟶呻ｽ・*/
-    /* 邵ｺ蜉ｱﾂｰ邵ｺ蠎ｸlexbox邵ｺ・ｧ闕ｳ・ｦ邵ｺ・ｹ邵ｺ貅假ｼ樒ｸｲ・｢bsolute邵ｺ・ｽ邵ｺ・ｨ隰暦ｽ･驍ｯ螟ゑｽｷ螢ｽ邱帝包ｽｻ邵ｺ・ｯ隶鯉ｽｽ邵ｺ・ｽ邵ｺ蠕湖樒ｹｧ・ｹ郢晄亢ﾎｦ郢ｧ・ｷ郢晄じ窶ｲ鬮ｱ・｢陋溷・ﾂ・ｽ
-       game.js邵ｺ・ｮ隰蜀怜愛郢晢ｽｭ郢ｧ・ｸ郢晢ｿｽ縺醍ｸｺ・ｧ邵ｺ・ｯ陷雁･竊・div 郢ｧ螳夲ｽｿ・ｽ陷会ｿｽ邵ｺ蜉ｱ窶ｻ邵ｺ・ｽ・狗ｸｺ・ｽ邵ｺ莉｣竊醍ｸｺ・ｮ邵ｺ・ｧ邵ｲ・ｽ
-       邵ｺ阮呻ｼ・ｸｺ・ｧ邵ｺ・ｯ flexbox 邵ｺ・ｧ陜ｮ・ｽ・ｭ陋ｾ・ｽ驗ゑｽｮ邵ｺ蜷ｶ・狗ｹｧ・｢郢晏干ﾎ溽ｹ晢ｽｼ郢昶・・堤ｸｺ・ｨ郢ｧ荵敖・ｽ */
+    /* absolute配置のノードの基準位置。game.jsの計算ロジックでは div 自体の配置座標を指定するが、ここでは flexbox で整列させるため position: relative としている */
+    /* game.jsでの計算ロジックでは div 自体の配置座標を指定するが、ここでは flexbox で整列させるため position: relative としている */
     position: relative;
     margin: 0 15px;
-    /* 郢晏ｼｱ・ｽ郢晁崟菫｣邵ｺ・ｮ隴崢陝・ｸ奇ｿｽ郢晢ｽｼ郢ｧ・ｸ郢晢ｽｳ */
+    /* ノード間の左右マージン */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     z-index: 2;
 }
 
-/* 郢晏ｼｱ・ｽ郢晏ｳｨ縺｡郢ｧ・､郢晄懈肩郢ｧ・ｹ郢ｧ・ｿ郢ｧ・､郢晢ｽｫ */
+/* ノードタイプ別スタイル */
 .node-type-battle {
     background: radial-gradient(circle, #333, #111);
     border-color: #666;
@@ -740,7 +738,7 @@ h3 {
     box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
 }
 
-/* 霑･・ｶ隲ｷ蜿･謖ｨ郢ｧ・ｹ郢ｧ・ｿ郢ｧ・､郢晢ｽｫ */
+/* 進行可能ノードスタイル */
 .map-node.available {
     border-color: #ffd700;
     cursor: pointer;
@@ -927,26 +925,26 @@ h3 {
 /* Battle Screen */
 #battle-screen {
     padding: 12px 16px 0 16px;
-    /* 荳翫・菴咏區繧貞ｰ代＠隧ｰ繧√∽ｸ九・繧ｳ繝槭Φ繝峨お繝ｪ繧｢縺ｫ莉ｻ縺帙ｋ */
+    /* 上の空白を少し詰め、下のコマンドエリアに任せる */
     gap: 8px;
-    /* 隕∫ｴ髢薙・髫咎俣繧貞ｰ代＠隧ｰ繧√ｋ */
+    /* 要素間の隙間を少し詰める */
     background-image: url('img/bg/bg_battle.png');
 }
 
 #battle-log {
     height: 56px;
-    /* 邏・陦悟・縺ｫ蝗ｺ螳・*/
+    /* 3行分に固定 */
     background: rgba(0, 0, 0, 0.7);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: 4px 8px;
     overflow-y: auto;
     font-size: 11px;
-    /* 譁・ｭ励ｒ蟆代＠蟆上＆縺上＠縺ｦ3陦悟・繧翫ｄ縺吶￥縺吶ｋ */
+    /* 文字を少し小さくして3行分入りやすくする */
     margin-bottom: 4px;
     scrollbar-width: thin;
     flex-shrink: 0;
-    /* 繝ｭ繧ｰ縺梧ｽｰ縺輔ｌ縺ｪ縺・ｈ縺・↓菫晁ｭｷ */
+    /* ログが潰されないように保護 */
 }
 
 #enemy-area {
@@ -1486,10 +1484,10 @@ h3 {
 .fill {
     height: 100%;
     transition: width 1.0s cubic-bezier(0.22, 1, 0.36, 1);
-    /* 1遘偵°縺代◆貊代ｉ縺九↑貂帛ｰ・*/
+    /* 1秒かけて滑らかに減少 */
 }
 
-/* 迥ｶ諷狗焚蟶ｸ繝舌ャ繧ｸ縺ｮ驟崎牡險ｭ螳・*/
+/* 状態異常バッジの配色設定 */
 .status-ailment.poison {
     background: #a333c8;
     color: #fff;
@@ -1531,7 +1529,7 @@ h3 {
     color: #fff;
 }
 
-/* 髦ｲ蠕｡・壽ｴ礼ｷｴ縺輔ｌ縺溘す繝ｼ繝ｫ繝峨お繝輔ぉ繧ｯ繝・*/
+/* 防御：洗練されたシールドエフェクト */
 .shield-aura {
     position: absolute;
     top: 50%;
@@ -1564,7 +1562,7 @@ h3 {
     }
 }
 
-/* 繝繝｡繝ｼ繧ｸ繝昴ャ繝励い繝・・縺ｮ繝舌ロ謖吝虚 */
+/* ダメージポップアップのバネ挙動 */
 .damage-popup {
     position: absolute;
     font-weight: 900;
@@ -1616,7 +1614,7 @@ h3 {
     background: var(--primary-gradient);
 }
 
-/* 郢晁・繝ｵ/郢晢ｿｽ繝ｰ郢晁ｼ斐′郢晢ｽｼ郢晁・・ｽ郢晢ｽｬ郢ｧ・､・ｽ閧ｲ蛻､陷剃ｸ橸ｽｷ・ｦ闕ｳ鄙ｫ竊馴ｩ･髦ｪ・ｽ邵ｺ・ｦ髯ｦ・ｨ驕会ｽｺ・ｽ・ｽ */
+/* バフ/デバフ表示（オーバーレイ）：回避判定失敗時などに使用 */
 .buff-overlay {
     position: absolute;
     top: 4px;
@@ -1648,7 +1646,7 @@ h3 {
     border: 1px solid rgba(79, 172, 254, 0.5);
 }
 
-/* 霑･・ｶ隲ｷ迢礼・陝ｶ・ｸ髯ｦ・ｨ驕会ｽｺ・ｽ蛹ｻ縺冗ｹ晢ｽ｣郢晢ｽｩ闕ｳ遏ｩﾎ夂ｸｲ竏ｵ・ｼ・｢陝・ｶｺ・ｸﾂ隴・ｿｽ・ｭ證ｦ・ｼ・ｽ */
+/* 状態異常アイコン表示エリア（旧実装互換） */
 .status-ailments {
     display: flex;
     justify-content: center;
@@ -1673,7 +1671,7 @@ h3 {
     backdrop-filter: blur(20px);
     border-radius: 20px 20px 0 0;
     padding: 8px 16px max(12px, env(safe-area-inset-bottom));
-    /* 荳贋ｸ倶ｽ咏區繧貞悸邵ｮ縺励▽縺､繧ｻ繝ｼ繝輔お繝ｪ繧｢繧堤｢ｺ菫・*/
+    /* 上下余白を確保しつつセーフエリアを確保 */
     margin: 0 -16px 0 -16px;
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
     z-index: 10;
@@ -1684,10 +1682,10 @@ h3 {
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
-    /* 髫咎俣繧貞濠蛻・↓ */
+    /* 間隔を等分に */
     background: rgba(0, 0, 0, 0.3);
     padding: 4px 8px;
-    /* 邵ｦ繝代ョ繧｣繝ｳ繧ｰ繧貞悸邵ｮ */
+    /* 縦パディングを確保 */
     border-radius: 12px;
 }
 
@@ -1720,11 +1718,11 @@ h3 {
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     padding: 8px 12px;
-    /* 邵ｦ繧貞､ｧ蟷・↓邏ｰ縺上∵ｨｪ縺ｯ菴呵｣輔ｒ謖√◆縺帙ｋ */
+    /* 縦を大幅に細く、横は余裕を持たせる */
     border-radius: 10px;
     font-weight: 700;
     font-size: 14px;
-    /* 譁・ｭ励し繧､繧ｺ繧堤ｶｭ謖・*/
+    /* 文字サイズを維持 */
     cursor: pointer;
     transition: 0.2s;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -1764,7 +1762,7 @@ h3 {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     visibility: hidden;
-    /* 莠育ｴ・せ繝壹・繧ｹ繧堤｢ｺ菫昴＠縺､縺､髫縺・*/
+    /* 予約スペースを確保しつつ隠す */
 }
 
 .btn-prominent {
@@ -2005,7 +2003,8 @@ h3 {
     justify-content: center;
     align-items: center;
     gap: 8px;
-    flex-wrap: nowrap; /* Spckのバグ対策：勝手に折り返さないよう制御 */
+    flex-wrap: nowrap;
+    /* Spckのバグ対策：勝手に折り返さないよう制御 */
 }
 
 /* 報酬画面内のキャラカード専用の安定化設定 */
@@ -2029,7 +2028,7 @@ h3 {
     flex: 1;
     overflow-y: auto;
     min-height: auto;
-    /* 驕ｸ謚櫁い縺ｮ譛蟆城ｫ倥＆繧堤｢ｺ菫昴＠縲∵焚縺梧ｸ帙▲縺ｦ繧ゆｸ企Κ縺悟虚縺九↑縺・ｈ縺・↓縺吶ｋ */
+    /* 選択肢の最小高さを確保し、数が減っても上部が動かないようにする */
 }
 
 .reward-option,
@@ -2234,14 +2233,14 @@ h3 {
     margin-top: 10px;
 }
 
-/* 郢ｧ・ｹ郢ｧ・ｭ郢晢ｽｫ鬩包ｽｸ隰壽ｧｭ・ｽ郢ｧ・ｿ郢晢ｽｳ邵ｺ・ｮ隴・ｽｰ郢晢ｽｬ郢ｧ・､郢ｧ・｢郢ｧ・ｦ郢晢ｿｽ */
+/* スキル詳細・ボタンのレイアウト調整 */
 .skill-btn {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    /* 蜷咲ｧｰ縺ｨ隱ｬ譏弱・髢薙・髫咎俣繧定ｩｰ繧√ｋ */
+    /* 名称と説明の間の隙間を詰める */
     padding: 6px 12px;
-    /* 繧ｹ繧ｭ繝ｫ繝懊ち繝ｳ繧らｸｦ繧貞､ｧ蟷・↓蝨ｧ邵ｮ */
+    /* スキルボタンも縦を大幅に圧縮 */
 }
 
 .skill-header {
@@ -2255,7 +2254,7 @@ h3 {
 .skill-name {
     font-weight: 700;
     font-size: 13px;
-    /* 繧上★縺九↓蟆上＆縺上＠縺ｦ荳陦後・蜿弱∪繧翫ｒ濶ｯ縺上☆繧・*/
+    /* わずかに小さくして一行の収まりを良くする */
     color: #fff;
 }
 
@@ -2489,7 +2488,7 @@ h3 {
 /* Event Screen Styles */
 #event-screen {
     background-image: url('img/bg/bg_map.png');
-    /* 閭梧勹邨ｱ荳 */
+    /* 背景画像 */
     background-size: cover;
     background-position: center;
     padding: 24px;
@@ -2497,7 +2496,7 @@ h3 {
     justify-content: center;
     align-items: center;
     overflow-y: auto;
-    /* 繧ｳ繝ｳ繝・Φ繝・′螟壹＞蝣ｴ蜷医・繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ */
+    /* コンテンツが長い場合のスクロール */
 }
 
 #event-screen.active {
@@ -2550,7 +2549,7 @@ h3 {
 
 .event-content {
     background: rgba(11, 12, 18, 0.85);
-    /* 隱ｭ縺ｿ繧・☆縺募髄荳翫・縺溘ａ縺ｮ閭梧勹 */
+    /* 読みやすいように半透明の背景 */
     padding: 24px;
     border-radius: 12px;
     border: 1px solid var(--glass-border);
@@ -2564,7 +2563,7 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    /* 繝懊ち繝ｳ髢馴囈隱ｿ謨ｴ */
+    /* ボタン間隔 */
     margin-top: 24px;
     width: 100%;
 }
@@ -2598,8 +2597,14 @@ h3 {
 #rest-party-status {
     width: 100%;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    /* in case of many members on small screens */
 }
 
+/* Old wrapper - keep just in case but container flex handles layout */
 .members-row {
     display: flex;
     justify-content: center;
@@ -2639,7 +2644,7 @@ h3 {
     font-weight: 700;
 }
 
-/* 繧｢繧ｯ繝・ぅ繝悶Θ繝九ャ繝医・轤ｹ貊・柑譫・*/
+/* アクティブユニットの点滅表示 */
 .battle-unit.active-unit {
     border-color: var(--warning) !important;
     animation: unit-blink 1.5s infinite alternate ease-in-out;
@@ -2656,7 +2661,7 @@ h3 {
     }
 }
 
-/* 繝懊ち繝ｳ縺ｮ蜿ｯ隕匁ｧ蛻ｶ蠕｡ */
+/* ボタンの表示制御 */
 #execute-turn-btn.visible {
     visibility: visible !important;
 }
@@ -2666,7 +2671,7 @@ h3 {
     margin: 0 auto;
 }
 
-/* === 莨∵･ｭ繝ｬ繝吶Ν繝ｻ繝ｪ繝・メ繝舌ヨ繝ｫ貍泌・ === */
+/* === 汎用バトルエフェクト === */
 
 .vfx-container {
     position: absolute;
@@ -2681,10 +2686,10 @@ h3 {
     justify-content: center;
     align-items: center;
     mix-blend-mode: plus-lighter;
-    /* 蜉邂怜粋謌舌〒逋ｺ蜈画─繧呈怙螟ｧ蛹・*/
+    /* 合成モードで光を強調 */
 }
 
-/* 陦悟虚荳ｭ縺ｮ鮟・牡譫・夊ц蜍輔い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ莉倥″ */
+/* 行動中のユニットの強調アニメーション */
 .battle-unit.acting {
     border-color: #ffd700 !important;
     box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700 !important;
@@ -2702,7 +2707,7 @@ h3 {
     }
 }
 
-/* 繝繝｡繝ｼ繧ｸ繝昴ャ繝励い繝・・・壹く繝｣繝ｩ荳ｭ螟ｮ・・ヰ繝肴嫌蜍・*/
+/* ダメージポップアップのプロ版アニメーション */
 .damage-popup {
     position: absolute;
     top: 40%;
@@ -2742,7 +2747,7 @@ h3 {
     }
 }
 
-/* 迚ｩ逅・ｼ夐強蛻ｩ縺ｪ繝励Ο譁ｬ謦・*/
+/* 鋭い斬撃エフェクト */
 .vfx-slash-pro {
     position: absolute;
     width: 150%;
@@ -2769,7 +2774,7 @@ h3 {
     }
 }
 
-/* 鬲疲ｳ包ｼ售VG鬲疲婿髯｣縺ｮ蝗櫁ｻ｢諡｡謨｣ */
+/* 魔法陣SVGの出現アニメーション */
 .vfx-magic-circle-pro {
     position: absolute;
     width: 140px;
@@ -2794,7 +2799,7 @@ h3 {
     }
 }
 
-/* 繧ｹ繝医・繝ｳ繧ｨ繝・ず・壻ｸ崎ｦ丞援縺ｪ蟯ｩ縺ｮ遯√″荳翫￡ */
+/* スキル「岩石落とし」のような岩の突き上げ */
 .vfx-rock-pro {
     position: absolute;
     bottom: 20px;
@@ -2802,7 +2807,7 @@ h3 {
     height: 100px;
     background: #8b5e3c;
     clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-    /* 蝓ｺ譛ｬ縺ｯ荳芽ｧ・*/
+    /* 三角形は下向き */
     filter: brightness(var(--b)) drop-shadow(0 0 5px #000);
     transform: translateX(var(--x)) scaleY(0);
     animation: rock-pro-anim 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -2825,7 +2830,7 @@ h3 {
     }
 }
 
-/* 辟｡驥冗ｩｺ蜃ｦ・壽・蠎ｦ蜿崎ｻ｢ */
+/* 画面反転エフェクト */
 .void-invert {
     animation: void-flash 0.8s ease-in-out;
 }
@@ -2844,9 +2849,9 @@ h3 {
     }
 }
 
-/* === 蜻ｳ譁ｹ蝗ｺ譛画橿繧ｨ繝輔ぉ繧ｯ繝・=== */
+/* === キャラ固有技エフェクト === */
 
-/* 譏溷ｱ代け繝ｫ繝ｼ繧ｸ繝ｳ繧ｰ・亥柏蜿ｯ蜿ｯ・会ｼ壽弌縺ｮ陞ｺ譌九が繝ｼ繝ｩ (蠑ｷ蛹也沿) */
+/* 治癒スキル「スターダスト」：星屑の輝き（強化版） */
 .vfx-stardust {
     position: absolute;
     width: 220px;
@@ -2854,11 +2859,11 @@ h3 {
     border-radius: 50%;
     background: radial-gradient(circle, rgba(160, 216, 239, 0.4) 0%, transparent 70%);
     box-shadow: 0 0 30px rgba(79, 172, 254, 0.3);
-    /* 貍泌・譎る俣繧・.2s縺ｫ莨ｸ縺ｰ縺励∝ｺ・′繧翫☆縺弱↑縺・ｈ縺・ｪｿ謨ｴ */
+    /* アニメーション時間を1.2sに長くし、光がゆっくり広がるように調整 */
     animation: stardust-spin 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 蛟句挨縺ｮ譏溽ｲ貞ｭ占ｨｭ螳・*/
+/* 散らばる星の粒子 */
 .vfx-star-particle {
     position: absolute;
     font-size: 30px;
@@ -2866,7 +2871,7 @@ h3 {
     text-shadow: 0 0 15px #4facfe, 0 0 30px #fff;
     opacity: 0;
     pointer-events: none;
-    /* 陞ｺ譌九ｒ謠上＞縺ｦ蠎・′繧九い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ */
+    /* 光を放ちながら舞い上がるアニメーション */
     animation: star-particle-anim 1.3s ease-out forwards;
     animation-delay: var(--delay);
 }
@@ -2920,7 +2925,7 @@ h3 {
     }
 }
 
-/* 繧ｹ繧ｫ繧､繝代Φ繝・ｼ医く繝･繧｢繧ｹ繧ｫ繧､・会ｼ夊直縺ｮ繧ｹ繝ｼ繝代・繧ｹ繧ｿ繝ｼ繝ｻ繝舌・繧ｹ繝茨ｼ郁ｶ・ｼｷ蛹也沿・・*/
+/* スキル「スカイバースト」：光の柱とスターバースト（強化版） */
 .vfx-sky-burst {
     position: absolute;
     width: 250px;
@@ -2928,7 +2933,7 @@ h3 {
     background: radial-gradient(circle, #fff 0%, #4facfe 30%, transparent 70%);
     border-radius: 50%;
     mix-blend-mode: screen;
-    /* 1.0s縺九￠縺ｦ縺倥▲縺上ｊ鬲・○繧・*/
+    /* 1.0sかけてゆっくりと広がる */
     animation: sky-burst-anim 1.0s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
@@ -2956,13 +2961,13 @@ h3 {
     height: 2px;
 }
 
-/* 讓ｪ邱・*/
+/* 横線 */
 .vfx-sky-cross::after {
     width: 2px;
     height: 100%;
 }
 
-/* 邵ｦ邱・*/
+/* 縦線 */
 
 @keyframes sky-burst-anim {
     0% {
@@ -2976,27 +2981,27 @@ h3 {
         opacity: 1;
     }
 
-    /* 譛蛻昴・荳謦・*/
+    /* 最初の一瞬 */
     25% {
         transform: scale(0.7);
         filter: brightness(3);
     }
 
-    /* 繧ｨ繝阪Ν繧ｮ繝ｼ縺ｮ蝨ｧ邵ｮ・域ｺ懊ａ・・*/
+    /* エフェクトの収縮・広がり */
     50% {
         transform: scale(3.5);
         opacity: 1;
         filter: brightness(2);
     }
 
-    /* 螟ｧ辷・匱 */
+    /* 最大拡大 */
     100% {
         transform: scale(4.5);
         opacity: 0;
         filter: brightness(1);
     }
 
-    /* 髴ｧ謨｣ */
+    /* 消滅 */
 }
 
 @keyframes sky-cross-anim {
@@ -3010,22 +3015,22 @@ h3 {
         transform: scale(1.8);
     }
 
-    /* 驪ｭ縺・麻蜈・*/
+    /* 瞬時に拡大 */
     45% {
         transform: scale(1.6);
         opacity: 0.8;
     }
 
-    /* 菴咎渊縺ｮ邯ｭ謖・*/
+    /* 中間での収縮 */
     100% {
         transform: scale(2.2);
         opacity: 0;
     }
 
-    /* 繧・▲縺上ｊ豸医∴繧・*/
+    /* ゆっくりと消える */
 }
 
-/* 逕ｻ髱｢謖ｯ蜍包ｼ郁｡晄茶貍泌・・・*/
+/* 画面揺れエフェクト */
 .screen-shake {
     animation: shake-anim 0.3s cubic-bezier(.36, .07, .19, .97) both;
 }
@@ -3064,11 +3069,7 @@ h3 {
 }
 
 .vfx-crazy-diamond::before {
-    content: '笙･';
-    /* 繝上・繝医・繝ｼ繧ｯ繧剃ｽｿ逕ｨ縺吶ｋ縺後√％繧後・險伜捷縺ｨ縺励※荳闊ｬ逧・↑縺ｮ縺ｧ險ｱ螳ｹ遽・峇縺狗｢ｺ隱阪・
-       繧ゅ＠險伜捷遖∵ｭ｢縺ｪ繧唄VG縺気SS繧ｷ繧ｧ繧､繝励↓縺吶ｋ蠢・ｦ√′縺ゅｋ縲・
-       繝ｦ繝ｼ繧ｶ繝ｼ隕∵悍縲檎ｵｵ譁・ｭ礼ｦ∵ｭ｢縲阪□縺後∬ｨ伜捷繝輔か繝ｳ繝医・繧ｰ繝ｬ繝ｼ繧ｾ繝ｼ繝ｳ縲・
-       螳牙・遲悶→縺励※CSS縺ｧ繝上・繝医ｒ菴懊ｋ */
+    /* ハートのSVGを適用するが、これは仮として一文字なので表示はしない。より複雑なSVGをCSSで描画する手もある。VFX制作、豪華演出、エフェクトデザイナー、など。今回は手軽にCSSでハートを描く */
     content: '';
     position: absolute;
     top: 50%;
@@ -3082,22 +3083,24 @@ h3 {
 }
 
 .vfx-crazy-diamond::after {
-    /* 繝上・繝医・迚・牡繧鯉ｼ域闘莨ｼ隕∫ｴ縺ｧ繝上・繝井ｽ懈・・・*/
+    /* ハートの残りの半分（左右対称でハートを構成） */
     content: '';
     position: absolute;
     top: 50%;
-    /* 隱ｿ謨ｴ蠢・ｦ・*/
+    /* 配置調整 */
     left: 50%;
 }
 
-/* CSS Heart Logic (邁｡譏鍋沿) */
-/* 莉･蜑阪・SVG縺ｫ繧医ｋDiamond險ｭ螳壹ｒ荳頑嶌縺・*/
+/* CSS Heart Logic (仮実装) */
+/* 最終的にSVGによるDiamond形状を適用 */
 .vfx-crazy-diamond::before {
     content: '';
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300f2fe' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center/contain no-repeat;
-    width: 130px; height: 130px;
+    width: 130px;
+    height: 130px;
     transform: translate(-50%, -50%) scale(0);
     filter: drop-shadow(0 0 15px #00f2fe) brightness(1.2);
     mix-blend-mode: screen;
@@ -3110,10 +3113,12 @@ h3 {
         transform: translate(-50%, -50%) scale(0);
         opacity: 0;
     }
+
     50% {
         transform: translate(-50%, -50%) scale(1.2);
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) scale(1.0);
         opacity: 0;
@@ -3122,11 +3127,20 @@ h3 {
 
 /* 不足していたアニメーション定義を追加 */
 @keyframes heal-pulse {
-    0% { transform: scale(1); opacity: 0.6; filter: brightness(1); }
-    100% { transform: scale(1.1); opacity: 1; filter: brightness(1.3); }
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+        filter: brightness(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+        opacity: 1;
+        filter: brightness(1.3);
+    }
 }
 
-/* 蝣募､ｩ鮴埼ｳｳ蜃ｰ邵幢ｼ域ｴ･蟲ｶ蝟・ｭ撰ｼ会ｼ夂ｴｫ縺ｮ骼悶お繝輔ぉ繧ｯ繝・*/
+/* 堕天拘束（エンリコ・プッチ）：鎖のエフェクト */
 .vfx-fallen-bind {
     position: absolute;
     width: 200px;
@@ -3180,7 +3194,7 @@ h3 {
     }
 }
 
-/* 縺ｯ縺ｩ縺・□繧難ｼ医Ν繧ｫ繝ｪ繧ｪ・会ｼ夐搨縺・ｳ｢蜍慕帥 */
+/* はどうだん（ルカリオ）：波動弾 */
 .vfx-aura-sphere {
     position: absolute;
     width: 120px;
@@ -3236,7 +3250,7 @@ h3 {
     }
 }
 
-/* 繧ｹ繧ｫ繝ｼ繝ｬ繝・ヨ繧ｹ繝医・繝・亥━譛ｨ縺帙▽闖懶ｼ会ｼ壼､壼ｱ､辷・匱縺ｨ髢・・ */
+/* スカーレットストーム（優木せつ菜）：多層爆発と閃光 */
 .vfx-scarlet-storm {
     position: absolute;
     width: 300px;
@@ -3246,7 +3260,7 @@ h3 {
     justify-content: center;
 }
 
-/* 辷・匱縺ｮ螟壼ｱ､繝ｬ繧､繝､繝ｼ */
+/* 爆発の多層レイヤー */
 .vfx-explosion-layer {
     position: absolute;
     border-radius: 50%;
@@ -3280,7 +3294,7 @@ h3 {
     z-index: 1;
 }
 
-/* 謾ｾ蟆・憾縺ｮ髢・・ */
+/* 放射状の閃光 */
 .vfx-flare {
     position: absolute;
     width: 400px;
@@ -3380,7 +3394,7 @@ h3 {
     }
 }
 
-/* 繝輔Η繝ｼ繧ｸ繝ｧ繝ｳ繧ｯ繝ｩ繧ｹ繝茨ｼ医そ繝ｩ繧ｹ・会ｼ夂區縺・・譟ｱ (蠑ｷ蛹也沿) */
+/* フュージョンクラスト（セラス）：白き光柱 (強化版) */
 .vfx-fusion-crust {
     position: absolute;
     width: 120px;
@@ -3407,7 +3421,7 @@ h3 {
     }
 }
 
-/* 繝峨す繝｣繝・ヨ・磯ｻ貞ｰｾ驩・恬・会ｼ壹が繝ｬ繝ｳ繧ｸ縺ｮ逶ｾ (蠑ｷ蛹也沿) */
+/* ドシャット（黒尾鉄朗）：オレンジの盾 (強化版) */
 .vfx-doshatto {
     position: absolute;
     width: 200px;
@@ -3452,7 +3466,7 @@ h3 {
     }
 }
 
-/* 繝・Ο繝ｪ繧ｨ繝ｩ繝ｳ・郁凶闖懷屁蟄｣・会ｼ壽ｰｴ濶ｲ縺ｮMP蝗槫ｾｩ豕｢ (蠑ｷ蛹也沿) */
+/* デロリエラン（若菜四季）：水色のMP回復波 (強化版) */
 .vfx-delorieran {
     position: absolute;
     width: 260px;
@@ -3519,7 +3533,7 @@ h3 {
     }
 }
 
-/* 遨ｿ螟ｩ豌ｷ螢・ｼ郁ｽ溽┬蜃搾ｼ会ｼ夐搨縺・ｰｷ譟ｱ鄒､ */
+/* 穿天氷壁（轟焦凍）：鋭い氷柱群 */
 .vfx-ice-wall {
     position: absolute;
     width: 220px;
@@ -3583,18 +3597,18 @@ h3 {
     }
 }
 
-/* 髮ｷ蛻・ｼ医・縺溘￠繧ｫ繧ｫ繧ｷ・会ｼ售VG縺ｫ繧医ｋ騾｣邨宣峭謦・ｼ育ｪ√″荳翫￡繝ｻ蠑ｷ蛹也沿・・*/
+/* 雷切（はたけカカシ）：SVGによる連結雷撃（突き上げ・強化版） */
 .vfx-raikiri-arc {
     position: absolute;
     bottom: -50px;
     left: 50%;
     width: 150px;
-    /* 蟆代＠螟ｪ縺・*/
+    /* 少し太い */
     height: 350px;
-    /* 蟆代＠髟ｷ縺・*/
+    /* 少し長い */
     transform: translateX(-50%);
     filter: drop-shadow(0 0 10px #00bfff) drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 40px #00bfff);
-    /* 逋ｺ蜈牙ｼｷ蛹・*/
+    /* 発光強化 */
     z-index: 10;
 }
 
@@ -3602,9 +3616,9 @@ h3 {
     fill: #e0ffff;
     filter: drop-shadow(0 0 5px #00bfff);
     clip-path: inset(100% 0 0 0);
-    /* 荳九°繧我ｸ翫∈繝ｯ繧､繝礼畑蛻晄悄蛟､ */
+    /* 下から上へワイプ用初期値 */
     animation: raikiri-wipe 0.15s linear forwards;
-    /* 雜・ｫ倬溘Ρ繧､繝・*/
+    /* 超高速ワイプ */
 }
 
 .raikiri-shape.branch {
@@ -3624,17 +3638,17 @@ h3 {
     }
 }
 
-/* 繝輔ぉ繝ｼ繝峨い繧ｦ繝育畑縺ｮ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縺ｯJavaScript縺ｧ繧ｯ繝ｩ繧ｹ莉倅ｸ弱√∪縺溘・蛻･螳夂ｾｩ */
+/* フェードアウトアニメーションはJavaScriptでクラス付与、または別途定義 */
 .vfx-raikiri-arc.fade-out .raikiri-shape {
     transition: opacity 0.3s;
     opacity: 0;
 }
 
-/* 繧､繝ｳ繝代け繝域凾縺ｮ陦晄茶豕｢ */
+/* インパクト時の衝撃波 */
 .vfx-raikiri-impact {
     position: absolute;
     top: 20px;
-    /* 遯√″荳翫￡縺ｮ蛻ｰ驕皮せ莉倩ｿ・*/
+    /* 突き上げの到達点付近 */
     left: 50%;
     transform: translate(-50%, -50%);
     width: 10px;
@@ -3644,7 +3658,7 @@ h3 {
     box-shadow: 0 0 50px #fff, 0 0 100px #00bfff;
     opacity: 0;
     animation: raikiri-impact-burst 0.5s ease-out 0.4s forwards;
-    /* 0.4s蝨ｰ轤ｹ縺九ｉ逋ｺ逕・*/
+    /* 0.4s時点から発生 */
 }
 
 @keyframes raikiri-flash-arc {
@@ -3661,7 +3675,7 @@ h3 {
         stroke-dashoffset: 0;
         opacity: 1;
         stroke-width: 10;
-        /* 譛繧ょ､ｪ縺・*/
+        /* 最も太い */
         filter: brightness(2.0);
     }
 
@@ -3690,7 +3704,7 @@ h3 {
 
 
 
-/* 謚ｹ豸茨ｼ育嶌貔､豸亥､ｪ・会ｼ夊ｵ､縺・岼縺ｮ蜈・譚溽ｸ・*/
+/* 抹消（相澤消太）：赤い瞳の光＋帯 */
 .vfx-erasure {
     position: absolute;
     width: 200px;
@@ -3762,7 +3776,7 @@ h3 {
     }
 }
 
-/* Solitude Rain・域｡懷揩縺励★縺擾ｼ会ｼ夂ｴｫ縺ｮ髮ｨ繧ｨ繝輔ぉ繧ｯ繝・(蠑ｷ蛹也沿) */
+/* Solitude Rain（津島善子）：紫の雨エフェクト (強化版) */
 .vfx-solitude-rain {
     position: absolute;
     width: 240px;
@@ -3818,9 +3832,9 @@ h3 {
 }
 
 
-/* === 繝懊せ蝗ｺ譛画橿繧ｨ繝輔ぉ繧ｯ繝・=== */
+/* === ボス固有技エフェクト === */
 
-/* 繝舌う繧ｭ繝ｳ繝代Φ繝・ｼ医・縺・″繧薙∪繧難ｼ会ｼ夂ｴｫ縺ｮ諡ｳ陦晄茶 */
+/* バイキンパンチ（ばいきんまん）：紫の殴打衝撃 */
 .vfx-baikin-punch {
     position: absolute;
     width: 180px;
@@ -3875,7 +3889,7 @@ h3 {
     }
 }
 
-/* 豈呈ｶｲ蝎ｴ蟆・ｼ医ぐ繧ｮ繝阪ヶ繝ｩ・会ｼ夂ｷ代・豈帝悸 */
+/* 毒液噴射（ギギネブラ）：緑の毒霧 */
 .vfx-poison-spray {
     position: absolute;
     width: 300px;
@@ -3929,7 +3943,7 @@ h3 {
     }
 }
 
-/* 闕芽侭縺ｮ蜑｣・亥､ｧ陋・ｸｸ・会ｼ夂ｷ代・陋・お繝輔ぉ繧ｯ繝・*/
+/* 草薙の剣（大蛇丸）：緑の蛇エフェクト */
 .vfx-kusanagi {
     position: absolute;
     width: 240px;
@@ -3975,7 +3989,7 @@ h3 {
     }
 }
 
-/* 蜻ｪ髴頑桃陦難ｼ亥､乗ｲｹ蛯托ｼ会ｼ夐ｻ偵＞蜻ｪ髴翫す繝ｫ繧ｨ繝・ヨ */
+/* 呪霊操術（夏油傑）：黒い呪霊シルエット */
 .vfx-cursed-spirit {
     position: absolute;
     width: 160px;
@@ -4029,7 +4043,7 @@ h3 {
     }
 }
 
-/* 繝・せ繝懊・繝ｫ・医ヵ繝ｪ繝ｼ繧ｶ・会ｼ夊ｵ､鮟偵＞逅・ｽ・*/
+/* デスボール（フリーザ）：赤黒い球体 */
 .vfx-death-ball {
     position: absolute;
     width: 160px;
@@ -4085,7 +4099,7 @@ h3 {
     }
 }
 
-/* 繧ｶ繝ｻ繝ｯ繝ｼ繝ｫ繝会ｼ医ョ繧｣繧ｪ・会ｼ壽凾險・鮟・≡縺ｮ譎よｭ｢繧・*/
+/* ザ・ワールド（ディオ）：時を止める演出 */
 .vfx-za-warudo {
     position: absolute;
     width: 240px;
@@ -4150,7 +4164,7 @@ h3 {
     }
 }
 
-/* 髀｡闃ｱ豌ｴ譛茨ｼ域・譟捺Ε蜿ｳ莉具ｼ会ｼ夐升縺ｮ繧医≧縺ｪ蜿榊ｰ・*/
+/* 鏡花水月（藍染惣右介）：鏡のような反射 */
 .vfx-kyoka-suigetsu {
     position: absolute;
     width: 200px;
@@ -4200,7 +4214,7 @@ h3 {
     }
 }
 
-/* 繝輔か繝医Φ繧ｲ繧､繧ｶ繝ｼ・医ロ繧ｯ繝ｭ繧ｺ繝橸ｼ会ｼ壼・縺ｮ譟ｱ */
+/* フォトンゲイザー（ネクロズマ）：光の柱 */
 .vfx-photon-geyser {
     position: absolute;
     width: 140px;
@@ -4226,7 +4240,7 @@ h3 {
     }
 }
 
-/* 繧ｰ繝ｩ繝ｳ繝峨せ繝ｩ繝・医・繧ｹ繧ｿ繝ｼ繝上Φ繝会ｼ会ｼ夂區縺・焔蠖｢陦晄茶 */
+/* グランドスラム（バスターハンド）：白い手形衝撃 */
 .vfx-grand-slam {
     position: absolute;
     width: 220px;
@@ -4256,7 +4270,7 @@ h3 {
     }
 }
 
-/* 蟠ｩ螢奇ｼ域ｭｻ譟・惠蠑費ｼ会ｼ壹・縺ｳ蜑ｲ繧梧ｼ泌・ */
+/* 崩壊（死柄木弔）：ひび割れ演出 */
 .vfx-decay {
     position: absolute;
     width: 240px;
@@ -4329,7 +4343,7 @@ h3 {
     }
 }
 
-/* 繧ｯ繝・ヱ繝悶Ξ繧ｹ・医け繝・ヱ・会ｼ壹が繝ｬ繝ｳ繧ｸ縺ｮ轤・*/
+/* クッパブレス（クッパ）：オレンジの炎 */
 .vfx-koopa-breath {
     position: absolute;
     width: 180px;
@@ -4402,13 +4416,13 @@ h3 {
     }
 }
 
-/* 繧ｷ繝ｼ繝ｫ繝峨が繝ｼ繝ｩ・磯亟蠕｡繝ｻ繝舌ヵ邉ｻ蜈ｱ騾夲ｼ・*/
+/* シールドオーラ（防御・バフ系共通） */
 .shield-aura {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* 繧ｫ繝ｼ繝峨′邵ｦ髟ｷ縺ｧ繧よ･募・縺ｫ縺ｪ繧峨↑縺・ｈ縺・崋螳壹ヴ繧ｯ繧ｻ繝ｫ繧呈欠螳・*/
+    /* カードが縦長でも楕円にならないよう固定ピクセルを指定 */
     width: 145px;
     height: 145px;
     border: 4px solid #4facfe;
@@ -4440,7 +4454,7 @@ h3 {
     }
 }
 
-/* 繝輔Λ繝・す繝･繧ｨ繝輔ぉ繧ｯ繝茨ｼ郁牡驕輔＞霑ｽ蜉・・*/
+/* フラッシュエフェクト（色違い追加） */
 .flash-gold {
     animation: flash-gold-anim 0.3s ease-out;
 }
@@ -4477,7 +4491,7 @@ h3 {
     }
 }
 
-/* 陲ｫ蠑ｾ譎ゅ・2騾｣繝輔Λ繝・す繝･・医ヵ繝ｪ繝・き繝ｼ・画ｼ泌・ */
+/* 被弾時の2連フラッシュ（フリッカー）演出 */
 .flash-flicker-white {
     animation: flash-flicker-white-anim 0.25s ease-out;
 }
@@ -4496,7 +4510,7 @@ h3 {
     }
 }
 
-/* 蠑ｷ蛹也判髱｢繝ｬ繧､繧｢繧ｦ繝・*/
+/* 強化画面レイアウト */
 .enhance-layout {
     max-width: 500px;
     width: 95%;
@@ -4631,7 +4645,7 @@ h3 {
     /* width/height defined in btn-plus/minus styles */
 }
 
-/* 繧｢繧､繝・Β蜈･繧梧崛縺・*/
+/* アイテム入れ替え */
 .item-swap-grid {
     display: grid;
     gap: 10px;
@@ -4663,7 +4677,7 @@ h3 {
     background: rgba(245, 175, 25, 0.05);
 }
 
-/* 蠑ｷ蛹也判髱｢繝懊ち繝ｳ驟崎牡・・縺ｯ襍､縲・縺ｯ髱・*/
+/* 強化画面ボタン配色（＋は赤、－は青） */
 .btn-plus {
     width: 32px !important;
     color: #fff !important;
@@ -4683,7 +4697,7 @@ h3 {
     box-shadow: 0 2px 4px rgba(60, 80, 150, 0.4);
 }
 
-/* 繝槭ャ繝礼判髱｢・壼ｼｷ蛹悶・繧ｿ繝ｳ繧剃ｻ悶→邨ｱ荳 */
+/* マップ画面・強化ボタンを他と統一 */
 #enhance-btn {
     background: rgba(245, 175, 25, 0.2);
     border: 1px solid var(--warning);
@@ -4700,7 +4714,7 @@ h3 {
     background: rgba(245, 175, 25, 0.4);
 }
 
-/* 繝｢繝ｼ繝繝ｫ蜀・・繝懊ち繝ｳ驟咲ｽｮ繧貞插遲峨↓縺吶ｋ縺溘ａ縺ｮ隱ｿ謨ｴ */
+/* モーダル内のボタン配置を均等にするための調整 */
 #modal-actions .btn-primary {
     box-shadow: none !important;
     border: 1px solid transparent !important;
@@ -4708,7 +4722,7 @@ h3 {
 
 #modal-actions button {
     margin: 0;
-    /* 蠢ｵ縺ｮ縺溘ａ縺ｮ繝槭・繧ｸ繝ｳ繝ｪ繧ｻ繝・ヨ */
+    /* 念のためのマージンリセット */
 }
 
 /* --- New Map Styles (Boss Preview & Grid Layout Support) --- */
@@ -4973,6 +4987,7 @@ h3 {
     padding: 4px 8px;
     border-radius: 4px;
 }
+
 /* --- クレイジー・D 破片アニメーション --- */
 .vfx-diamond-shard {
     position: absolute;
@@ -4981,7 +4996,8 @@ h3 {
     background: linear-gradient(135deg, #fff, #00f2fe, #ff69b4);
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     opacity: 0;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     filter: drop-shadow(0 0 5px #00f2fe);
     animation: shard-converge 0.6s ease-in forwards;
     animation-delay: var(--delay);
@@ -4992,10 +5008,12 @@ h3 {
         transform: translate(var(--tx), var(--ty)) rotate(0deg) scale(0);
         opacity: 0;
     }
+
     20% {
         opacity: 1;
         transform: translate(var(--tx), var(--ty)) rotate(180deg) scale(1);
     }
+
     /* 収束（修復）の動き */
     100% {
         transform: translate(0, 0) rotate(720deg) scale(0);
@@ -5004,11 +5022,213 @@ h3 {
 }
 
 @keyframes crystal-heart-form {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; filter: brightness(5); }
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        filter: brightness(5);
+    }
+
     /* 0.4s + 0.4s = 0.8s (全体の中盤) で最大化 */
-    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; filter: brightness(2); }
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 1;
+        filter: brightness(2);
+    }
+
     /* 1.0s付近で一度落ち着く */
-    80% { transform: translate(-50%, -50%) scale(1.0); opacity: 1; filter: brightness(1.2); }
+    80% {
+        transform: translate(-50%, -50%) scale(1.0);
+        opacity: 1;
+        filter: brightness(1.2);
+    }
+
     /* 1.2sで光となって霧散する */
-    100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; filter: brightness(5); }
+    100% {
+        transform: translate(-50%, -50%) scale(1.6);
+        opacity: 0;
+        filter: brightness(5);
+    }
+}
+
+/* =========================================
+   Game Over Modal (Rich Style)
+   ========================================= */
+.gameover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(50, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.95) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: overlayFadeIn 2s ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        background: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+    }
+
+    to {
+        background: radial-gradient(circle, rgba(50, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.95) 100%);
+        backdrop-filter: blur(5px);
+    }
+}
+
+.gameover-content {
+    text-align: center;
+    position: relative;
+    padding: 40px;
+    border-top: 2px solid rgba(255, 50, 50, 0.3);
+    border-bottom: 2px solid rgba(255, 50, 50, 0.3);
+    background: linear-gradient(90deg, transparent 0%, rgba(20, 0, 0, 0.8) 50%, transparent 100%);
+}
+
+.gameover-title {
+    font-family: serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #e0e0e0;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    margin-bottom: 16px;
+    animation: textGlitch 3s infinite alternate;
+}
+
+@keyframes textGlitch {
+    0% {
+        text-shadow: 2px 2px 10px rgba(255, 0, 0, 0.8);
+        transform: skew(0deg);
+    }
+
+    20% {
+        text-shadow: -2px -2px 10px rgba(255, 0, 0, 0.8);
+        transform: skew(-2deg);
+    }
+
+    40% {
+        text-shadow: 2px -2px 10px rgba(255, 0, 0, 0.8);
+        transform: skew(2deg);
+    }
+
+    100% {
+        text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        transform: skew(0deg);
+    }
+}
+
+.gameover-divider {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ff4444, transparent);
+    margin: 0 auto 24px;
+    opacity: 0.7;
+}
+
+.gameover-message {
+    font-family: serif;
+    font-size: 16px;
+    color: #bbb;
+    margin-bottom: 40px;
+    letter-spacing: 0.1em;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 12px 32px;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ghost::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: 0.5s;
+}
+
+.btn-ghost:hover {
+    border-color: #ff4444;
+    color: #ff4444;
+    text-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+    background: rgba(20, 0, 0, 0.6);
+}
+
+.btn-ghost:hover::before {
+    left: 100%;
+}
+
+/* Shop Screen Styles (Revised) */
+#shop-screen {
+    background-image: url('img/bg/bg_shop.png');
+    background-size: cover;
+    background-position: center;
+    padding: 24px;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+#shop-screen.active {
+    display: flex;
+}
+
+.shop-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shop-header-row h2 {
+    margin: 0;
+    /* Remove default margin to align with gold */
+}
+
+#shop-gold-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+#shop-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Event Descriptions */
+.event-desc {
+    font-size: 0.85em;
+    color: var(--text-sub);
+    display: block;
+    margin-top: 4px;
+}
+
+.success-rate {
+    font-size: 0.85em;
+    color: var(--success);
+    display: block;
+    margin-top: 2px;
 }

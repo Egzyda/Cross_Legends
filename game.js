@@ -128,22 +128,29 @@ class Game {
         titleEl.textContent = title;
         grid.innerHTML = '';
 
+        // Reuse style from horizontal party status
+        grid.className = 'party-status-bar reward-layout-fix';
+        grid.style.display = 'flex';
+        grid.style.justifyContent = 'center';
+        grid.style.gap = '10px';
+        grid.style.flexWrap = 'wrap';
+
         this.state.party.forEach((char) => {
             const card = document.createElement('div');
-            card.className = 'item-swap-card';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.alignItems = 'center';
-            card.style.padding = '10px';
+            card.className = 'party-member-status';
+            card.style.cursor = 'pointer';
+
+            const hpPercent = char.stats.hp > 0 ? (char.currentHp / char.stats.hp) * 100 : 0;
+            const mpPercent = char.stats.mp > 0 ? (char.currentMp / char.stats.mp) * 100 : 0;
 
             card.innerHTML = `
-                <img src="${char.image}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;margin-bottom:8px;border:2px solid #fff;">
-                <div style="font-weight:bold;margin-bottom:4px;">${char.displayName}</div>
-                <div style="font-size:11px;color:#ccc;">
-                    HP: ${Math.floor(char.currentHp)}/${char.stats.hp}<br>
-                    攻:${char.stats.physicalAttack} / 魔:${char.stats.magicAttack}
-                </div>
+                <img src="${char.image.face}" alt="${char.displayName}" onerror="this.style.background='#555'">
+                <div class="hp-mp-text">HP: ${Math.floor(char.currentHp)}/${char.stats.hp}</div>
+                <div class="hp-bar"><div class="fill" style="width: ${hpPercent}%"></div></div>
+                <div class="hp-mp-text">MP: ${Math.floor(char.currentMp)}/${char.stats.mp}</div>
+                <div class="mp-bar"><div class="fill" style="width: ${mpPercent}%"></div></div>
             `;
+
             card.onclick = () => {
                 this.closeCharacterSelectModal();
                 onSelect(char);
@@ -257,8 +264,9 @@ class Game {
             this.executeTurn();
         });
 
-        // リトライ
-        document.getElementById('retry-btn').addEventListener('click', () => {
+        // リトライ（ゲームオーバーモーダルから）
+        document.getElementById('retry-btn-modal').addEventListener('click', () => {
+            this.closeGameOverModal();
             this.resetGame();
         });
         document.getElementById('clear-retry-btn').addEventListener('click', () => {
@@ -1853,7 +1861,22 @@ class Game {
         panel.classList.remove('hidden');
         panel.innerHTML = '<h4>アイテムを選択</h4>';
 
-        Object.entries(this.state.items).forEach(([itemId, count]) => {
+        // 集計 (コマンドで予約済みのアイテムを差し引く)
+        const counts = {};
+        this.state.items.forEach(id => {
+            counts[id] = (counts[id] || 0) + 1;
+        });
+
+        const queuedItems = this.state.battle.commands;
+        if (queuedItems) {
+            Object.values(queuedItems).forEach(cmd => {
+                if (cmd && cmd.type === 'item' && cmd.itemId) {
+                    if (counts[cmd.itemId] > 0) counts[cmd.itemId]--;
+                }
+            });
+        }
+
+        Object.entries(counts).forEach(([itemId, count]) => {
             if (count > 0) {
                 const item = ITEMS[itemId];
                 const btn = document.createElement('button');
@@ -2153,9 +2176,15 @@ class Game {
         try {
 
             // スタン/麻痺チェック
-            const stunned = actor.statusEffects.find(e => e.type === 'stun');
-            if (stunned) {
+            const stunnedIdx = actor.statusEffects.findIndex(e => e.type === 'stun');
+            if (stunnedIdx !== -1) {
                 this.addLog(`${actorName}はスタンで動けない！`);
+                // スタンは「行動しようとした時」に消費
+                actor.statusEffects[stunnedIdx].duration--;
+                if (actor.statusEffects[stunnedIdx].duration <= 0) {
+                    actor.statusEffects.splice(stunnedIdx, 1);
+                }
+                this.renderBattle(); // バッジ更新
                 return;
             }
 
@@ -2515,29 +2544,96 @@ class Game {
     }
 
 
-    // アイテム使用
+    //- アイテム使用
     async executeItem(cmd, actorName) {
         const item = ITEMS[cmd.itemId];
-        const target = this.state.party[cmd.target];
 
-        this.state.items[cmd.itemId]--;
-
-        switch (item.effect.type) {
-            case 'heal':
-                const healAmount = Math.floor(target.stats.hp * (item.effect.percent / 100));
-                target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
-                this.addLog(`${actorName}は${item.name}を使った！${target.displayName}のHPが${healAmount}回復！`);
-                break;
-            case 'mp_heal':
-                const mpAmount = Math.floor(target.stats.mp * (item.effect.percent / 100));
-                target.currentMp = Math.min(target.stats.mp, target.currentMp + mpAmount);
-                this.addLog(`${actorName}は${item.name}を使った！${target.displayName}のMPが${mpAmount}回復！`);
-                break;
-            case 'revive':
-                target.currentHp = Math.floor(target.stats.hp * (item.effect.percent / 100));
-                this.addLog(`${actorName}は${item.name}を使った！${target.displayName}が復活した！`);
-                break;
+        // アイテム消費 (Arrayから削除)
+        const itemIdx = this.state.items.indexOf(cmd.itemId);
+        if (itemIdx > -1) {
+            this.state.items.splice(itemIdx, 1);
+        } else {
+            // 万が一無い場合
+            this.addLog(`${actorName}は${item.name}を使おうとしたが、持っていなかった！`);
+            return;
         }
+
+        this.addLog(`${actorName}は${item.name}を使った！`);
+        await this.delay(500);
+
+        // ターゲット決定
+        let targets = [];
+        if (item.target === 'all_allies') {
+            targets = this.state.party.filter(p => p.currentHp > 0);
+            // 蘇生アイテムで全体は無いと仮定、もしくは全体蘇生ならdeadも対象だが..今回は生存者のみでOK
+        } else {
+            const t = this.state.party[cmd.target];
+            // 蘇生の場合は死んでてもOK
+            if (item.effect.type === 'revive' || (t && t.currentHp > 0)) {
+                targets = [t];
+            }
+        }
+
+        // 効果適用
+        for (const target of targets) {
+            // エフェクト（波紋）
+            await this.showEffectIcon(target, null, 'shield');
+
+            switch (item.effect.type) {
+                case 'heal':
+                    const healAmount = Math.floor(target.stats.hp * (item.effect.percent / 100));
+                    target.currentHp = Math.min(target.stats.hp, target.currentHp + healAmount);
+                    this.addLog(`${target.displayName}のHPが${healAmount}回復！`);
+                    this.showDamagePopup(target, healAmount, 'heal');
+                    break;
+                case 'mp_heal':
+                    const mpAmount = Math.floor(target.stats.mp * (item.effect.percent / 100));
+                    target.currentMp = Math.min(target.stats.mp, target.currentMp + mpAmount);
+                    this.addLog(`${target.displayName}のMPが${mpAmount}回復！`);
+                    this.showDamagePopup(target, mpAmount, 'mp-heal');
+                    break;
+                case 'revive':
+                    target.currentHp = Math.floor(target.stats.hp * (item.effect.percent / 100));
+                    target.buffs = [];
+                    target.debuffs = [];
+                    target.statusEffects = [];
+                    this.addLog(`${target.displayName}が復活した！`);
+                    this.showDamagePopup(target, '復活', 'heal');
+                    break;
+                case 'buff':
+                    if (item.effect.effects) {
+                        item.effect.effects.forEach(eff => {
+                            if (eff.stat === 'critBoost') {
+                                target.statusEffects.push({ type: 'critBoost', value: eff.value, duration: eff.duration });
+                            } else {
+                                const existing = target.buffs.find(b => b.stat === eff.stat);
+                                if (existing) {
+                                    existing.duration = Math.max(existing.duration, eff.duration);
+                                    if (eff.value > existing.value) existing.value = eff.value;
+                                } else {
+                                    target.buffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
+                                }
+                            }
+                        });
+                        this.addLog(`${target.displayName}のステータスが強化された！`);
+                    }
+                    break;
+                case 'status_cure':
+                    // 全ての状態異常を解除
+                    if (target.statusEffects.length > 0) {
+                        target.statusEffects = []; // 空にする（バフデバフは別配列なので維持される）
+                        // 厳密には buff/debuff ではなく statusEffects (毒、麻痺、スタン等) のみ
+                        this.addLog(`${target.displayName}の状態異常が全て回復した！`);
+                        this.showDamagePopup(target, '全快', 'heal');
+                    } else {
+                        this.addLog(`${target.displayName}は健康そのものだ！`);
+                    }
+                    break;
+            }
+            // UI更新
+            this.updateUnitUI(target);
+        }
+        await this.delay(300);
     }
 
 
@@ -2617,6 +2713,13 @@ class Game {
         if (statName === 'physicalDefense' || statName === 'magicDefense') {
             if (unit.statusEffects.some(e => e.type === 'burn')) {
                 value *= 0.85; // 15%低下
+            }
+        }
+
+        // 麻痺：素早さ半減
+        if (statName === 'speed') {
+            if (unit.statusEffects.some(e => e.type === 'paralysis')) {
+                value *= 0.5;
             }
         }
 
@@ -2755,10 +2858,13 @@ class Game {
                 }
             }
 
-            // 効果時間減少
+            // 効果時間減少（スタン以外） ※スタンは行動試行時に減らすためここでは減らさない
             unit.buffs = unit.buffs.filter(b => --b.duration > 0);
             unit.debuffs = unit.debuffs.filter(d => --d.duration > 0);
-            unit.statusEffects = unit.statusEffects.filter(e => --e.duration > 0);
+            unit.statusEffects = unit.statusEffects.filter(e => {
+                if (e.type === 'stun') return true; // スタンは維持
+                return --e.duration > 0;
+            });
         });
 
         this.state.battle.turn++;
@@ -2893,7 +2999,9 @@ class Game {
     }
 
     grantRandomItem(charIdx) {
-        const randomItemId = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+        // 戦闘後報酬では蘇生薬を出さない
+        const pool = ITEM_POOL.filter(id => id !== 'revive_potion');
+        const randomItemId = pool[Math.floor(Math.random() * pool.length)];
         const item = ITEMS[randomItemId];
 
         if (this.state.items.length < 3) {
@@ -3016,8 +3124,13 @@ class Game {
                     const option = document.createElement('div');
                     option.className = 'reward-option';
                     option.innerHTML = `
-                        <div class="reward-title">${skill.name}</div>
-                        <div class="reward-desc">${skill.description}</div>
+                        <div class="skill-item" style="background:transparent; border:none; padding:0; margin:0; box-shadow:none;">
+                            <div class="skill-item-header" style="margin-bottom:4px;">
+                                <span class="skill-item-name" style="font-size:16px; color:var(--primary);">${skill.name}</span>
+                                <span class="skill-item-cost" style="font-size:14px;">MP: ${skill.mpCost || 0}</span>
+                            </div>
+                            <div class="skill-item-desc" style="font-size:12px;">${skill.description}</div>
+                        </div>
                     `;
                     option.addEventListener('click', () => {
                         if (char.skills.length < 3) {
@@ -3228,7 +3341,7 @@ class Game {
             let label = opt.text;
             if (opt.effect.type === 'luck_check') {
                 const chance = this.calculateLuckSuccessRate(opt.effect.risk);
-                label += `（成功率: ${chance}%）`;
+                label += `<br><span class="success-rate">（成功率: ${chance}%）</span>`;
             } else if (opt.effect.type === 'random') {
                 // randomの場合、最初のoutcomeを「成功」とみなすか、weightsから計算
                 // ここでは単純にweight比率を表示
@@ -3238,11 +3351,11 @@ class Game {
                 const successOutcome = outcomes.find(o => o.type === 'item' || o.type === 'heal_all');
                 if (successOutcome) {
                     const chance = Math.floor((successOutcome.weight / totalWeight) * 100);
-                    label += `（成功率: ${chance}%）`;
+                    label += `<br><span class="success-rate">（成功率: ${chance}%）</span>`;
                 }
             }
 
-            btn.textContent = label;
+            btn.innerHTML = label;
             btn.addEventListener('click', () => this.handleEventOption(opt));
             options.appendChild(btn);
         });
@@ -3508,10 +3621,6 @@ class Game {
             this.finishNode();
         };
 
-        // タイトル変更（絵文字削除）
-        const titleEl = document.querySelector('.shop-title');
-        if (titleEl) titleEl.textContent = '闇商人';
-
         if (!this.state.currentNode.shopData) {
             this.state.currentNode.shopData = this.generateShopStock();
         }
@@ -3520,6 +3629,8 @@ class Game {
         this.renderShopSection(container, 'スキル書', stock.skills);
         this.renderShopSection(container, 'アイテム', stock.items);
         this.renderShopSection(container, 'スペシャル', stock.special);
+
+        this.updateShopUI();
     }
 
     generateShopStock() {
@@ -3586,6 +3697,8 @@ class Game {
         items.forEach(item => {
             const el = document.createElement('div');
             el.className = `shop-item ${item.purchased ? 'purchased' : ''}`;
+            el.shopItemData = item; // データ紐付け
+            // 初期状態の判定（updateShopUIでもやるが一応）
             if (this.state.gold < item.price && !item.purchased) el.classList.add('too-expensive');
 
             let content = '';
@@ -3696,16 +3809,49 @@ class Game {
     finalizePurchase(item, el, message) {
         this.state.gold -= item.price;
         item.purchased = true;
-        this.updateShopUI(el);
+        this.updateShopUI();
         this.renderPartyStatusBar();
         this.showToast(message, 'success');
+    }
+
+    updateShopUI() {
+        // 所持金更新
+        const goldEl = document.getElementById('shop-gold-display');
+        if (goldEl) {
+            goldEl.innerText = `所持金: ${this.state.gold}円`;
+        }
+
+        // 全アイテムの状態更新
+        const items = document.querySelectorAll('.shop-item');
+        items.forEach(el => {
+            const item = el.shopItemData;
+            if (!item) return;
+
+            // 購入済みクラス
+            if (item.purchased) {
+                el.classList.add('purchased');
+                el.classList.remove('too-expensive');
+            } else {
+                // 金額不足クラス
+                if (this.state.gold < item.price) {
+                    el.classList.add('too-expensive');
+                } else {
+                    el.classList.remove('too-expensive');
+                }
+            }
+        });
     }
 
     // ゲームオーバー
     gameOver() {
         this.clearSaveData();
-        document.getElementById('gameover-message').textContent = '全滅してしまった...';
-        this.showScreen('gameover');
+        // 戦闘画面は見せたまま、オーバーレイを表示
+        const modal = document.getElementById('gameover-modal');
+        modal.classList.remove('hidden');
+    }
+
+    closeGameOverModal() {
+        document.getElementById('gameover-modal').classList.add('hidden');
     }
 
     // ゲームリセット
@@ -3950,7 +4096,7 @@ class Game {
 
             const entry = document.createElement('div');
             entry.className = `item-entry ${!isUsable ? 'disabled' : ''}`;
-            entry.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.description}</div></div><div class="item-count">#${idx + 1}</div>`;
+            entry.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.description}</div></div>`;
 
             if (isUsable) {
                 entry.onclick = () => this.useItemFromModal(itemId, context, idx);
@@ -4121,8 +4267,24 @@ class Game {
         this.closeItemModal();
 
         if (item.target === 'all_allies') {
-            this.applyItemEffectToAll(itemId, itemIndex);
-            if (context === 'map') this.renderPartyStatusBar();
+            this.showModal('確認', `${item.name}を使用しますか？`, [
+                {
+                    text: '使用する',
+                    onClick: () => {
+                        this.closeModal();
+                        this.applyItemEffectToAll(itemId, itemIndex);
+                        if (context === 'map') this.renderPartyStatusBar();
+                    }
+                },
+                {
+                    text: 'やめる',
+                    onClick: () => {
+                        this.closeModal();
+                        if (context === 'map' || context === 'battle') this.showItemModal(context);
+                    },
+                    className: 'btn-cancel'
+                }
+            ]);
             return;
         }
 

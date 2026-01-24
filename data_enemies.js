@@ -197,9 +197,9 @@ const ENEMIES = {
             basePower: 160,
             mpCost: 48,
             effects: [
-                { type: 'debuff', stat: 'speed', value: -0.25, duration: 2 }
+                { type: 'debuff', stat: 'speed', value: -0.25, duration: 3 }
             ],
-            description: '単体に魔法攻撃（威力160%）+ 速度-25% 2ターン'
+            description: '単体に魔法攻撃（威力160%）+ 速度-25% 3ターン'
         },
         image: { full: 'img/enemy/shadow.png' },
         rank: 'elite'
@@ -247,12 +247,10 @@ const ENEMIES = {
             displayName: 'バイキンパンチ',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 160,
+            basePower: 140,
             mpCost: 65,
-            effects: [
-                { type: 'self_debuff', stat: 'physicalDefense', value: -0.2, duration: 1 }
-            ],
-            description: '単体に強力な物理攻撃（威力160%）'
+            effects: [],
+            description: '単体に強力な物理攻撃（威力140%）'
         },
         image: { full: 'img/enemy/baikinman.png' },
         rank: 'boss'
@@ -276,9 +274,9 @@ const ENEMIES = {
             basePower: 70,
             mpCost: 60,
             effects: [
-                { type: 'status', status: 'poison', chance: 30, duration: 4 }
+                { type: 'status', status: 'poison', chance: 30, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力70%）+ 毒付与30%'
+            description: '全体に魔法攻撃（威力70%）+ 毒付与30%（3T）'
         },
         image: { full: 'img/enemy/giginebura.png' },
         rank: 'boss'
@@ -511,9 +509,9 @@ const ENEMIES = {
             basePower: 160,
             mpCost: 55,
             effects: [
-                { type: 'status', status: 'silence', chance: 100, duration: 2 }
+                { type: 'status', status: 'silence', chance: 100, duration: 3 }
             ],
-            description: '単体に強力な魔法攻撃（威力160%）+ 沈黙状態にする'
+            description: '単体に強力な魔法攻撃（威力160%）+ 沈黙状態にする（3T）'
         },
         image: { full: 'img/enemy/koopajr.png' },
         rank: 'elite'
@@ -584,12 +582,10 @@ const ENEMIES = {
             displayName: 'ダークネスウィング',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 150,
+            basePower: 130,
             mpCost: 65,
-            effects: [
-                { type: 'self_debuff', stat: 'physicalDefense', value: -0.2, duration: 1 }
-            ],
-            description: '単体に強力な物理攻撃（威力150%）'
+            effects: [],
+            description: '単体に強力な物理攻撃（威力130%）'
         },
         image: { full: 'img/enemy/darkprecure.png' },
         rank: 'elite'
@@ -666,13 +662,13 @@ const ENEMIES = {
             basePower: 90,
             mpCost: 70,
             effects: [
-                { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 2 },
-                { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 2 },
-                { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 2 },
-                { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 2 },
-                { type: 'debuff', stat: 'speed', value: -0.15, duration: 2 }
+                { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'speed', value: -0.15, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力90%）+ 全ステータス-15% 2ターン'
+            description: '全体に魔法攻撃（威力90%）+ 全ステータス-15% 3ターン'
         },
         image: { full: 'img/enemy/aizen.png' },
         rank: 'last_boss'
@@ -745,10 +741,10 @@ const ENEMIES = {
             basePower: 90,
             mpCost: 65,
             effects: [
-                { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 2 },
-                { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 2 }
+                { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
+                { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力90%）+ 防御-20% 2ターン'
+            description: '全体に魔法攻撃（威力90%）+ 防御-20% 3ターン'
         },
         image: { full: 'img/enemy/tomura.png' },
         rank: 'last_boss'

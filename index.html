@@ -123,18 +123,26 @@
 
         <!-- ショップ画面 -->
         <div id="shop-screen" class="screen">
-            <h2 class="shop-title">🛒 闇商人</h2>
+            <div class="shop-header-row">
+                <h2>闇商人</h2>
+                <div id="shop-gold-display">所持金: 0円</div>
+            </div>
             <div id="shop-container"></div>
             <button id="leave-shop-btn" class="btn-primary" style="margin-top:20px;">店を出る</button>
         </div>
 
 
 
-        <!-- ゲームオーバー画面 -->
-        <div id="gameover-screen" class="screen">
-            <h2>GAME OVER</h2>
-            <p id="gameover-message"></p>
-            <button id="retry-btn" class="btn-primary">タイトルに戻る</button>
+        <!-- Game Over Modal (Rich Overlay) -->
+        <div id="gameover-modal" class="gameover-overlay hidden">
+            <div class="gameover-content">
+                <h2 class="gameover-title">GAME OVER</h2>
+                <div class="gameover-divider"></div>
+                <p class="gameover-message">全滅してしまった...</p>
+                <div class="gameover-actions">
+                    <button id="retry-btn-modal" class="btn-ghost">タイトルへ戻る</button>
+                </div>
+            </div>
         </div>
 
         <!-- クリア画面 -->
