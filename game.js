@@ -15,6 +15,7 @@ class Game {
             gold: 0, // 所持金（￥）
             battle: null,
             currentTab: 'all',
+            currentSort: 'default',
             selectedChar: null
         };
 
@@ -377,9 +378,10 @@ class Game {
         tabsContainer.className = 'filter-container';
         tabsContainer.innerHTML = '';
 
-        // Create Select Element
-        const select = document.createElement('select');
-        select.id = 'party-filter';
+        // Create Filter Select Element
+        const filterSelect = document.createElement('select');
+        filterSelect.id = 'party-filter';
+        filterSelect.style.marginRight = '10px';
 
         const tabs = [
             { id: 'all', label: 'すべて' },
@@ -398,15 +400,48 @@ class Game {
             if (this.state.currentTab === tab.id) {
                 option.selected = true;
             }
-            select.appendChild(option);
+            filterSelect.appendChild(option);
         });
 
-        select.addEventListener('change', (e) => {
+        filterSelect.addEventListener('change', (e) => {
             this.state.currentTab = e.target.value;
             this.renderCharacterList(); // Re-render list with filter
         });
 
-        tabsContainer.appendChild(select);
+        // Create Sort Select Element
+        const sortSelect = document.createElement('select');
+        sortSelect.id = 'party-sort';
+
+        const sortOptions = [
+            { id: 'default', label: 'デフォルト' },
+            { id: 'role', label: '役割' },
+            { id: 'hp_desc', label: 'HP降順' },
+            { id: 'mp_desc', label: 'MP降順' },
+            { id: 'physicalAttack_desc', label: '物攻降順' },
+            { id: 'magicAttack_desc', label: '魔攻降順' },
+            { id: 'physicalDefense_desc', label: '物防降順' },
+            { id: 'magicDefense_desc', label: '魔防降順' },
+            { id: 'speed_desc', label: '速さ降順' },
+            { id: 'luck_desc', label: '運降順' }
+        ];
+
+        sortOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.id;
+            option.textContent = opt.label;
+            if (this.state.currentSort === opt.id) {
+                option.selected = true;
+            }
+            sortSelect.appendChild(option);
+        });
+
+        sortSelect.addEventListener('change', (e) => {
+            this.state.currentSort = e.target.value;
+            this.renderCharacterList(); // Re-render list with sort
+        });
+
+        tabsContainer.appendChild(filterSelect);
+        tabsContainer.appendChild(sortSelect);
     }
 
     // キャラクター一覧描画（タブフィルター対応）
@@ -418,6 +453,23 @@ class Game {
 
         if (this.state.currentTab !== 'all') {
             chars = chars.filter(c => c.type === this.state.currentTab);
+        }
+
+        // Apply sorting
+        if (this.state.currentSort === 'role') {
+            const roleOrder = ['tank', 'physical_attacker', 'magic_attacker', 'healer', 'support', 'debuffer'];
+            chars.sort((a, b) => roleOrder.indexOf(a.type) - roleOrder.indexOf(b.type));
+        } else if (this.state.currentSort !== 'default') {
+            // Extract stat name from sort option (e.g., 'hp_desc' -> 'hp')
+            const statMatch = this.state.currentSort.match(/^(.+)_desc$/);
+            if (statMatch) {
+                const stat = statMatch[1];
+                chars.sort((a, b) => {
+                    const aValue = a.stats[stat] || 0;
+                    const bValue = b.stats[stat] || 0;
+                    return bValue - aValue; // Descending order
+                });
+            }
         }
 
         chars.forEach(char => {
