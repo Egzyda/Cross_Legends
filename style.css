@@ -1952,7 +1952,7 @@ h3 {
 #reward-screen.active {
     background-image: url('img/bg/bg_battle.png');
     justify-content: flex-start !important;
-    padding: 5px 12px !important;
+    padding: 16px 12px 5px 12px !important;
 }
 
 /* Rich Header Style */
@@ -2145,7 +2145,29 @@ h3 {
 #target-selection {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
+    padding-top: 8px;
+}
+
+/* 対象選択画面: キャラカードと戻るボタンの隙間を詰める */
+#target-selection .btn-cancel {
+    margin-top: 2px;
+}
+
+/* スキル選択画面: タイトルを上に寄せ、隙間を詰める */
+#skill-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 8px;
+}
+
+#skill-selection .skill-btn {
+    margin-bottom: 4px;
+}
+
+#skill-selection .btn-cancel {
+    margin-top: 2px;
 }
 
 .target-container {
