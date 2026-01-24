@@ -97,7 +97,9 @@
         <!-- 報酬選択画面 -->
         <div id="reward-screen" class="screen">
             <h2>報酬選択</h2>
+            <div id="reward-party-status"></div>
             <div id="reward-character-name"></div>
+            <div id="reward-sp-info"></div>
             <div id="reward-options"></div>
         </div>
 
@@ -119,11 +121,14 @@
             <div id="event-options"></div>
         </div>
 
-        <!-- 宝箱画面 -->
-        <div id="treasure-screen" class="screen">
-            <h2>💎 宝箱発見！</h2>
-            <div id="treasure-options"></div>
+        <!-- ショップ画面 -->
+        <div id="shop-screen" class="screen">
+            <h2 class="shop-title">🛒 闇商人</h2>
+            <div id="shop-container"></div>
+            <button id="leave-shop-btn" class="btn-primary" style="margin-top:20px;">店を出る</button>
         </div>
+
+
 
         <!-- ゲームオーバー画面 -->
         <div id="gameover-screen" class="screen">
@@ -165,6 +170,15 @@
                 <h3>所持アイテム</h3>
                 <div id="item-list"></div>
                 <button class="btn-primary" onclick="game.closeItemModal()">閉じる</button>
+            </div>
+        </div>
+
+        <!-- Character Select Modal -->
+        <div id="character-select-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3 id="select-modal-title">キャラクター選択</h3>
+                <div id="character-select-grid" class="item-swap-grid"></div>
+                <button class="btn-primary" id="character-select-cancel-btn">キャンセル</button>
             </div>
         </div>
 

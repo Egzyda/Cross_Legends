@@ -12,6 +12,7 @@ class Game {
             nodeMap: [],
             items: [],
             spPool: 0,
+            gold: 0, // 所持金（￥）
             battle: null,
             currentTab: 'all',
             selectedChar: null
@@ -67,18 +68,22 @@ class Game {
     // --- UI Helpers ---
 
     showToast(message, type = 'info') {
-        return; // 全トースト機能を廃止
         const container = document.getElementById('toast-container');
+        container.innerHTML = ''; // Replace old toast
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = message;
+        toast.innerHTML = `<div class="toast-content">${message}</div>`;
         container.appendChild(toast);
 
-        // Remove after animation
+        // Animation handled by CSS (slideInRight on mount)
+
+        // Remove after display time (1s display + transition times)
         setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+            toast.classList.add('hiding'); // Trigger slideOutRight
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 2000); // 1.5s - 2s total life time
     }
 
     showModal(title, body, actions = []) {
@@ -112,6 +117,53 @@ class Game {
 
     closeModal() {
         document.getElementById('custom-modal').classList.add('hidden');
+    }
+
+    showCharacterSelectModal(title, onSelect, onCancel = null) {
+        const modal = document.getElementById('character-select-modal');
+        const titleEl = document.getElementById('select-modal-title');
+        const grid = document.getElementById('character-select-grid');
+        const cancelBtn = document.getElementById('character-select-cancel-btn');
+
+        titleEl.textContent = title;
+        grid.innerHTML = '';
+
+        this.state.party.forEach((char) => {
+            const card = document.createElement('div');
+            card.className = 'item-swap-card';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'center';
+            card.style.padding = '10px';
+
+            card.innerHTML = `
+                <img src="${char.image}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;margin-bottom:8px;border:2px solid #fff;">
+                <div style="font-weight:bold;margin-bottom:4px;">${char.displayName}</div>
+                <div style="font-size:11px;color:#ccc;">
+                    HP: ${Math.floor(char.currentHp)}/${char.stats.hp}<br>
+                    攻:${char.stats.physicalAttack} / 魔:${char.stats.magicAttack}
+                </div>
+            `;
+            card.onclick = () => {
+                this.closeCharacterSelectModal();
+                onSelect(char);
+            };
+            grid.appendChild(card);
+        });
+
+        cancelBtn.onclick = () => {
+            this.closeCharacterSelectModal();
+            if (onCancel) onCancel();
+        };
+        // キャンセル不可の場合はボタンを隠すなどの処理が必要だが、今回は基本キャンセル可能とする
+        if (!onCancel) cancelBtn.style.display = 'none';
+        else cancelBtn.style.display = 'block';
+
+        modal.classList.remove('hidden');
+    }
+
+    closeCharacterSelectModal() {
+        document.getElementById('character-select-modal').classList.add('hidden');
     }
 
     showDamagePopup(targetUnit, value, type = 'damage') {
@@ -221,7 +273,7 @@ class Game {
         });
 
         // モーダル背景タップで閉じる設定
-        const modalOverlays = ['custom-modal', 'character-detail-modal', 'item-modal'];
+        const modalOverlays = ['custom-modal', 'character-detail-modal', 'item-modal', 'character-select-modal'];
         modalOverlays.forEach(id => {
             const overlay = document.getElementById(id);
             if (overlay) {
@@ -231,6 +283,7 @@ class Game {
                         if (id === 'custom-modal') this.closeModal();
                         else if (id === 'character-detail-modal') this.closeCharacterDetail();
                         else if (id === 'item-modal') this.closeItemModal();
+                        else if (id === 'character-select-modal') this.closeCharacterSelectModal();
                     }
                 });
             }
@@ -247,6 +300,8 @@ class Game {
             currentLayer: this.state.currentLayer,
             nodeMap: this.state.nodeMap,
             items: this.state.items,
+            spPool: this.state.spPool,
+            gold: this.state.gold, // 所持金を保存
             screen: this.state.screen
             // Battle state is complex to save mid-battle, usually save at start of battle or node
             // For now, save mostly map state
@@ -265,6 +320,8 @@ class Game {
         this.state.currentLayer = data.currentLayer;
         this.state.nodeMap = data.nodeMap;
         this.state.items = data.items;
+        this.state.spPool = data.spPool || 0;
+        this.state.gold = data.gold || 0; // 所持金を復元
 
         // Restore screen
         if (data.screen === 'map') {
@@ -572,115 +629,196 @@ class Game {
         this.state.currentNode = 0;
         this.state.items = [];
         this.state.spPool = 0;
+        this.state.gold = 0; // 所持金を初期化
         this.generateMap();
         this.showMapScreen();
     }
 
     // マップ生成
+    // マップ生成（Slay the Spire風：クロスなし、戦略的配置）
+    // マップ生成（グリッドベース：4列固定 + 収束）
     generateMap() {
         const config = this.state.currentAct === 1 ? MAP_CONFIG.act1 : MAP_CONFIG.act2;
-        const layers = [];
-        const layerCount = 10;
 
-        // 1. 各階層のノード生成
-        for (let l = 0; l < layerCount; l++) {
-            const layerNodes = [];
-            let nodeCount;
+        // ボスを確定させる
+        const bossId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
+        this.state.mapBoss = bossId;
 
-            if (l === 0) nodeCount = 3; // 開始地点は3つ
-            else if (l === layerCount - 1) nodeCount = 1; // ボスは1つ
-            else nodeCount = Math.floor(Math.random() * 2) + 2; // 道中は2-3分岐
+        const LANES = 4;
+        const LAYERS = 10;
+        const nodeStore = {};
 
-            for (let i = 0; i < nodeCount; i++) {
-                let type = 'battle';
+        // 1. ノード配置（骨格作成）
 
-                if (l === 0) {
-                    type = 'battle';
-                } else if (l === layerCount - 1) {
-                    type = 'boss';
-                } else {
-                    // 確率に基づくタイプ決定
-                    const rand = Math.random();
-                    if (l === 4) { // 中盤に休憩/宝箱
-                        type = this.state.currentAct === 2 ? 'treasure' : 'rest';
-                    } else if (l === 8) { // ボス前は休憩
-                        type = 'rest';
-                    } else {
-                        if (rand < 0.60) type = 'battle';
-                        else if (rand < 0.85) type = 'event';
-                        else if (rand < 0.95) type = 'elite'; // エリート
-                        else type = 'battle'; // 残りはバトル
-                    }
-                }
+        // Layer 0: Start (3つ: Lane 0, 1, 3 を使用して分散)
+        // Flexbox配置されるため、Lane番号は接続ロジックでのみ重要
+        nodeStore[0] = [
+            { layer: 0, lane: 0, type: 'battle', nextLanes: [] },
+            { layer: 0, lane: 1, type: 'battle', nextLanes: [] },
+            { layer: 0, lane: 3, type: 'battle', nextLanes: [] }
+        ];
 
-                layerNodes.push({
-                    id: `${l}-${i}`,
-                    layer: l,
-                    index: i,
-                    type: type,
-                    nextNodes: [],
-                    completed: false,
-                    status: (l === 0) ? 'available' : 'locked'
-                });
+        // Layer 1-3: 4 Lanes (Full Grid)
+        for (let l = 1; l <= 3; l++) {
+            nodeStore[l] = [];
+            for (let lane = 0; lane < LANES; lane++) {
+                nodeStore[l].push({ layer: l, lane: lane, type: '?', nextLanes: [] });
             }
-            layers.push(layerNodes);
         }
 
-        // 2. パス生成（ノード接続）
-        for (let l = 0; l < layerCount - 1; l++) {
-            const currentLayer = layers[l];
-            const nextLayer = layers[l + 1];
+        // Layer 4: Shop (Convergence) - Single Node Lane 1
+        nodeStore[4] = [{ layer: 4, lane: 1, type: 'shop', nextLanes: [] }];
 
-            currentLayer.forEach(node => {
-                const currentPos = node.index / (currentLayer.length - 1 || 1);
+        // Layer 5-7: 4 Lanes (Full Grid)
+        for (let l = 5; l <= 7; l++) {
+            nodeStore[l] = [];
+            for (let lane = 0; lane < LANES; lane++) {
+                nodeStore[l].push({ layer: l, lane: lane, type: '?', nextLanes: [] });
+            }
+        }
 
-                nextLayer.forEach((nextNode, nextIdx) => {
-                    const nextPos = nextIdx / (nextLayer.length - 1 || 1);
-                    const diff = Math.abs(currentPos - nextPos);
+        // Layer 8: Rest (Convergence)
+        nodeStore[8] = [{ layer: 8, lane: 1, type: 'rest', nextLanes: [] }];
 
-                    if (diff < 0.6 || nextLayer.length === 1 || currentLayer.length === 1) {
-                        if (Math.random() > 0.3 || nextLayer.length === 1) {
-                            node.nextNodes.push(nextIdx);
-                        }
+        // Layer 9: Boss (Convergence)
+        nodeStore[9] = [{ layer: 9, lane: 1, type: 'boss', nextLanes: [] }];
+
+
+        // 2. 接続ロジック（交差なし・到達保証）
+        for (let l = 0; l < LAYERS - 1; l++) {
+            const currentNodes = nodeStore[l];
+            const nextNodes = nodeStore[l + 1];
+
+            // A: 次が収束地点 (1ノード) なら全員集合
+            if (nextNodes.length === 1) {
+                const targetLane = nextNodes[0].lane;
+                currentNodes.forEach(node => node.nextLanes.push(targetLane));
+                continue;
+            }
+
+            // B: 現在が収束地点 (1ノード) なら全員拡散
+            if (currentNodes.length === 1) {
+                const node = currentNodes[0];
+                nextNodes.forEach(next => node.nextLanes.push(next.lane));
+                continue;
+            }
+
+            // C: グリッド間接続 (隣接レーンへ: Lane -1, 0, +1)
+            currentNodes.forEach(node => {
+                const potentialLanes = [node.lane - 1, node.lane, node.lane + 1];
+                potentialLanes.forEach(pLane => {
+                    // 次のレイヤーにそのレーンが存在すれば接続
+                    if (nextNodes.some(n => n.lane === pLane)) {
+                        node.nextLanes.push(pLane);
                     }
                 });
-
-                if (node.nextNodes.length === 0) {
-                    let closestIdx = 0;
-                    let minDiff = 100;
-                    nextLayer.forEach((n, idx) => {
-                        const nextPos = idx / (nextLayer.length - 1 || 1);
-                        const diff = Math.abs(currentPos - nextPos);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestIdx = idx;
-                        }
-                    });
-                    node.nextNodes.push(closestIdx);
-                }
-            });
-
-            nextLayer.forEach((nextNode, idx) => {
-                const hasParent = currentLayer.some(n => n.nextNodes.includes(idx));
-                if (!hasParent) {
-                    let closestParent = currentLayer[0];
-                    let minDiff = 100;
-                    const nextPos = idx / (nextLayer.length - 1 || 1);
-
-                    currentLayer.forEach(p => {
-                        const pPos = p.index / (currentLayer.length - 1 || 1);
-                        const diff = Math.abs(pPos - nextPos);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestParent = p;
-                        }
-                    });
-                    closestParent.nextNodes.push(idx);
-                }
             });
         }
 
-        this.state.nodeMap = layers;
+
+        // 3. タイプ決定（動的ウェイト）
+        const isSafe = (type) => ['shop', 'rest', 'event'].includes(type);
+
+        // 親のタイプを取得するヘルパー
+        const getParentTypes = (layerIdx, currentLane) => {
+            if (layerIdx === 0) return [];
+            const parents = [];
+            nodeStore[layerIdx - 1].forEach(p => {
+                if (p.nextLanes.includes(currentLane)) {
+                    parents.push(p.type);
+                }
+            });
+            return parents;
+        };
+
+        Object.keys(nodeStore).forEach(key => {
+            const l = parseInt(key);
+            if (l === 0) {
+                // Act 1: Battle Only, Act 2: Random
+                if (this.state.currentAct > 1) {
+                    nodeStore[l].forEach(n => {
+                        const r = Math.random();
+                        if (r < 0.4) n.type = 'battle';
+                        else if (r < 0.7) n.type = 'event';
+                        else n.type = 'shop';
+                    });
+                }
+                return;
+            }
+            if (l === 4 || l === 8 || l === 9) return; // Fixed Nodes
+
+            nodeStore[l].forEach(node => {
+                // 固定ルール（バッファ層）
+                if (l === 7) {
+                    // 休憩前: エリート率高め
+                    node.type = Math.random() < 0.4 ? 'elite' : 'battle';
+                    return;
+                }
+                if (l === 3) {
+                    // ショップ前: 戦闘のみ
+                    node.type = Math.random() < 0.2 ? 'elite' : 'battle';
+                    return;
+                }
+
+                // 親ノードチェック（動的ウェイト）
+                const parentTypes = getParentTypes(l, node.lane);
+                const anyParentSafe = parentTypes.some(t => isSafe(t));
+
+                let weights = { battle: 0, elite: 0, event: 0, shop: 0, rest: 0 };
+
+                if (anyParentSafe) {
+                    // 親が安全 → 次は戦闘推奨 (イベント率激減)
+                    weights.battle = 70;
+                    weights.elite = (l >= 5) ? 25 : 5;
+                    weights.event = 5;
+                    weights.shop = 0; // 連続ショップ禁止
+                    weights.rest = 0;
+                } else {
+                    // 親が戦闘 → イベントチャンス
+                    weights.battle = 20;
+                    weights.elite = (l >= 5) ? 15 : 5;
+                    weights.event = 45;
+                    weights.shop = 10;
+                    weights.rest = 10;
+                }
+
+                node.type = this.weightedRandom(weights);
+            });
+        });
+
+        // 4. データ構造変換（ID割り当て・接続解決）
+        const finalLayers = [];
+        for (let l = 0; l < LAYERS; l++) {
+            nodeStore[l].sort((a, b) => a.lane - b.lane);
+            nodeStore[l].forEach((n, idx) => {
+                n.index = idx;
+                n.id = `${l}-${idx}`;
+            });
+            finalLayers.push(nodeStore[l]);
+        }
+
+        // nextLanes -> nextNodes (index verify)
+        for (let l = 0; l < LAYERS - 1; l++) {
+            finalLayers[l].forEach(node => {
+                node.nextNodes = [];
+                node.nextLanes.forEach(targetLane => {
+                    const targetIdx = finalLayers[l + 1].findIndex(n => n.lane === targetLane);
+                    if (targetIdx !== -1) {
+                        node.nextNodes.push(targetIdx);
+                    }
+                });
+                node.completed = false;
+                node.status = (l === 0) ? 'available' : 'locked';
+            });
+        }
+        // Boss
+        finalLayers[LAYERS - 1].forEach(node => {
+            node.nextNodes = [];
+            node.completed = false;
+            node.status = 'locked';
+        });
+
+        this.state.nodeMap = finalLayers;
         this.state.currentLayer = 0;
     }
 
@@ -689,6 +827,22 @@ class Game {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
+    }
+
+    // 重み付きランダム選択
+    weightedRandom(weights) {
+        let total = 0;
+        Object.values(weights).forEach(w => total += w);
+
+        let random = Math.random() * total;
+
+        for (const type in weights) {
+            random -= weights[type];
+            if (random <= 0) {
+                return type;
+            }
+        }
+        return 'battle'; // Fallback
     }
 
     showMapScreen() {
@@ -705,6 +859,12 @@ class Game {
         // Controls Row (Home & Item)
         const controlsRow = document.createElement('div');
         controlsRow.className = 'controls-row';
+
+        // 所持金表示（一番左）
+        const goldDisplay = document.createElement('div');
+        goldDisplay.id = 'gold-display';
+        goldDisplay.innerHTML = `<span class="gold-icon">￥</span><span class="gold-amount">${this.state.gold.toLocaleString()}</span>`;
+        controlsRow.appendChild(goldDisplay);
 
         const homeBtn = document.createElement('button');
         homeBtn.id = 'home-btn';
@@ -793,16 +953,43 @@ class Game {
     renderMap() {
         const mapEl = document.getElementById('node-map');
         mapEl.innerHTML = '';
-        mapEl.classList.add('branching-map'); // スタイル用クラス追加
+        mapEl.classList.add('branching-map');
 
         document.getElementById('act-display').textContent = `第${this.state.currentAct}幕`;
         document.getElementById('node-progress').textContent =
             `階層 ${this.state.currentLayer + 1}/10`;
 
-        // layersContainerを基準点として作成し、その中にSVGを配置
+        // Boss Preview Header
+        const bossPreview = document.createElement('div');
+        bossPreview.className = 'boss-preview';
+        let bossName = '???';
+        let bossIcon = '👑';
+        let bossImg = '';
+
+        if (this.state.mapBoss) {
+            const bossData = ENEMIES[this.state.mapBoss];
+            if (bossData) {
+                bossName = bossData.displayName;
+                bossImg = bossData.image.face || bossData.image.full;
+            }
+        }
+        bossPreview.innerHTML = `
+            <div class="boss-label">BOSS</div>
+            <div class="boss-info">
+                 ${bossImg ? `<img src="${bossImg}" class="boss-mini-icon">` : bossIcon}
+                 <span>${bossName}</span>
+            </div>
+        `;
+        mapEl.appendChild(bossPreview);
+
+
+        // layersContainerを基準点として作成
         const layersContainer = document.createElement('div');
         layersContainer.className = 'layers-container';
         layersContainer.style.position = 'relative';
+        // Flexboxを使わず、Gridまたは絶対配置のように扱う（レーン配置のため）
+        // ここでは各LayerをRowにし、各Nodeをlaneプロパティに基づいて配置するスタイルを採用
+
         mapEl.appendChild(layersContainer);
 
         const svgNamespace = "http://www.w3.org/2000/svg";
@@ -816,22 +1003,9 @@ class Game {
         svg.style.zIndex = "0";
         layersContainer.appendChild(svg);
 
-        // マップを逆順（BOSSが上、STARTが下）で表示するためにflex-direction: column-reverseを使用するか、
-        // DOMの追加順序を工夫する。ここではDOMは上から下（Layer 9 -> 0）へ追加し、
-        // CSSで見た目を整える。
-
-        // CSS Grid/Flexのためのコンテナ設定はstyle.cssで行うが、
-        // ここでは各Layerを行として追加する。
-
-        // 線を描画するために、ノードの座標が必要。
-        // 一旦ノードを配置してから、座標を計算して線を描く。
-
-
-
-        // 全ノード要素への参照を保持
         const nodeElements = {};
 
-        // Layer 9 (Boss) -> Layer 0 (Start) の順で描画（上から下）
+        // Layer 9 (Boss) -> Layer 0 (Start) の順で描画
         [...this.state.nodeMap].reverse().forEach((layer, refreshIdx) => {
             const layerIndex = 9 - refreshIdx;
 
@@ -839,26 +1013,64 @@ class Game {
             row.className = 'map-layer-row';
             row.dataset.layer = layerIndex;
 
+            // Laneベースのレイアウト改め、基本は4列Grid
+            // ただし Layer 0 (Start) は3つなので均等配置(Flexbox)にする
+            if (layerIndex === 0) {
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-evenly';
+                row.style.alignItems = 'center';
+                row.style.width = '100%';
+            } else {
+                row.style.display = 'grid';
+                row.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                row.style.gap = '4px';
+                row.style.width = '100%';
+                row.style.justifyItems = 'center';
+            }
+
+            // 7レーン分のセルを作成し、ノードがある場所にのみ配置
+            // または、ノードに gridColumn を指定する
             layer.forEach(node => {
                 const nodeEl = document.createElement('div');
                 nodeEl.className = `map-node node-type-${node.type}`;
                 nodeEl.id = `node-${node.id}`;
-                nodeEl.innerHTML = `
-                    <div class="node-icon">${NODE_TYPES[node.type].icon}</div>
-                `;
+
+                // ボスノードかつ画像がある場合
+                if (node.type === 'boss' && bossImg) {
+                    nodeEl.innerHTML = `<img src="${bossImg}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    nodeEl.classList.add('boss-node-img');
+                } else {
+                    nodeEl.innerHTML = `<div class="node-icon">${NODE_TYPES[node.type].icon}</div>`;
+                }
+
+                // Grid配置 (Layer 0以外)
+                if (layerIndex !== 0) {
+                    // Bossと最後の休憩は特別扱い（中央揃えのために2カラムまたぐ）
+                    // Boss(L9), Rest(L8), Shop(L4) は中央揃え
+                    if (node.type === 'boss' || (node.type === 'rest' && layerIndex === 8) || (node.type === 'shop' && layerIndex === 4)) {
+                        nodeEl.style.gridColumn = "2 / span 2";
+                    } else {
+                        nodeEl.style.gridColumn = node.lane + 1;
+                    }
+                }
+                // Layer 0はFlexboxなのでgridColumn設定不要（自動で均等配置）
 
                 if (node.completed) nodeEl.classList.add('completed');
-                // 現在の階層のみ選択可能にする（並列移動・戻り防止）
-                // 修正：statusがavailableでも、現在のレイヤーでなければ反応させない（特に見た目）
+
+                // 選択可能性判定 (以下変更なし)
                 if (node.status === 'available' && node.layer === this.state.currentLayer) {
                     nodeEl.classList.add('available');
                     nodeEl.onclick = () => this.enterNode(node);
+                } else if (node.status === 'locked') {
+                    nodeEl.classList.add('locked');
                 }
-                if (node.status === 'locked') nodeEl.classList.add('locked');
 
-                // 現在地ハイライト（完了したノード または これから挑むノード）
-                // Slay the Spire風なら、次のAvailableが光る。
-                // 完了済みはグレーアウトなど。
+                if (layerIndex < this.state.currentLayer && !node.completed) {
+                    nodeEl.classList.add('skipped');
+                }
+
+                // Bossレイヤーでまだ到達していない場合、グレーアウトしすぎないように？
+                // ロック状態は標準スタイルでOK
 
                 row.appendChild(nodeEl);
                 nodeElements[node.id] = nodeEl;
@@ -867,30 +1079,24 @@ class Game {
             layersContainer.appendChild(row);
         });
 
-        // レイアウト確定後に線を描画し、現在地にスクロール（2段階で確実に）
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 this.drawMapConnections(svg, nodeElements, layersContainer);
-                // 利用可能なノード（現在地）まで自動スクロール
+
+                // スクロール処理
                 const activeNode = mapEl.querySelector('.map-node.available');
                 if (activeNode) {
-                    // scrollIntoViewは画面全体をずらす原因になるため、scrollTop計算に変更
-                    // offsetTopは親要素の状況により不安定なため、getBoundingClientRectで確実に計算
                     const nodeRect = activeNode.getBoundingClientRect();
                     const containerRect = mapEl.getBoundingClientRect();
                     const currentScroll = mapEl.scrollTop;
                     const absoluteNodeTop = currentScroll + (nodeRect.top - containerRect.top);
                     const targetScroll = absoluteNodeTop - (mapEl.clientHeight / 2) + (activeNode.offsetHeight / 2);
 
-                    mapEl.scrollTo({
-                        top: targetScroll,
-                        behavior: 'smooth'
-                    });
+                    mapEl.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 } else {
                     mapEl.scrollTop = mapEl.scrollHeight;
                 }
-                // 念のため画面全体のスクロール位置をリセット
-                window.scrollTo(0, 0);
+                window.scrollTo(0, 0); // 全体スクロールリセット
             });
         });
     }
@@ -973,7 +1179,7 @@ class Game {
                 this.startBattle('elite');
                 break;
             case 'boss':
-                this.startBattle(this.state.currentAct === 2 ? 'last_boss' : 'boss');
+                this.startBattle(this.state.currentAct === 2 ? 'last_boss' : 'boss', true);
                 break;
             case 'rest':
                 this.showScreen('rest');
@@ -986,13 +1192,12 @@ class Game {
             case 'event':
                 this.showEventScreen();
                 break;
-            case 'treasure':
-                this.showTreasureScreen();
+            case 'shop':
+                this.showShopScreen();
                 break;
+
         }
     }
-
-
 
     // 戦闘開始
     startBattle(rank) {
@@ -1028,8 +1233,14 @@ class Game {
             }
         } else if (rank === 'boss' || rank === 'last_boss') {
             multiplier = config.multiplier.boss;
-            const enemyId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
-            enemies.push(this.createEnemy(enemyId, multiplier));
+            // マップで決まったボス(this.state.mapBoss)を使用
+            let enemyId = this.state.mapBoss;
+            if (!enemyId) { // フォールバック
+                enemyId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
+            }
+            const boss = this.createEnemy(enemyId, multiplier);
+            boss.rank = rank; // ボスランクを明示的に上書き
+            enemies.push(boss);
         }
 
         // エリート配置調整：3体の場合、エリートを中央（2番目）にする
@@ -1100,7 +1311,8 @@ class Game {
             buffs: [],
             debuffs: [],
             statusEffects: [],
-            uniqueSkill: template.uniqueSkill // uniqueSkillをコピー
+            uniqueSkill: template.uniqueSkill, // uniqueSkillをコピー
+            rank: isElite ? 'elite' : 'normal' // デフォルトランク設定
         };
     }
 
@@ -1148,7 +1360,7 @@ class Game {
 
             unit.innerHTML = `
                 <div class="buff-overlay">${this.renderBuffOverlay(enemy)}</div>
-                <img src="${enemy.image.full}" alt="${enemy.displayName}" onerror="this.style.background='#555'">
+                <img src="${this.getUnitImage(enemy)}" alt="${enemy.displayName}" onerror="this.style.background='#555'">
                 <div class="unit-name">${enemy.displayName}</div>
                 <div class="unit-hp-bar">
                     <div class="fill" style="width:${hpPercent}%"></div>
@@ -1176,7 +1388,7 @@ class Game {
 
             unit.innerHTML = `
                 <div class="buff-overlay">${this.renderBuffOverlay(ally)}</div>
-                <img src="${ally.image.face}" alt="${ally.displayName}" onerror="this.style.background='#555'">
+                <img src="${this.getUnitImage(ally, 'face')}" alt="${ally.displayName}" onerror="this.style.background='#555'">
                 <div class="unit-name">${ally.displayName}</div>
                 <div class="unit-hp-bar">
                     <div class="fill" style="width:${hpPercent}%"></div>
@@ -1202,6 +1414,19 @@ class Game {
         const selector = this.getUnitSelector(unit);
         const unitEl = document.querySelector(selector);
         if (!unitEl) return;
+
+        // 画像更新 (G-MAX等による変更反映)
+        const imgEl = unitEl.querySelector('img');
+        if (imgEl) {
+            const isEnemy = this.state.battle.enemies.includes(unit);
+            // getUnitImageが定義されている前提
+            const newSrc = this.getUnitImage(unit, isEnemy ? 'full' : 'face');
+            // src属性はフルパスになることがあるため、終わりの部分一致等で判定するか、常に上書き
+            // ここでは簡易的に endsWith でチェック
+            if (!imgEl.src.endsWith(newSrc)) {
+                imgEl.src = newSrc;
+            }
+        }
 
         // バフ・状態異常表示の更新（innerHTMLの範囲を最小限に）
         const buffOverlay = unitEl.querySelector('.buff-overlay');
@@ -1260,11 +1485,25 @@ class Game {
             taunt: '挑', burn: '火', regen: '再', defending: '防', damageReduction: '軽', counter: '反'
         };
 
-        return unit.statusEffects.map(s => {
-            const label = statusLabels[s.type] || s.type.charAt(0);
-            // 配色用のクラスを追加
-            return `<span class="status-ailment ${s.type}">${label}</span>`;
-        }).join('');
+        return unit.statusEffects
+            .filter(s => s.type !== 'gmax') // gmaxはアイコン表示しない
+            .map(s => {
+                const label = statusLabels[s.type] || s.type.charAt(0);
+                // 配色用のクラスを追加
+                return `<span class="status-ailment ${s.type}">${label}</span>`;
+            }).join('');
+    }
+
+    // ユニット画像取得（状態依存）
+    getUnitImage(unit, type = 'full') {
+        // キョダイマックス判定
+        if (unit.statusEffects.some(e => e.type === 'gmax')) {
+            // 画像パスのハードコード対応 (img/blastoise_gmax.png)
+            // データ定義などから取得するのが理想だが、今回は仕様通り固定パスまたは拡張ルールで対応
+            // 追加キャラファイルの定義: 表示画像（戦闘画面のみ）が「img/blastoise_gmax.png」
+            return 'img/blastoise_gmax.png';
+        }
+        return type === 'face' ? unit.image.face : unit.image.full;
     }
 
     // バトルログ描画
@@ -1442,12 +1681,18 @@ class Game {
         const skill = skillId ? this.getSkillData(skillId, this.state.party[this.state.battle.currentCharIndex]) : null;
         const targetType = skill?.target || 'single_enemy';
 
+        const container = document.createElement('div');
+        container.className = 'target-container';
+
         if (targetType.includes('enemy')) {
             this.state.battle.enemies.forEach((enemy, idx) => {
                 if (enemy.currentHp > 0) {
                     const btn = document.createElement('button');
                     btn.className = 'target-btn';
-                    btn.textContent = enemy.displayName;
+                    btn.innerHTML = `
+                        <img src="${enemy.image.full}" alt="${enemy.displayName}">
+                        <span>${enemy.displayName}</span>
+                    `;
                     btn.addEventListener('click', () => {
                         if (forAction === 'attack') {
                             this.setCommand({
@@ -1467,7 +1712,7 @@ class Game {
                             });
                         }
                     });
-                    panel.appendChild(btn);
+                    container.appendChild(btn);
                 }
             });
         }
@@ -1481,7 +1726,10 @@ class Game {
                 if (isValidTarget || targetType === 'all_allies') {
                     const btn = document.createElement('button');
                     btn.className = 'target-btn';
-                    btn.textContent = ally.displayName;
+                    btn.innerHTML = `
+                        <img src="${ally.image.face}" alt="${ally.displayName}">
+                        <span>${ally.displayName}</span>
+                    `;
                     btn.addEventListener('click', () => {
                         this.setCommand({
                             type: 'skill',
@@ -1492,10 +1740,12 @@ class Game {
                             priority: skill.priority === 'first' ? 999 : 0
                         });
                     });
-                    panel.appendChild(btn);
+                    container.appendChild(btn);
                 }
             });
         }
+
+        panel.appendChild(container);
 
         // キャンセルボタン追加
         const cancelBtn = document.createElement('button');
@@ -1638,6 +1888,9 @@ class Game {
 
         const item = ITEMS[itemId];
 
+        const container = document.createElement('div');
+        container.className = 'target-container';
+
         this.state.party.forEach((ally, idx) => {
             const isValidTarget = item.effect.type === 'revive'
                 ? ally.currentHp <= 0
@@ -1645,8 +1898,11 @@ class Game {
 
             if (isValidTarget) {
                 const btn = document.createElement('button');
-                btn.className = 'item-btn';
-                btn.textContent = ally.displayName;
+                btn.className = 'target-btn'; // Use target-btn class for consistency
+                btn.innerHTML = `
+                    <img src="${ally.image.face}" alt="${ally.displayName}">
+                    <span>${ally.displayName}</span>
+                `;
                 btn.addEventListener('click', () => {
                     this.setCommand({
                         type: 'item',
@@ -1656,9 +1912,34 @@ class Game {
                         targetType: 'ally'
                     });
                 });
-                panel.appendChild(btn);
+                container.appendChild(btn);
             }
         });
+
+        panel.appendChild(container);
+
+        // Add back button for item target selection as well if needed (though showItemSelection handles the main list back)
+        // Usually item target selection replaces the item list in the same panel.
+        // Let's add significant "Back" to Item List functionality or just cancel to main menu?
+        // Current implementation replaced innerHTML so we lost the previous back button.
+        // Let's add a "Cancel/Back" button to return to Item Selection or Main Menu.
+        // existing implementation didn't have explicit back from target selection in this function (it relied on panel clearing or something?)
+        // The original code:
+        /*
+        // アイテムターゲット選択
+        showItemTargetSelection(itemId) {
+            const panel = document.getElementById('item-selection');
+            panel.innerHTML = '<h4>対象を選択</h4>';
+            // ... buttons appended ...
+        }
+        */
+        // It seems it didn't have a back button. I should add one that goes back to Item Selection.
+
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn-cancel';
+        backBtn.textContent = '戻る';
+        backBtn.onclick = () => this.showItemSelection(); // Go back to item list
+        panel.appendChild(backBtn);
     }
 
     // コマンドセット
@@ -2033,7 +2314,12 @@ class Game {
                     // ログ出しは削除
                 }
             }
-            targets = target && target.currentHp > 0 ? [target] : [];
+            // 蘇生スキルの場合は戦闘不能でも対象とする
+            if (skill.target === 'single_ally_dead' || skill.type === 'revive') {
+                targets = target ? [target] : [];
+            } else {
+                targets = target && target.currentHp > 0 ? [target] : [];
+            }
         }
 
         // スキル効果適用
@@ -2071,6 +2357,7 @@ class Game {
                 if (skill.type === 'cure') {
                     const badStatuses = ['poison', 'paralysis', 'silence', 'stun', 'burn'];
                     const beforeCount = target.statusEffects.length;
+                    // 'gmax' などの特殊ステータスは解除しない
                     target.statusEffects = target.statusEffects.filter(e => !badStatuses.includes(e.type));
 
                     if (target.statusEffects.length < beforeCount) {
@@ -2489,7 +2776,7 @@ class Game {
 
     // 戦闘勝利
     battleVictory() {
-        this.addLog('戦闘に勝利した！');
+        // this.addLog('戦闘に勝利した！'); // 削除：SP獲得ログと重複するため
 
         // 状態異常・バフリセット
         this.state.party.forEach(p => {
@@ -2498,17 +2785,40 @@ class Game {
             p.statusEffects = [];
         });
 
-        // SP獲得
+        // SP・お金獲得（敵ごとに計算）
         let spGain = 0;
-        switch (this.state.battle.rank) {
-            case 'normal': spGain = 2; break;
-            case 'elite': spGain = 5; break;
-            case 'boss':
-            case 'last_boss': spGain = 10; break;
-        }
+        let goldGain = 0;
+        // Actによるインフレはさせない（ユーザー指定）
+
+        this.state.battle.enemies.forEach(enemy => {
+            const rank = enemy.rank || 'normal';
+            switch (rank) {
+                case 'normal':
+                    spGain += 1; // 1体あたり1SP
+                    goldGain += 40 + Math.floor(Math.random() * 21); // 40-60円
+                    break;
+                case 'elite':
+                    spGain += 3; // 1体あたり3SP
+                    goldGain += 180 + Math.floor(Math.random() * 41); // 180-220円
+                    break;
+                case 'boss':
+                case 'last_boss':
+                    spGain += 10;
+                    goldGain += 450 + Math.floor(Math.random() * 101); // 450-550円
+                    break;
+                default:
+                    spGain += 1;
+                    goldGain += 40;
+            }
+        });
+
+        // 最低保証（念のため）
+        if (spGain === 0) spGain = 1;
+        if (goldGain === 0) goldGain = 50;
         if (spGain > 0) {
             this.state.spPool += spGain;
-            this.addLog(`戦闘に勝利した！ ${spGain} SP獲得`);
+            this.state.gold += goldGain;
+            this.addLog(`戦闘に勝利！ ${spGain} SP, ￥${goldGain} 獲得`);
         }
 
         // 報酬フェーズ
@@ -2537,25 +2847,18 @@ class Game {
         }
 
         this.showScreen('reward');
-        let partyStatusContainer = document.getElementById('reward-party-status');
-        if (!partyStatusContainer) {
-            partyStatusContainer = document.createElement('div');
-            partyStatusContainer.id = 'reward-party-status';
-            const rewardScreen = document.getElementById('reward-screen');
-            rewardScreen.insertBefore(partyStatusContainer, document.getElementById('reward-character-name'));
-        }
+        const partyStatusContainer = document.getElementById('reward-party-status');
         this.renderPartyIcons(partyStatusContainer);
 
         document.getElementById('reward-character-name').textContent = `${char.displayName}の獲得フェイズ`;
-        document.getElementById('reward-character-name').style.marginTop = '10px';
+
+        const spDisplay = document.getElementById('reward-sp-info');
+        spDisplay.textContent = `共有SP: ${this.state.spPool}`;
+        spDisplay.style.display = 'block'; // Ensure visible
 
         const options = document.getElementById('reward-options');
         options.innerHTML = '';
 
-        const spInfo = document.createElement('div');
-        spInfo.style.cssText = 'text-align:center;margin-bottom:16px;color:var(--warning);font-weight:bold;';
-        spInfo.textContent = `共有SP: ${this.state.spPool}`;
-        options.appendChild(spInfo);
 
         const choices = [
             { id: 'skill', text: 'スキル習得', desc: '新しいスキルを覚える' },
@@ -2580,7 +2883,7 @@ class Game {
                 break;
             case 'sp':
                 this.state.spPool += 1;
-                this.showToast(`SP +1 獲得！（累計: ${this.state.spPool}）`, 'success');
+                // this.showToast(`SP +1 獲得！（累計: ${this.state.spPool}）`, 'success'); // アイテムのみトースト表示するためコメントアウト
                 this.nextReward(charIdx);
                 break;
             case 'item':
@@ -2655,6 +2958,11 @@ class Game {
         const char = this.state.party[charIdx];
         const options = document.getElementById('reward-options');
         options.innerHTML = '';
+
+        // SP表示は維持（レイアウト固定のため）
+        const spDisplay = document.getElementById('reward-sp-info');
+        spDisplay.textContent = `共有SP: ${this.state.spPool}`; // 最新値を反映
+        spDisplay.style.display = 'block';
 
         if (type === 'skill') {
             const candidateSkills = [];
@@ -2827,6 +3135,16 @@ class Game {
 
         this.state.currentLayer = nextLayerIdx;
 
+        // 過去のノードを整理（未選択のノードをLocked/Skipped扱いに）
+        // 現在のレイヤー（選択したノードがあるレイヤー）の他のノードを無効化
+        const currentLayerNodes = this.state.nodeMap[node.layer];
+        currentLayerNodes.forEach(n => {
+            if (n.id !== node.id) {
+                n.status = 'locked'; // または 'skipped'
+                // UI上で暗くするためにlockedクラスなどを当てる
+            }
+        });
+
         // ラスボス撃破チェック
         if (this.state.battle?.rank === 'last_boss') {
             this.clearSaveData(); // Clear save on victory
@@ -2868,6 +3186,31 @@ class Game {
         this.finishNode();
     }
 
+    // 運判定の成功率計算
+    calculateLuckSuccessRate(risk = 'medium') {
+        const avgLuck = this.state.party.reduce((s, m) => s + m.stats.luck, 0) / Math.max(1, this.state.party.length);
+
+        let base = 30;
+        let factor = 0.5; // avgLuck / 2
+
+        switch (risk) {
+            case 'low':
+                base = 50;
+                factor = 0.25; // avgLuck / 4
+                break;
+            case 'high':
+                base = 10;
+                factor = 0.7; // avgLuck * 0.7
+                break;
+            default: // medium
+                base = 30;
+                factor = 0.5;
+                break;
+        }
+
+        return Math.min(100, Math.max(0, Math.floor(base + avgLuck * 100 * factor / 100))); // 整数丸め
+    }
+
     // イベント画面表示
     showEventScreen() {
         const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
@@ -2887,8 +3230,7 @@ class Game {
             // 確率表示ロジック
             let label = opt.text;
             if (opt.effect.type === 'luck_check') {
-                const avgLuck = this.state.party.reduce((s, m) => s + m.stats.luck, 0) / 3;
-                const chance = Math.floor(Math.min(100, 30 + avgLuck / 3));
+                const chance = this.calculateLuckSuccessRate(opt.effect.risk);
                 label += `（成功率: ${chance}%）`;
             } else if (opt.effect.type === 'random') {
                 // randomの場合、最初のoutcomeを「成功」とみなすか、weightsから計算
@@ -2913,57 +3255,121 @@ class Game {
     handleEventOption(option) {
         const effect = option.effect;
         let message = '';
-        const targets = this.state.party; // targets変数を定義
+        const targets = this.state.party;
+
+        // コスト支払いチェック（もしあれば）
+        if (effect.cost && typeof effect.cost === 'number') { // Gold cost
+            if (this.state.gold < effect.cost) {
+                this.showToast('お金が足りない！', 'error');
+                return;
+            }
+            this.state.gold -= effect.cost;
+        }
 
         switch (effect.type) {
             case 'none':
                 message = effect.message || '何も起こらなかった...';
                 break;
-            case 'heal_all':
-                this.state.party.forEach(m => {
+            case 'heal_all': // HP回復
+                targets.forEach(m => {
                     if (m.currentHp > 0) {
                         m.currentHp = Math.min(m.stats.hp, m.currentHp + m.stats.hp * (effect.percent / 100));
                     }
                 });
-                message = effect.message || `全員HP${effect.percent}%回復！`;
+                message = effect.message || `全員のHPが${effect.percent}%回復した！`;
                 break;
-            case 'damage':
-                this.state.party.forEach(m => {
+            case 'heal_mp_all': // MP回復
+                targets.forEach(m => {
                     if (m.currentHp > 0) {
-                        m.currentHp = Math.max(1, m.currentHp - m.stats.hp * (effect.percent / 100));
+                        m.currentMp = Math.min(m.stats.mp, m.currentMp + m.stats.mp * (effect.percent / 100));
                     }
                 });
-                message = effect.message || `全員HP${effect.percent}%ダメージ...`;
+                message = effect.message || `全員のMPが${effect.percent}%回復した！`;
+                break;
+            case 'damage': // HPダメージ
+                targets.forEach(m => {
+                    if (m.currentHp > 0) {
+                        const dmg = Math.floor(m.stats.hp * (effect.percent / 100));
+                        m.currentHp = Math.max(1, m.currentHp - dmg);
+                    }
+                });
+                message = effect.message || `全員がHPに${effect.percent}%のダメージを受けた...`;
+                break;
+            case 'mp_damage_all': // MPダメージ
+                targets.forEach(m => {
+                    if (m.currentHp > 0) {
+                        const dmg = Math.floor(m.stats.mp * (effect.percent / 100));
+                        m.currentMp = Math.max(0, m.currentMp - dmg);
+                    }
+                });
+                message = effect.message || `全員がMPに${effect.percent}%のダメージを受けた...`;
                 break;
             case 'item':
                 const itemId = effect.item === 'random' ? ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)] : effect.item;
                 if (this.state.items.length < 3) {
                     this.state.items.push(itemId);
-                    message = effect.message || `${ITEMS[itemId].name}を入手！`;
+                    message = effect.message || `${ITEMS[itemId].name}を入手した！`;
                 } else {
-                    message = 'アイテムがいっぱいだ...';
+                    message = '持ち物がいっぱいでアイテムを諦めた...';
                 }
                 break;
-            case 'silence':
-                targets.forEach(t => {
-                    if (!effect.chance || Math.random() * 100 < effect.chance) {
-                        t.statusEffects.push({ type: 'silence', duration: effect.duration || 2 });
-                        this.addLog(`${t.displayName}は沈黙状態になった！`);
+            case 'gain_sp':
+                // コストとしてHP/MP消費がある場合
+                if (effect.cost) {
+                    if (effect.cost.type === 'hp') {
+                        targets.forEach(m => { if (m.currentHp > 0) m.currentHp = Math.max(1, m.currentHp - m.stats.hp * (effect.cost.percent / 100)); });
+                    } else if (effect.cost.type === 'mp') {
+                        targets.forEach(m => { if (m.currentHp > 0) m.currentMp = Math.max(0, m.currentMp - m.stats.mp * (effect.cost.percent / 100)); });
                     }
-                });
+                }
+                this.state.spPool += effect.value;
+                message = effect.message || `SPを${effect.value}獲得した！`;
                 break;
-            case 'burn':
-                targets.forEach(t => {
-                    if (!effect.chance || Math.random() * 100 < effect.chance) {
-                        t.statusEffects.push({ type: 'burn', duration: effect.duration || 3 });
-                        this.addLog(`${t.displayName}は火傷状態になった！`);
+            case 'stat_boost_all': // 全員ステータスUP
+                // コスト処理
+                if (effect.cost) {
+                    if (effect.cost.type === 'hp') {
+                        targets.forEach(m => { if (m.currentHp > 0) m.currentHp = Math.max(1, m.currentHp - m.stats.hp * (effect.cost.percent / 100)); });
+                    }
+                }
+                targets.forEach(m => {
+                    const stats = effect.stat === 'all' ? ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense'] : [effect.stat];
+                    stats.forEach(s => {
+                        m.stats[s] = Math.floor(m.stats[s] * (1 + effect.value));
+                    });
+                });
+                message = effect.message || `全員のステータスが強化された！`;
+                break;
+            case 'stat_trade': // ステータス交換（MaxHP減 -> 攻撃増など）
+                targets.forEach(m => {
+                    // コスト（MaxHP減少など）
+                    if (effect.costStat === 'max_hp') {
+                        m.stats.hp = Math.floor(m.stats.hp * (1 - effect.costValue));
+                        m.currentHp = Math.min(m.currentHp, m.stats.hp);
+                    }
+                    // 報酬
+                    if (effect.targetStat === 'attack') {
+                        m.stats.physicalAttack = Math.floor(m.stats.physicalAttack * (1 + effect.targetValue));
+                        m.stats.magicAttack = Math.floor(m.stats.magicAttack * (1 + effect.targetValue));
+                    } else if (effect.targetStat === 'defense') {
+                        m.stats.physicalDefense = Math.floor(m.stats.physicalDefense * (1 + effect.targetValue));
+                        m.stats.magicDefense = Math.floor(m.stats.magicDefense * (1 + effect.targetValue));
+                    } else {
+                        m.stats[effect.targetStat] = Math.floor(m.stats[effect.targetStat] * (1 + effect.targetValue));
                     }
                 });
+                message = `代償を払い、全員の力が変化した...`;
+                break;
+            case 'status_all': // 全員状態異常
+                targets.forEach(t => {
+                    t.statusEffects.push({ type: effect.status, duration: effect.duration });
+                });
+                message = effect.message || `全員が${effect.status}状態になってしまった...`;
                 break;
             case 'luck_check':
-                const avgLuck = this.state.party.reduce((s, m) => s + m.stats.luck, 0) / 3;
-                const success = Math.random() * 100 < 30 + avgLuck / 3;
-                if (success) {
+                const successRate = this.calculateLuckSuccessRate(effect.risk);
+                const roll = Math.random() * 100;
+                if (roll < successRate) {
                     this.handleEventOption({ effect: effect.success });
                     return;
                 } else {
@@ -2972,63 +3378,119 @@ class Game {
                 }
             case 'random':
                 const totalWeight = effect.outcomes.reduce((s, o) => s + o.weight, 0);
-                let roll = Math.random() * totalWeight;
+                let rnd = Math.random() * totalWeight;
                 for (const outcome of effect.outcomes) {
-                    roll -= outcome.weight;
-                    if (roll <= 0) {
+                    rnd -= outcome.weight;
+                    if (rnd <= 0) {
                         this.handleEventOption({ effect: outcome });
                         return;
                     }
                 }
                 break;
-            case 'sacrifice_hp':
-                this.state.party.forEach(m => {
-                    if (m.currentHp > 0) {
-                        const damage = Math.floor(m.stats.hp * (effect.percent / 100));
-                        m.currentHp = Math.max(1, m.currentHp - damage);
-                    }
+            case 'sacrifice_hp': // 旧仕様互換（Event 2対応）
+                targets.forEach(m => {
+                    if (m.currentHp > 0) m.currentHp = Math.max(1, m.currentHp - m.stats.hp * (effect.percent / 100));
                 });
                 if (effect.reward === 'random_skill') {
-                    const randomChar = this.state.party[Math.floor(Math.random() * this.state.party.length)];
-                    const pool = SKILL_POOLS[randomChar.type] || SKILL_POOLS.physical_attacker;
-                    const newSkillId = pool[Math.floor(Math.random() * pool.length)];
-                    const newSkill = SKILLS[newSkillId];
-                    if (newSkill && !randomChar.skills.some(s => s.id === newSkillId)) {
-                        randomChar.skills.push({ id: newSkill.id, displayName: newSkill.name }); // データ構造を統一
-                        message = `HPを捧げ、${randomChar.displayName}は${newSkill.name}を習得した！`;
+                    // ランダムスキル習得（ランダム1名）
+                    const validChars = targets.filter(c => c.currentHp > 0);
+                    if (validChars.length > 0) {
+                        const char = validChars[Math.floor(Math.random() * validChars.length)];
+                        // Character Modalで選択させるべきだが、ここではランダム
+                        const pool = SKILL_POOLS[char.type] || SKILL_POOLS.physical_attacker;
+                        const newSkillId = pool[Math.floor(Math.random() * pool.length)];
+                        const skillData = SKILLS[newSkillId];
+                        if (skillData && !char.skills.some(s => s.id === newSkillId)) {
+                            char.skills.push({ id: skillData.id, displayName: skillData.name });
+                            message = `${char.displayName}は${skillData.name}を習得した！`;
+                        } else {
+                            message = '新たな力は得られなかった...';
+                        }
+                    }
+                }
+                break;
+            case 'sacrifice_mp': // 旧仕様互換
+                targets.forEach(m => {
+                    if (m.currentHp > 0) m.currentMp = Math.max(0, m.currentMp - m.stats.mp * (effect.percent / 100));
+                });
+                if (effect.reward === 'stat_boost_all' || effect.reward === 'stat_up') {
+                    targets.forEach(m => {
+                        ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense'].forEach(s => {
+                            m.stats[s] = Math.floor(m.stats[s] * 1.05); // +5%
+                        });
+                    });
+                    message = '全員のステータスが少し上昇した！';
+                }
+                break;
+            case 'gamble_gold':
+                if (this.state.gold < effect.cost) {
+                    message = 'お金が足りない...';
+                } else {
+                    this.state.gold -= effect.cost;
+                    if (Math.random() * 100 < effect.chance) {
+                        this.state.gold += effect.reward;
+                        message = `賭けに勝った！ ${effect.reward}円を手に入れた！（所持金: ${this.state.gold}円）`;
                     } else {
-                        message = `HPを捧げたが、何も起こらなかった...`;
+                        message = '賭けに負けた...';
                     }
                 }
                 break;
-            case 'sacrifice_mp':
-                this.state.party.forEach(m => {
-                    if (m.currentHp > 0) {
-                        const mpCost = Math.floor(m.stats.mp * (effect.percent / 100));
-                        m.currentMp = Math.max(0, m.currentMp - mpCost);
-                    }
-                });
-                if (effect.reward === 'stat_up') {
-                    // ランダムステータスUP（ランダムな1名）
-                    const randomChar = this.state.party[Math.floor(Math.random() * this.state.party.length)];
-                    const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense'];
-                    const stat = stats[Math.floor(Math.random() * stats.length)];
-                    const increase = Math.floor(CHARACTERS[randomChar.id].stats[stat] * 0.15);
-                    randomChar.stats[stat] += increase;
-                    const statLabels = { physicalAttack: '物攻', magicAttack: '魔攻', physicalDefense: '物防', magicDefense: '魔防' };
-                    message = `MPを捧げ、${randomChar.displayName}の${statLabels[stat]}が${increase}上がった！`;
+            case 'trade_item':
+                const hasItem = this.state.items.includes(effect.reqItem);
+                if (hasItem) {
+                    const idx = this.state.items.indexOf(effect.reqItem);
+                    this.state.items.splice(idx, 1);
+                    // 報酬適用
+                    this.handleEventOption({ effect: effect.reward });
+                    return;
+                } else {
+                    message = '必要なアイテムを持っていない...';
                 }
                 break;
-            case 'stat_up_all':
-                this.state.party.forEach(m => {
-                    const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed'];
-                    const stat = stats[Math.floor(Math.random() * stats.length)];
-                    m.stats[stat] += Math.floor(CHARACTERS[m.id].stats[stat] * effect.percent / 100);
+            case 'upgrade_stat':
+                this.showCharacterSelectModal('強化するキャラクターを選択', (selectedChar) => {
+                    if (effect.stat === 'attack') {
+                        selectedChar.stats.physicalAttack = Math.floor(selectedChar.stats.physicalAttack * (1 + effect.value));
+                        selectedChar.stats.magicAttack = Math.floor(selectedChar.stats.magicAttack * (1 + effect.value));
+                    } else if (effect.stat === 'defense') {
+                        selectedChar.stats.physicalDefense = Math.floor(selectedChar.stats.physicalDefense * (1 + effect.value));
+                        selectedChar.stats.magicDefense = Math.floor(selectedChar.stats.magicDefense * (1 + effect.value));
+                    } else {
+                        selectedChar.stats[effect.stat] = Math.floor(selectedChar.stats[effect.stat] * (1 + effect.value));
+                    }
+
+                    this.showModal('イベント結果', `${selectedChar.displayName}の能力が強化された！`, [
+                        { text: '次へ', onClick: () => { this.closeModal(); this.finishNode(); } }
+                    ]);
+                }, () => {
+                    // キャンセル時（返金）
+                    if (effect.cost && typeof effect.cost === 'number') {
+                        this.state.gold += effect.cost;
+                    }
+                    this.showModal('イベント結果', '強化をやめた。（お金は戻ってきた）', [
+                        { text: '次へ', onClick: () => { this.closeModal(); this.finishNode(); } }
+                    ]);
                 });
-                message = effect.message || '全員のステータスが上がった！';
+                return; // モーダル処理へ委譲するためここで終了
+            case 'battle_start':
+                this.startBattle(effect.rank);
+                return; // モーダルを出さずに戦闘へ
+            case 'gacha_item':
+                if (Math.random() * 100 < effect.chance) {
+                    const gItem = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+                    if (this.state.items.length < 3) {
+                        this.state.items.push(gItem);
+                        message = `当たりだ！ ${ITEMS[gItem].name}を手に入れた！`;
+                    } else {
+                        message = '当たりだが、アイテムがいっぱいだ...';
+                    }
+                } else {
+                    message = 'ハズレだ...何もなかった。';
+                }
                 break;
         }
 
+        // 結果モーダル表示
         this.showModal('イベント結果', message, [
             {
                 text: '次へ', onClick: () => {
@@ -3039,73 +3501,207 @@ class Game {
         ]);
     }
 
-    // 宝箱画面表示（配列形式対応）
-    showTreasureScreen() {
-        this.showScreen('treasure');
-        const options = document.getElementById('treasure-options');
-        options.innerHTML = '';
-
-        const shuffled = [...ITEM_POOL].sort(() => Math.random() - 0.5).slice(0, 3);
-        shuffled.forEach(itemId => {
-            const item = ITEMS[itemId];
-            const btn = document.createElement('button');
-            btn.className = 'treasure-btn';
-            btn.innerHTML = `${item.name}<br><small>${item.description}</small>`;
-            btn.addEventListener('click', () => {
-                if (this.state.items.length < 3) {
-                    this.state.items.push(itemId);
-                    this.showToast(`${item.name}を入手！`, 'success');
-                    this.finishNode();
-                } else {
-                    this.showTreasureSwapScreen(itemId);
-                }
-            });
-            options.appendChild(btn);
-        });
-    }
-
-    showTreasureSwapScreen(newItemId) {
-        const newItem = ITEMS[newItemId];
-        const options = document.getElementById('treasure-options');
-        options.innerHTML = '';
-
-        const info = document.createElement('div');
-        info.className = 'item-swap-card new-item';
-        info.innerHTML = `<strong>獲得候補：${newItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${newItem.description}</div>`;
-        options.appendChild(info);
-
-        const label = document.createElement('div');
-        label.style.cssText = 'margin:16px 0 8px;font-size:12px;color:var(--text-sub);';
-        label.textContent = '捨てるアイテムを選択：';
-        options.appendChild(label);
-
-        const grid = document.createElement('div');
-        grid.className = 'item-swap-grid';
-
-        this.state.items.forEach((existingItemId, idx) => {
-            const existingItem = ITEMS[existingItemId];
-            const card = document.createElement('div');
-            card.className = 'item-swap-card';
-            card.innerHTML = `<strong>${existingItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${existingItem.description}</div>`;
-            card.onclick = () => {
-                this.state.items.splice(idx, 1);
-                this.state.items.push(newItemId);
-                this.showToast(`${existingItem.name}を捨てて${newItem.name}を獲得`, 'success');
-                this.finishNode();
-            };
-            grid.appendChild(card);
-        });
-        options.appendChild(grid);
-
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'treasure-btn';
-        cancelBtn.style.cssText = 'margin-top:16px;border-color:#666;';
-        cancelBtn.innerHTML = '獲得をキャンセル<br><small>新アイテムを見送る</small>';
-        cancelBtn.onclick = () => {
-            this.showToast(`${newItem.name}を見送った`, 'info');
+    // ショップ画面表示
+    showShopScreen() {
+        this.showScreen('shop');
+        const container = document.getElementById('shop-container');
+        container.innerHTML = '';
+        const leaveBtn = document.getElementById('leave-shop-btn');
+        leaveBtn.onclick = () => {
             this.finishNode();
         };
-        options.appendChild(cancelBtn);
+
+        // タイトル変更（絵文字削除）
+        const titleEl = document.querySelector('.shop-title');
+        if (titleEl) titleEl.textContent = '闇商人';
+
+        if (!this.state.currentNode.shopData) {
+            this.state.currentNode.shopData = this.generateShopStock();
+        }
+        const stock = this.state.currentNode.shopData;
+
+        this.renderShopSection(container, 'スキル書', stock.skills);
+        this.renderShopSection(container, 'アイテム', stock.items);
+        this.renderShopSection(container, 'スペシャル', stock.special);
+    }
+
+    generateShopStock() {
+        const stock = { skills: [], items: [], special: [] };
+
+        // アイテム（6枠: 全アイテムからランダム）
+        for (let i = 0; i < 6; i++) {
+            const itemId = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+            const itemData = ITEMS[itemId];
+            const basePrice = itemData.price || 100;
+            const price = Math.max(10, basePrice + Math.floor(Math.random() * 101) - 50);
+            stock.items.push({ type: 'item', id: itemId, price, purchased: false });
+        }
+
+        // スキル（6枠: 全汎用スキルからランダム）
+        // SKILL_POOLSから全てのスキルIDを収集
+        const allGenericSkills = [
+            ...SKILL_POOLS.physical_attacker,
+            ...SKILL_POOLS.magic_attacker,
+            ...SKILL_POOLS.tank,
+            ...SKILL_POOLS.healer,
+            ...SKILL_POOLS.support,
+            ...SKILL_POOLS.debuffer
+        ];
+        // 重複排除
+        const uniqueSkills = [...new Set(allGenericSkills)];
+
+        for (let i = 0; i < 6; i++) {
+            const skillId = uniqueSkills[Math.floor(Math.random() * uniqueSkills.length)];
+            // 価格: 200-400
+            const price = 200 + Math.floor(Math.random() * 201);
+            stock.skills.push({ type: 'skill', id: skillId, price, purchased: false });
+        }
+
+        // スペシャル
+        // SP獲得 (+3, 150-300円)
+        const spPrice = 150 + Math.floor(Math.random() * 151);
+        stock.special.push({ type: 'sp', value: 3, price: spPrice, name: '即効性SP (+3)', desc: 'SPを3獲得する', purchased: false });
+
+        // 休憩セット (HP/MP 50%回復, 200-300円)
+        const healPrice = 200 + Math.floor(Math.random() * 101);
+        stock.special.push({ type: 'heal_all_mp', percent: 50, price: healPrice, name: '休憩セット', desc: '全員のHP・MP50%回復', purchased: false });
+
+        // 蘇生薬（レア枠 15%）
+        if (Math.random() < 0.15) {
+            const revPot = ITEMS['revive_potion'];
+            const revPrice = Math.max(400, revPot.price + Math.floor(Math.random() * 101) - 50);
+            stock.special.push({ type: 'item', id: 'revive_potion', price: revPrice, purchased: false });
+        }
+
+        return stock;
+    }
+
+    renderShopSection(container, title, items) {
+        if (!items || items.length === 0) return;
+
+        const section = document.createElement('div');
+        section.className = 'shop-section';
+        section.innerHTML = `<div class="shop-section-title">${title}</div>`;
+
+        const grid = document.createElement('div');
+        grid.className = 'shop-grid';
+
+        items.forEach(item => {
+            const el = document.createElement('div');
+            el.className = `shop-item ${item.purchased ? 'purchased' : ''}`;
+            if (this.state.gold < item.price && !item.purchased) el.classList.add('too-expensive');
+
+            let content = '';
+            if (item.type === 'item') {
+                const data = ITEMS[item.id];
+                content = `<h4>${data.name}</h4><p>${data.description}</p>`;
+            } else if (item.type === 'skill') {
+                const data = SKILLS[item.id];
+                const char = this.state.party.find(c => c.id === item.targetCharId);
+                content = `<h4>${data.name}</h4><p>${data.description}</p>`;
+            } else if (item.type === 'sp' || item.type === 'heal_all_mp') {
+                content = `<h4>${item.name}</h4><p>${item.desc}</p>`;
+            }
+
+            el.innerHTML = `${content}<div class="shop-price">${item.price}円</div>`;
+
+            el.onclick = () => {
+                if (item.purchased) return;
+                this.handlePurchaseClick(item, el);
+            };
+
+            grid.appendChild(el);
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+    }
+
+    handlePurchaseClick(item, el) {
+        if (this.state.gold < item.price) {
+            this.showToast('お金が足りない！', 'error');
+            return;
+        }
+
+        // 確認ダイアログ
+        this.showModal('購入確認', `「${this.getItemName(item)}」を購入しますか？\n価格: ${item.price}円`, [
+            { text: '購入する', onClick: () => { this.closeModal(); this.processPurchase(item, el); } },
+            { text: 'やめる', onClick: () => { this.closeModal(); } }
+        ]);
+    }
+
+    getItemName(item) {
+        if (item.type === 'item') return ITEMS[item.id].name;
+        if (item.type === 'skill') return SKILLS[item.id].name;
+        return item.name;
+    }
+
+    processPurchase(item, el) {
+        // アイテム判定（ステータス結晶や蘇生薬も含む）
+        if (item.type === 'item' || (item.type === 'special' && item.id === 'revive_potion')) {
+            if (this.state.items.length >= 3) {
+                // アイテムがいっぱい → 入れ替え
+                this.showItemSwapModal((swapped) => {
+                    if (swapped) {
+                        // 入れ替え完了後、購入処理
+                        this.state.items.push(item.id);
+                        this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);
+                    } else {
+                        // キャンセル
+                        this.showToast('購入をキャンセルしました', 'info');
+                    }
+                }, item.id); // 新しいアイテムを渡して比較できるようにする
+                return;
+            }
+            this.state.items.push(item.id);
+            this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);
+
+        } else if (item.type === 'skill') {
+            // スキル購入フロー
+            this.showCharacterSelectModal('誰に習得させる？', (targetChar) => {
+                // 習得済みチェック
+                if (targetChar.skills.some(s => s.id === item.id)) {
+                    this.showToast(`${targetChar.displayName}は既に覚えている`, 'error');
+                    return;
+                }
+
+                // スキルスロットがいっぱいの場合 (仮に6個制限)
+                if (targetChar.skills.length >= 6) {
+                    this.showSkillSwapModal(targetChar, item.id, (swapped) => {
+                        if (swapped) {
+                            this.finalizePurchase(item, el, `${targetChar.displayName}は新スキルを習得した`);
+                        }
+                    });
+                    return;
+                }
+
+                const skillData = SKILLS[item.id];
+                targetChar.skills.push({ id: skillData.id, displayName: skillData.name });
+                this.finalizePurchase(item, el, `${targetChar.displayName}は${skillData.name}を習得した`);
+                this.closeModal();
+            });
+
+        } else if (item.type === 'sp') {
+            this.state.spPool += item.value;
+            this.finalizePurchase(item, el, `SPを${item.value}獲得した`);
+
+        } else if (item.type === 'heal_all_mp' || item.type === 'heal_all') {
+            this.state.party.forEach(m => {
+                if (m.currentHp > 0) {
+                    m.currentHp = Math.min(m.stats.hp, m.currentHp + m.stats.hp * (item.percent / 100));
+                    m.currentMp = Math.min(m.stats.mp, m.currentMp + m.stats.mp * (item.percent / 100));
+                }
+            });
+            this.finalizePurchase(item, el, '全員のHP・MPが回復した');
+        }
+    }
+
+    finalizePurchase(item, el, message) {
+        this.state.gold -= item.price;
+        item.purchased = true;
+        this.updateShopUI(el);
+        this.renderPartyStatusBar();
+        this.showToast(message, 'success');
     }
 
     // ゲームオーバー
@@ -3314,7 +3910,7 @@ class Game {
             char.statusEffects.forEach(effect => {
                 const tag = document.createElement('span');
                 tag.className = 'status-tag ailment';
-                const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御' };
+                const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御', gmax: 'G-MAX' };
                 tag.textContent = `${labels[effect.type] || effect.type}(残${effect.duration}T)`;
                 statusList.appendChild(tag);
             });
@@ -3344,10 +3940,21 @@ class Game {
             const item = ITEMS[itemId];
             if (!item) return;
 
+            const isMap = context === 'map';
+            const isRecovery = item.effect.type === 'heal' || item.effect.type === 'mp_heal';
+            const isUsable = !isMap || item.usableOnMap || isRecovery;
+
             const entry = document.createElement('div');
-            entry.className = 'item-entry';
+            entry.className = `item-entry ${!isUsable ? 'disabled' : ''}`;
             entry.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.description}</div></div><div class="item-count">#${idx + 1}</div>`;
-            entry.onclick = () => this.useItemFromModal(itemId, context, idx);
+
+            if (isUsable) {
+                entry.onclick = () => this.useItemFromModal(itemId, context, idx);
+            } else {
+                entry.onclick = () => this.showToast('移動中は使えません', 'info');
+                entry.style.opacity = '0.5';
+                entry.style.cursor = 'not-allowed';
+            }
             listEl.appendChild(entry);
         });
 
@@ -3397,7 +4004,18 @@ class Game {
         stats.forEach(stat => {
             const current = char.stats[stat];
             const invested = investments[stat];
-            html += `<div class="enhance-stat-item"><span class="stat-label">${statLabels[stat]}</span><span class="stat-values">${current} ${invested > 0 ? `<span class="stat-delta">(+${invested})</span>` : ''}</span><div class="enhance-btns"><button class="btn-minus" data-stat="${stat}" data-delta="-5">-5</button><button class="btn-minus" data-stat="${stat}" data-delta="-1">-1</button><button class="btn-plus" data-stat="${stat}" data-delta="+1">+1</button><button class="btn-plus" data-stat="${stat}" data-delta="+5">+5</button></div></div>`;
+            // Split Value and Delta for fixed layout
+            html += `<div class="enhance-stat-item">
+                <span class="stat-label">${statLabels[stat]}</span>
+                <span class="stat-val-base">${current}</span>
+                <span class="stat-val-delta">${invested > 0 ? `(+${invested})` : ''}</span>
+                <div class="enhance-btns">
+                    <button class="btn-minus" data-stat="${stat}" data-delta="-5">-5</button>
+                    <button class="btn-minus" data-stat="${stat}" data-delta="-1">-1</button>
+                    <button class="btn-plus" data-stat="${stat}" data-delta="+1">+1</button>
+                    <button class="btn-plus" data-stat="${stat}" data-delta="+5">+5</button>
+                </div>
+            </div>`;
         });
         html += `</div></div>`;
         return html;
@@ -3423,28 +4041,44 @@ class Game {
         const investments = this.enhanceInvestments[char.id];
         const boostPerPoint = Math.floor(baseStats[stat] * 0.05);
 
+        let actualDelta = delta;
+
         if (delta > 0) {
+            // Partial Add: Cap at remaining SP
             if (this.state.spPool < delta) {
+                actualDelta = this.state.spPool;
+            }
+            if (actualDelta === 0) {
                 this.showToast('SPが足りません', 'error');
                 return;
             }
-            this.state.spPool -= delta;
-            investments[stat] += delta;
-            char.stats[stat] += boostPerPoint * delta;
-            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boostPerPoint * delta);
-            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boostPerPoint * delta);
+
+            this.state.spPool -= actualDelta;
+            investments[stat] += actualDelta;
+            char.stats[stat] += boostPerPoint * actualDelta;
+
+            // HP/MP Current Value Adjust (Healing effect on enhance)
+            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boostPerPoint * actualDelta);
+            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boostPerPoint * actualDelta);
+
         } else if (delta < 0) {
-            const absD = Math.abs(delta);
-            if (investments[stat] < absD) {
-                this.showToast('これ以上下げられません', 'error');
-                return;
-            }
+            // Partial Remove: Cap at invested amount
+            const currentInvested = investments[stat];
+            if (currentInvested === 0) return; // Cannot reduce
+
+            actualDelta = Math.max(delta, -currentInvested);
+            const absD = Math.abs(actualDelta);
+
             this.state.spPool += absD;
-            investments[stat] -= absD;
-            char.stats[stat] -= boostPerPoint * absD;
+            investments[stat] += actualDelta; // negative add
+            char.stats[stat] += boostPerPoint * actualDelta;
+
+            // HP/MP Cap Adjust (If max reduced, current might need clamp, though logic usually keeps current <= max automatically or allowed overflow? 
+            // Usually clamp current to new max if it exceeds.
             if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp);
             if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp);
         }
+
         this.refreshEnhanceUI();
     }
 
@@ -3475,7 +4109,7 @@ class Game {
         this.showToast('強化を適用しました', 'success');
     }
 
-    // アイテム使用（配列形式対応）
+    // アイテム使用（配列形式対応 - ターゲット選択改善版）
     useItemFromModal(itemId, context, itemIndex) {
         const item = ITEMS[itemId];
         if (!item) return;
@@ -3488,29 +4122,66 @@ class Game {
             return;
         }
 
-        const targets = this.state.party.map(member => {
-            if (member.currentHp <= 0) return null;
-            return {
-                text: member.displayName,
-                className: 'btn-primary',
+        // キャラクター選択用のカスタムHTML生成
+        let listHTML = '<div id="target-select-list">';
+        let hasTargets = false;
+
+        this.state.party.forEach((member, idx) => {
+            // 戦闘不能キャラは回復対象外（蘇生アイテム以外）
+            if (member.currentHp <= 0 && item.effect.type !== 'revive') return;
+
+            hasTargets = true;
+            const hpPerc = Math.floor((member.currentHp / member.stats.hp) * 100);
+            const mpPerc = member.stats.mp > 0 ? Math.floor((member.currentMp / member.stats.mp) * 100) : 0;
+
+            listHTML += `
+                <div class="target-char-card" data-idx="${idx}">
+                    <img src="${member.image.face}" alt="${member.displayName}">
+                    <div class="target-char-info">
+                        <div class="target-char-name">${member.displayName}</div>
+                        <!-- HP Bar -->
+                        <div style="background:#333;height:6px;width:100%;margin-bottom:2px;border-radius:3px;overflow:hidden;">
+                            <div style="background:#ff6b6b;height:100%;width:${hpPerc}%;"></div>
+                        </div>
+                        <div style="font-size:10px;color:#ddd;margin-bottom:4px;text-align:right;">${member.currentHp}/${member.stats.hp}</div>
+                        <!-- MP Bar -->
+                        <div style="background:#333;height:6px;width:100%;margin-bottom:2px;border-radius:3px;overflow:hidden;">
+                            <div style="background:#4facfe;height:100%;width:${mpPerc}%;"></div>
+                        </div>
+                        <div style="font-size:10px;color:#ddd;text-align:right;">${member.currentMp}/${member.stats.mp}</div>
+                    </div>
+                </div>
+            `;
+        });
+        listHTML += '</div>';
+
+        if (!hasTargets) {
+            this.showToast('対象がいません', 'error');
+            return;
+        }
+
+        this.showModal('対象を選択', listHTML, [
+            {
+                text: 'キャンセル',
                 onClick: () => {
-                    this.applyItemEffect(itemId, member, itemIndex);
+                    this.closeModal();
+                    if (context === 'map' || context === 'battle') this.showItemModal(context);
+                },
+                className: 'btn-cancel'
+            }
+        ]);
+
+        // イベントリスナーをバインド（DOM更新後）
+        setTimeout(() => {
+            document.querySelectorAll('.target-char-card').forEach(card => {
+                card.onclick = () => {
+                    const idx = parseInt(card.dataset.idx);
+                    this.applyItemEffect(itemId, this.state.party[idx], itemIndex);
                     this.closeModal();
                     if (context === 'map') this.renderPartyStatusBar();
-                }
-            };
-        }).filter(Boolean);
-
-        targets.push({
-            text: 'キャンセル',
-            className: 'btn-cancel',
-            onClick: () => {
-                this.closeModal();
-                if (context === 'map' || context === 'battle') this.showItemModal(context);
-            }
-        });
-
-        this.showModal('対象を選択', '', targets);
+                };
+            });
+        }, 50);
     }
 
     // アイテム効果適用（単体対象・配列形式対応）
@@ -3548,6 +4219,13 @@ class Game {
                     });
                 }
                 this.showToast(`${target.displayName}に${item.name}を使用！`, 'success');
+                break;
+            case 'revive':
+                target.currentHp = Math.floor(target.stats.hp * (item.effect.percent / 100));
+                target.buffs = []; // Reset state
+                target.debuffs = [];
+                target.statusEffects = [];
+                this.showToast(`${target.displayName}が復活した！`, 'success');
                 break;
         }
     }
@@ -3650,8 +4328,8 @@ class Game {
 
             const el = document.createElement('div'); el.className = 'vfx-scarlet-storm';
             let layers = '<div class="vfx-explosion-layer outer"></div>' +
-                         '<div class="vfx-explosion-layer mid"></div>' +
-                         '<div class="vfx-explosion-layer inner"></div>';
+                '<div class="vfx-explosion-layer mid"></div>' +
+                '<div class="vfx-explosion-layer inner"></div>';
             // 放射状の閃光を生成
             for (let i = 0; i < 12; i++) {
                 layers += `<div class="vfx-flare" style="--r:${i * 30}deg"></div>`;

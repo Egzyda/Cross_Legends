@@ -457,5 +457,137 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_magic_shot'] // 上位互換のため除外
+    },
+    shanks: {
+        id: 'shanks',
+        name: 'シャンクス',
+        displayName: 'シャンクス',
+        stats: {
+            hp: 140,
+            mp: 100,
+            physicalAttack: 150,
+            magicAttack: 30,
+            physicalDefense: 70,
+            magicDefense: 60,
+            speed: 110,
+            luck: 110
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'divine_departure',
+            displayName: '神避',
+            basePower: 120,
+            mpCost: 50,
+            type: 'physical_attack',
+            target: 'all_enemies',
+            effects: [],
+            description: '全体に物理攻撃（威力120%）',
+        },
+        image: {
+            full: 'img/Shanks_full.png',
+            face: 'img/Shanks_face.png'
+        },
+        skills: [],
+        excludeSkills: ['wide_attack']
+    },
+    blastoise: {
+        id: 'blastoise',
+        name: 'カメックス',
+        displayName: 'カメックス',
+        stats: {
+            hp: 200,
+            mp: 80,
+            physicalAttack: 50,
+            magicAttack: 90,
+            physicalDefense: 130,
+            magicDefense: 130,
+            speed: 40,
+            luck: 50
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'gmax',
+            displayName: 'キョダイマックス',
+            mpCost: 70,
+            type: 'buff',
+            target: 'self',
+            priority: 'first',
+            effects: [
+                { type: 'status', status: 'gmax', duration: 4 },
+                { type: 'buff', stat: 'physicalAttack', value: 1.0, duration: 4 },
+                { type: 'buff', stat: 'magicAttack', value: 1.0, duration: 4 },
+                { type: 'buff', stat: 'physicalDefense', value: 1.0, duration: 4 },
+                { type: 'buff', stat: 'magicDefense', value: 1.0, duration: 4 },
+                { type: 'buff', stat: 'speed', value: 1.0, duration: 4 },
+                { type: 'buff', stat: 'luck', value: 1.0, duration: 4 }
+            ],
+            description: '4T 全ステータス+100% & 巨体化（先制）'
+        },
+        image: {
+            full: 'img/blastoise_full.png',
+            face: 'img/blastoise_face.png'
+        },
+        skills: []
+    },
+    kaede: {
+        id: 'kaede',
+        name: '高垣楓',
+        displayName: '高垣楓',
+        stats: {
+            hp: 130,
+            mp: 140,
+            physicalAttack: 40,
+            magicAttack: 110,
+            physicalDefense: 70,
+            magicDefense: 120,
+            speed: 90,
+            luck: 70
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'koikaze',
+            displayName: 'こいかぜ',
+            mpCost: 60,
+            type: 'heal',
+            target: 'all_allies',
+            healPercent: 30,
+            description: '全体HP 30%回復'
+        },
+        image: {
+            full: 'img/kaede_full.png',
+            face: 'img/kaede_face.png'
+        },
+        skills: [],
+        excludeSkills: ['heal_all']
+    },
+    kirby: {
+        id: 'kirby',
+        name: 'カービィ',
+        displayName: 'カービィ',
+        stats: {
+            hp: 130,
+            mp: 90,
+            physicalAttack: 90,
+            magicAttack: 90,
+            physicalDefense: 80,
+            magicDefense: 80,
+            speed: 100,
+            luck: 100
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'inhale',
+            displayName: '吸い込み',
+            mpCost: 25,
+            type: 'cure',
+            target: 'all_allies',
+            description: '味方全体の状態異常を全て解除'
+        },
+        image: {
+            full: 'img/kirby_full.png',
+            face: 'img/kirby_face.png'
+        },
+        skills: [],
+        excludeSkills: ['cure_status']
     }
 };
