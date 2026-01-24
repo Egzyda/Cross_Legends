@@ -964,6 +964,6 @@ const MAP_CONFIG = {
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
         elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
         bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
-        multiplier: { start: 1.5, mid: 1.7, elite: 1.9, boss: 2.2 }
+        multiplier: { start: 1.2, mid: 1.4, elite: 1.6, boss: 1.8 }
     }
 };

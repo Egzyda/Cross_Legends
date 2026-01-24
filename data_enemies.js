@@ -238,7 +238,7 @@ const ENEMIES = {
         displayName: 'ばいきんまん',
         type: 'physical_attacker',
         baseStats: {
-            hp: 750, mp: 140, physicalAttack: 75, magicAttack: 60,
+            hp: 675, mp: 140, physicalAttack: 75, magicAttack: 60,
             physicalDefense: 160, magicDefense: 140, speed: 88, luck: 70
         },
         skills: ['poison_single'],
@@ -262,7 +262,7 @@ const ENEMIES = {
         displayName: 'ギギネブラ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 750, mp: 180, physicalAttack: 70, magicAttack: 75,
+            hp: 675, mp: 180, physicalAttack: 70, magicAttack: 75,
             physicalDefense: 150, magicDefense: 180, speed: 78, luck: 65
         },
         skills: ['weaken_all'],
@@ -271,7 +271,7 @@ const ENEMIES = {
             displayName: '毒液噴射',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 70,
+            basePower: 55,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'poison', chance: 30, duration: 3 }
@@ -288,7 +288,7 @@ const ENEMIES = {
         displayName: '夏油傑',
         type: 'magic_attacker',
         baseStats: {
-            hp: 780, mp: 190, physicalAttack: 65, magicAttack: 80,
+            hp: 700, mp: 190, physicalAttack: 65, magicAttack: 80,
             physicalDefense: 160, magicDefense: 190, speed: 82, luck: 72
         },
         skills: ['defense_boost'],
@@ -311,8 +311,8 @@ const ENEMIES = {
         displayName: 'バンギラス',
         type: 'physical_attacker',
         baseStats: {
-            hp: 800, mp: 130, physicalAttack: 85, magicAttack: 70,
-            physicalDefense: 200, magicDefense: 160, speed: 72, luck: 65
+            hp: 720, mp: 130, physicalAttack: 85, magicAttack: 70,
+            physicalDefense: 170, magicDefense: 160, speed: 72, luck: 65
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -335,7 +335,7 @@ const ENEMIES = {
         displayName: '大蛇丸',
         type: 'magic_attacker',
         baseStats: {
-            hp: 700, mp: 200, physicalAttack: 60, magicAttack: 80,
+            hp: 630, mp: 200, physicalAttack: 60, magicAttack: 80,
             physicalDefense: 140, magicDefense: 200, speed: 90, luck: 75
         },
         skills: ['speed_down'],
@@ -344,7 +344,7 @@ const ENEMIES = {
             displayName: '草薙の剣',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 220,
+            basePower: 200,
             mpCost: 58,
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
@@ -497,8 +497,8 @@ const ENEMIES = {
         displayName: 'クッパJr.',
         type: 'magic_attacker',
         baseStats: {
-            hp: 400, mp: 160, physicalAttack: 75, magicAttack: 75,
-            physicalDefense: 140, magicDefense: 160, speed: 85, luck: 68
+            hp: 360, mp: 160, physicalAttack: 75, magicAttack: 75,
+            physicalDefense: 126, magicDefense: 144, speed: 85, luck: 68
         },
         skills: ['defense_boost'],
         uniqueSkill: {
@@ -523,8 +523,8 @@ const ENEMIES = {
         displayName: 'メタナイト',
         type: 'physical_attacker',
         baseStats: {
-            hp: 380, mp: 130, physicalAttack: 70, magicAttack: 50,
-            physicalDefense: 130, magicDefense: 125, speed: 115, luck: 75
+            hp: 342, mp: 130, physicalAttack: 70, magicAttack: 50,
+            physicalDefense: 117, magicDefense: 112, speed: 115, luck: 75
         },
         skills: ['speed_boost'],
         uniqueSkill: {
@@ -547,8 +547,8 @@ const ENEMIES = {
         displayName: 'ヒソカ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 390, mp: 150, physicalAttack: 70, magicAttack: 80,
-            physicalDefense: 120, magicDefense: 145, speed: 100, luck: 80
+            hp: 351, mp: 150, physicalAttack: 70, magicAttack: 80,
+            physicalDefense: 108, magicDefense: 130, speed: 100, luck: 80
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -573,8 +573,8 @@ const ENEMIES = {
         displayName: 'ダークプリキュア',
         type: 'physical_attacker',
         baseStats: {
-            hp: 420, mp: 140, physicalAttack: 80, magicAttack: 60,
-            physicalDefense: 145, magicDefense: 135, speed: 95, luck: 70
+            hp: 378, mp: 140, physicalAttack: 80, magicAttack: 60,
+            physicalDefense: 130, magicDefense: 121, speed: 95, luck: 70
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -601,8 +601,8 @@ const ENEMIES = {
         displayName: 'フリーザ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1000, mp: 250, physicalAttack: 100, magicAttack: 80,
-            physicalDefense: 140, magicDefense: 150, speed: 110, luck: 90
+            hp: 850, mp: 250, physicalAttack: 100, magicAttack: 80,
+            physicalDefense: 112, magicDefense: 120, speed: 110, luck: 90
         },
         skills: ['magic_storm'],
         uniqueSkill: {
@@ -610,7 +610,7 @@ const ENEMIES = {
             displayName: 'デスボール',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 180,
+            basePower: 160,
             mpCost: 60,
             description: '単体に超強力な魔法攻撃（威力180%）'
         },
@@ -624,8 +624,8 @@ const ENEMIES = {
         displayName: 'ディオ',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1100, mp: 220, physicalAttack: 85, magicAttack: 90,
-            physicalDefense: 240, magicDefense: 210, speed: 125, luck: 95
+            hp: 935, mp: 220, physicalAttack: 85, magicAttack: 90,
+            physicalDefense: 192, magicDefense: 168, speed: 125, luck: 95
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -633,7 +633,7 @@ const ENEMIES = {
             displayName: 'ザ・ワールド',
             type: 'physical_attack',
             target: 'all_enemies',
-            basePower: 90,
+            basePower: 85,
             mpCost: 90,
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
@@ -650,8 +650,8 @@ const ENEMIES = {
         displayName: '愛染惣右介',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1000, mp: 260, physicalAttack: 95, magicAttack: 85,
-            physicalDefense: 230, magicDefense: 270, speed: 115, luck: 100
+            hp: 850, mp: 260, physicalAttack: 95, magicAttack: 85,
+            physicalDefense: 184, magicDefense: 216, speed: 115, luck: 100
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -659,7 +659,7 @@ const ENEMIES = {
             displayName: '鏡花水月',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 90,
+            basePower: 85,
             mpCost: 70,
             effects: [
                 { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
@@ -680,8 +680,8 @@ const ENEMIES = {
         displayName: 'ウルトラネクロズマ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1000, mp: 280, physicalAttack: 120, magicAttack: 90,
-            physicalDefense: 210, magicDefense: 240, speed: 130, luck: 105
+            hp: 850, mp: 280, physicalAttack: 120, magicAttack: 90,
+            physicalDefense: 168, magicDefense: 192, speed: 130, luck: 105
         },
         skills: ['speed_boost'],
         uniqueSkill: {
@@ -689,7 +689,7 @@ const ENEMIES = {
             displayName: 'フォトンゲイザー',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 170,
+            basePower: 155,
             mpCost: 65,
             description: '単体に超強力な魔法攻撃（威力170%）'
         },
@@ -703,8 +703,8 @@ const ENEMIES = {
         displayName: 'マスターハンド',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1200, mp: 200, physicalAttack: 95, magicAttack: 85,
-            physicalDefense: 260, magicDefense: 230, speed: 105, luck: 85
+            hp: 1020, mp: 200, physicalAttack: 95, magicAttack: 85,
+            physicalDefense: 208, magicDefense: 184, speed: 105, luck: 85
         },
         skills: ['iron_wall'],
         uniqueSkill: {
@@ -712,7 +712,7 @@ const ENEMIES = {
             displayName: 'グランドスラム',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 150,
+            basePower: 140,
             mpCost: 70,
             effects: [
                 { type: 'status', status: 'stun', chance: 15, duration: 1 }
@@ -729,8 +729,8 @@ const ENEMIES = {
         displayName: '死柄木弔',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1000, mp: 240, physicalAttack: 110, magicAttack: 85,
-            physicalDefense: 200, magicDefense: 230, speed: 100, luck: 88
+            hp: 850, mp: 240, physicalAttack: 110, magicAttack: 85,
+            physicalDefense: 160, magicDefense: 184, speed: 100, luck: 88
         },
         skills: ['armor_break_all'],
         uniqueSkill: {
@@ -738,7 +738,7 @@ const ENEMIES = {
             displayName: '崩壊',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 90,
+            basePower: 85,
             mpCost: 65,
             effects: [
                 { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
@@ -756,8 +756,8 @@ const ENEMIES = {
         displayName: 'クッパ',
         type: 'tank',
         baseStats: {
-            hp: 1300, mp: 210, physicalAttack: 90, magicAttack: 100,
-            physicalDefense: 280, magicDefense: 220, speed: 85, luck: 75
+            hp: 1105, mp: 210, physicalAttack: 90, magicAttack: 100,
+            physicalDefense: 224, magicDefense: 176, speed: 85, luck: 75
         },
         skills: ['defense_boost'],
         uniqueSkill: {
@@ -765,7 +765,7 @@ const ENEMIES = {
             displayName: 'クッパブレス',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 100,
+            basePower: 90,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
