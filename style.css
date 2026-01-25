@@ -3257,30 +3257,6 @@ h3 {
     z-index: 100;
 }
 
-.vfx-crazy-diamond::before {
-    /* ハートのSVGを適用するが、これは仮として一文字なので表示はしない。より複雑なSVGをCSSで描画する手もある。VFX制作、豪華演出、エフェクトデザイナー、など。今回は手軽にCSSでハートを描く */
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 50px;
-    height: 50px;
-    background: #ff69b4;
-    transform: translate(-50%, -50%) rotate(-45deg);
-    box-shadow: -10px 10px 20px rgba(255, 105, 180, 0.5);
-    animation: heal-heart-pop 0.6s ease-out forwards;
-}
-
-.vfx-crazy-diamond::after {
-    /* ハートの残りの半分（左右対称でハートを構成） */
-    content: '';
-    position: absolute;
-    top: 50%;
-    /* 配置調整 */
-    left: 50%;
-}
-
-/* CSS Heart Logic (仮実装) */
 /* 最終的にSVGによるDiamond形状を適用 */
 .vfx-crazy-diamond::before {
     content: '';
@@ -5206,7 +5182,7 @@ h3 {
     /* 収束（修復）の動き */
     100% {
         transform: translate(0, 0) rotate(720deg) scale(0);
-        opacity: 1;
+        opacity: 0;
     }
 }
 
