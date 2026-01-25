@@ -235,13 +235,13 @@ const CHARACTERS = {
         displayName: '黒尾鉄朗',
         stats: {
             hp: 180,
-            mp: 60,
+            mp: 80,
             physicalAttack: 90,
             magicAttack: 30,
             physicalDefense: 130,
             magicDefense: 110,
-            speed: 70,
-            luck: 70
+            speed: 60,
+            luck: 60
         },
         type: 'tank',
         uniqueSkill: {
