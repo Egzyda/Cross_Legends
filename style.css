@@ -387,9 +387,62 @@ h3 {
 #title-screen .subtitle {
     font-size: 14px;
     color: var(--text-sub);
-    margin-bottom: 60px;
+    margin-bottom: 30px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
+}
+
+/* 難易度選択 */
+.difficulty-selector {
+    margin: 0 auto 30px auto;
+    width: 280px;
+    text-align: left;
+}
+
+.difficulty-selector label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+}
+
+.difficulty-dropdown {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(79, 172, 254, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.difficulty-dropdown:hover {
+    border-color: rgba(79, 172, 254, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.difficulty-dropdown:focus {
+    outline: none;
+    border-color: #4facfe;
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
+}
+
+.difficulty-dropdown option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+.difficulty-description {
+    margin-top: 12px;
+    padding: 12px;
+    font-size: 13px;
+    color: #ddd;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border-left: 3px solid #4facfe;
+    line-height: 1.6;
 }
 
 /* Party Screen */
