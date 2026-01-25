@@ -1620,7 +1620,7 @@ class Game {
         };
 
         return unit.statusEffects
-            .filter(s => s.type !== 'gmax') // gmaxはアイコン表示しない
+            .filter(s => s.type !== 'gmax' && s.type !== 'critBoost') // gmaxとcritBoostはアイコン表示しない
             .map(s => {
                 const label = statusLabels[s.type] || s.type.charAt(0);
                 // 配色用のクラスを追加
