@@ -274,27 +274,25 @@ const SKILLS = {
     },
     luck_boost: {
         id: 'luck_boost',
-        name: '幸運付与',
+        name: 'クリティカル率上昇',
         type: 'buff',
         target: 'single_ally',
         mpCost: 30,
         effects: [
-            { type: 'buff', stat: 'luck', value: 0.5, duration: 3 },
-            { type: 'critBoost', value: 30, duration: 3 }
+            { type: 'critBoost', value: 50, duration: 3 }
         ],
-        description: '単体の運+50%+クリ率+30% 3T'
+        description: '単体のクリ率+50% 3T'
     },
     luck_boost_all: {
         id: 'luck_boost_all',
-        name: '全体幸運付与',
+        name: '全体クリティカル率上昇',
         type: 'buff',
         target: 'all_allies',
         mpCost: 50,
         effects: [
-            { type: 'buff', stat: 'luck', value: 0.3, duration: 3 },
-            { type: 'critBoost', value: 15, duration: 3 }
+            { type: 'critBoost', value: 30, duration: 3 }
         ],
-        description: '全体の運+30%+クリ率+15% 3T'
+        description: '全体のクリ率+30% 3T'
     },
 
     // --- デバッファー系（デバフ） ---
@@ -370,25 +368,25 @@ const SKILLS = {
     },
     luck_down: {
         id: 'luck_down',
-        name: '不運付与',
+        name: 'クリティカル率低下',
         type: 'debuff',
         target: 'single_enemy',
         mpCost: 20,
         effects: [
-            { type: 'debuff', stat: 'luck', value: -0.4, duration: 3 }
+            { type: 'critBoost', value: -30, duration: 3 }
         ],
-        description: '単体の運-40% 3T'
+        description: '単体のクリ率-30% 3T'
     },
     luck_down_all: {
         id: 'luck_down_all',
-        name: '全体不運付与',
+        name: '全体クリティカル率低下',
         type: 'debuff',
         target: 'all_enemies',
         mpCost: 35,
         effects: [
-            { type: 'debuff', stat: 'luck', value: -0.25, duration: 3 }
+            { type: 'critBoost', value: -20, duration: 3 }
         ],
-        description: '全体の運-25% 3T'
+        description: '全体のクリ率-20% 3T'
     },
 
 
