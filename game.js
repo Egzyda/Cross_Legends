@@ -278,7 +278,10 @@ class Game {
             this.closeGameOverModal();
             this.resetGame();
         });
-        document.getElementById('clear-retry-btn').addEventListener('click', () => {
+
+        // 勝利モーダルから
+        document.getElementById('victory-btn-modal').addEventListener('click', () => {
+            this.closeVictoryModal();
             this.resetGame();
         });
 
@@ -398,6 +401,8 @@ class Game {
     showPartyScreen() {
         this.state.party = [];
         this.state.selectedChar = null;
+        this.state.currentTab = 'all';
+        this.state.currentSort = 'default';
         this.showScreen('party');
         this.renderPartyFilter();
         this.renderCharacterList();
@@ -482,6 +487,7 @@ class Game {
     // キャラクター一覧描画（タブフィルター対応）
     renderCharacterList() {
         const list = document.getElementById('character-list');
+        if (!list) return;
         list.innerHTML = '';
 
         let chars = Object.values(CHARACTERS);
@@ -3259,9 +3265,15 @@ class Game {
             this.addLog(`戦闘に勝利！ ${spGain} SP, ￥${goldGain} 獲得`);
         }
 
-        // 報酬フェーズ
+        // ラスボス撃破の場合は報酬フェーズをスキップして直接勝利モーダル表示
+        const isLastBoss = this.state.battle.enemies.some(e => e.rank === 'last_boss');
+
         setTimeout(() => {
-            this.startRewardPhase();
+            if (isLastBoss) {
+                this.showVictoryModal();
+            } else {
+                this.startRewardPhase();
+            }
         }, 1000);
     }
 
@@ -4214,6 +4226,18 @@ class Game {
         document.getElementById('gameover-modal').classList.add('hidden');
     }
 
+    // 勝利モーダル表示
+    showVictoryModal() {
+        this.clearSaveData();
+        // 戦闘画面は見せたまま、勝利オーバーレイを表示
+        const modal = document.getElementById('victory-modal');
+        modal.classList.remove('hidden');
+    }
+
+    closeVictoryModal() {
+        document.getElementById('victory-modal').classList.add('hidden');
+    }
+
     // ゲームリセット
     resetGame() {
         this.clearSaveData();
@@ -4226,8 +4250,12 @@ class Game {
             nodeMap: [],
             items: [],
             spPool: 0,
+            gold: 0,
             battle: null,
-            currentTab: 'all'
+            currentTab: 'all',
+            currentSort: 'default',
+            selectedChar: null,
+            difficulty: 1
         };
         this.showScreen('title');
     }
