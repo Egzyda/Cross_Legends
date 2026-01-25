@@ -2311,6 +2311,14 @@ class Game {
 
                     // エフェクトと同時にバッジを表示
                     actor.statusEffects.push({ type: 'defending', duration: 1 });
+
+                    // MP10%回復
+                    const mpRecover = Math.floor(actor.stats.mp * 0.1);
+                    actor.currentMp = Math.min(actor.stats.mp, actor.currentMp + mpRecover);
+                    if (mpRecover > 0) {
+                        this.addLog(`${actorName}のMPが${mpRecover}回復した！`);
+                    }
+
                     this.updateUnitUI(actor);
 
                     await this.delay(200); // 少し余韻
@@ -2760,14 +2768,14 @@ class Game {
 
         // クリティカル判定
         const luck = this.getEffectiveStat(attacker, 'luck');
-        let critRate = 5 + (luck / 4) + critBonus;
+        let critRate = 5 + (luck / 3) + critBonus;
         // critBoost状態異常を反映
         const critStatus = attacker.statusEffects.find(e => e.type === 'critBoost');
         if (critStatus) critRate += critStatus.value;
 
         const isCritical = Math.random() * 100 < critRate;
         if (isCritical) {
-            damage *= 2;
+            damage *= 1.5;
         }
 
         // 防御中

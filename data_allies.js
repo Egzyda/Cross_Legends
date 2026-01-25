@@ -10,7 +10,7 @@ const CHARACTERS = {
         displayName: '唐可可',
         stats: {
             hp: 190,
-            mp: 85,
+            mp: 93,
             physicalAttack: 75,
             magicAttack: 35,
             physicalDefense: 145,
@@ -45,7 +45,7 @@ const CHARACTERS = {
         displayName: 'キュアスカイ',
         stats: {
             hp: 135,
-            mp: 110,
+            mp: 125,
             physicalAttack: 140,
             magicAttack: 35,
             physicalDefense: 60,
@@ -75,7 +75,7 @@ const CHARACTERS = {
         displayName: '東方仗助',
         stats: {
             hp: 125,
-            mp: 130,
+            mp: 139,
             physicalAttack: 110,
             magicAttack: 50,
             physicalDefense: 85,
@@ -137,7 +137,7 @@ const CHARACTERS = {
         displayName: 'ルカリオ',
         stats: {
             hp: 130,
-            mp: 90,
+            mp: 99,
             physicalAttack: 115,
             magicAttack: 115,
             physicalDefense: 70,
@@ -169,7 +169,7 @@ const CHARACTERS = {
         displayName: '優木せつ菜',
         stats: {
             hp: 120,
-            mp: 100,
+            mp: 108,
             physicalAttack: 60,
             magicAttack: 140,
             physicalDefense: 110,
@@ -203,7 +203,7 @@ const CHARACTERS = {
         displayName: 'セラス',
         stats: {
             hp: 150,
-            mp: 110,
+            mp: 119,
             physicalAttack: 40,
             magicAttack: 90,
             physicalDefense: 110,
@@ -235,7 +235,7 @@ const CHARACTERS = {
         displayName: '黒尾鉄朗',
         stats: {
             hp: 180,
-            mp: 80,
+            mp: 89,
             physicalAttack: 90,
             magicAttack: 30,
             physicalDefense: 130,
@@ -270,7 +270,7 @@ const CHARACTERS = {
         displayName: '若菜四季',
         stats: {
             hp: 110,
-            mp: 150,
+            mp: 159,
             physicalAttack: 50,
             magicAttack: 80,
             physicalDefense: 70,
@@ -301,7 +301,7 @@ const CHARACTERS = {
         displayName: '轟焦凍',
         stats: {
             hp: 125,
-            mp: 100,
+            mp: 108,
             physicalAttack: 70,
             magicAttack: 145,
             physicalDefense: 75,
@@ -333,7 +333,7 @@ const CHARACTERS = {
         displayName: 'はたけカカシ',
         stats: {
             hp: 120,
-            mp: 80,
+            mp: 93,
             physicalAttack: 140,
             magicAttack: 60,
             physicalDefense: 70,
@@ -366,7 +366,7 @@ const CHARACTERS = {
         displayName: '相澤消太',
         stats: {
             hp: 130,
-            mp: 90,
+            mp: 101,
             physicalAttack: 95,
             magicAttack: 95,
             physicalDefense: 85,
@@ -398,7 +398,7 @@ const CHARACTERS = {
         displayName: '桜坂しずく',
         stats: {
             hp: 120,
-            mp: 110,
+            mp: 121,
             physicalAttack: 80,
             magicAttack: 80,
             physicalDefense: 90,
@@ -432,7 +432,7 @@ const CHARACTERS = {
         displayName: '五条悟',
         stats: {
             hp: 115,
-            mp: 120,
+            mp: 129,
             physicalAttack: 45,
             magicAttack: 155,
             physicalDefense: 65,
@@ -464,7 +464,7 @@ const CHARACTERS = {
         displayName: 'シャンクス',
         stats: {
             hp: 140,
-            mp: 100,
+            mp: 117,
             physicalAttack: 150,
             magicAttack: 30,
             physicalDefense: 70,
@@ -496,7 +496,7 @@ const CHARACTERS = {
         displayName: 'カメックス',
         stats: {
             hp: 200,
-            mp: 80,
+            mp: 88,
             physicalAttack: 50,
             magicAttack: 90,
             physicalDefense: 130,
@@ -535,7 +535,7 @@ const CHARACTERS = {
         displayName: '高垣楓',
         stats: {
             hp: 130,
-            mp: 140,
+            mp: 151,
             physicalAttack: 40,
             magicAttack: 110,
             physicalDefense: 70,
@@ -566,7 +566,7 @@ const CHARACTERS = {
         displayName: 'カービィ',
         stats: {
             hp: 130,
-            mp: 90,
+            mp: 106,
             physicalAttack: 90,
             magicAttack: 90,
             physicalDefense: 80,
@@ -596,7 +596,7 @@ const CHARACTERS = {
         displayName: 'マリ',
         stats: {
             hp: 185,
-            mp: 95,
+            mp: 101,
             physicalAttack: 60,
             magicAttack: 120,
             physicalDefense: 135,
@@ -630,7 +630,7 @@ const CHARACTERS = {
         displayName: '空条承太郎',
         stats: {
             hp: 140,
-            mp: 85,
+            mp: 95,
             physicalAttack: 135,
             magicAttack: 35,
             physicalDefense: 95,
@@ -663,7 +663,7 @@ const CHARACTERS = {
         displayName: '青眼の白龍',
         stats: {
             hp: 120,
-            mp: 115,
+            mp: 124,
             physicalAttack: 55,
             magicAttack: 150,
             physicalDefense: 70,
@@ -696,7 +696,7 @@ const CHARACTERS = {
         displayName: 'マルコ',
         stats: {
             hp: 130,
-            mp: 120,
+            mp: 131,
             physicalAttack: 115,
             magicAttack: 65,
             physicalDefense: 80,
@@ -727,7 +727,7 @@ const CHARACTERS = {
         displayName: 'ドラえもん',
         stats: {
             hp: 125,
-            mp: 140,
+            mp: 150,
             physicalAttack: 80,
             magicAttack: 95,
             physicalDefense: 85,
@@ -761,7 +761,7 @@ const CHARACTERS = {
         displayName: 'フリーレン',
         stats: {
             hp: 115,
-            mp: 125,
+            mp: 134,
             physicalAttack: 45,
             magicAttack: 145,
             physicalDefense: 75,
