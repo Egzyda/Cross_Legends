@@ -759,7 +759,7 @@ class Game {
             Math.random() < 0.5 ? 2 : 3,  // Layer 5: 収束
             Math.random() < 0.5 ? 3 : 4,  // Layer 6: 拡散
             Math.random() < 0.5 ? 2 : 3,  // Layer 7: 終盤
-            2,  // Layer 8: 休憩（ボス前）
+            1,  // Layer 8: 休憩（ボス前、固定1ノード）
             1   // Layer 9: ボス
         ];
 
@@ -1219,12 +1219,12 @@ class Game {
 
                 // Grid配置 (Layer 0以外)
                 if (layerIndex !== 0) {
-                    // Bossと最後の休憩は特別扱い（中央揃えのために2カラムまたぐ）
-                    // Boss(L9), Rest(L8), Shop(L4) は中央揃え
-                    if (node.type === 'boss' || (node.type === 'rest' && layerIndex === 8) || (node.type === 'shop' && layerIndex === 4)) {
+                    // laneが1.5の場合は中央配置（2カラムまたぐ）
+                    if (node.lane === 1.5) {
                         nodeEl.style.gridColumn = "2 / span 2";
                     } else {
-                        nodeEl.style.gridColumn = node.lane + 1;
+                        // 整数laneの場合は通常配置
+                        nodeEl.style.gridColumn = Math.floor(node.lane) + 1;
                     }
                 }
                 // Layer 0はFlexboxなのでgridColumn設定不要（自動で均等配置）
