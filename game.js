@@ -767,13 +767,27 @@ class Game {
         for (let l = 0; l < LAYERS; l++) {
             nodeStore[l] = [];
             const count = layerNodeCounts[l];
+
+            // 4列グリッドに均等配置するためlaneを計算
             for (let i = 0; i < count; i++) {
+                let lane;
+                if (count === 1) {
+                    lane = 1.5;  // 中央（グリッドでは gridColumn: "2 / span 2" で処理）
+                } else if (count === 2) {
+                    lane = i === 0 ? 1 : 2;  // 中央寄せ
+                } else if (count === 3) {
+                    lane = i === 0 ? 0 : i === 1 ? 1.5 : 3;  // 左、中央、右
+                } else {  // count === 4
+                    lane = i;  // 0, 1, 2, 3
+                }
+
                 nodeStore[l].push({
                     layer: l,
-                    position: i,  // 左から右への位置
+                    lane: lane,
+                    position: i,  // 元のインデックスも保持（接続用）
                     type: '?',
                     nextNodes: [],
-                    parents: []   // 親ノード追跡用
+                    parents: []
                 });
             }
         }
