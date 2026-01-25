@@ -744,219 +744,252 @@ class Game {
         const bossId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
         this.state.mapBoss = bossId;
 
-        const LAYERS = 10;
+        // ノードマップ生成（厳密な交差なし・Planar Graph）
         const nodeStore = [];
+        // レイヤーごとの最大ノード数（幅）
+        // 多めに確保し、後で到達不可能なものを間引くことで自然な形にする
+        const LAYERS = 10;
+        const nodesPerLayer = [3, 4, 4, 4, 4, 4, 4, 4, 1, 1];
 
-        // ========================================
-        // 1. レイヤー構造の定義（ノード数決定）
-        // ========================================
-        const layerNodeCounts = [
-            3,  // Layer 0: 戦闘スタート
-            3,  // Layer 1: 序盤
-            Math.random() < 0.5 ? 3 : 4,  // Layer 2: 中盤開始
-            Math.random() < 0.5 ? 2 : 3,  // Layer 3: 収束
-            Math.random() < 0.5 ? 3 : 4,  // Layer 4: 拡散
-            Math.random() < 0.5 ? 2 : 3,  // Layer 5: 収束
-            Math.random() < 0.5 ? 3 : 4,  // Layer 6: 拡散
-            Math.random() < 0.5 ? 2 : 3,  // Layer 7: 終盤
-            1,  // Layer 8: 休憩（ボス前、固定1ノード）
-            1   // Layer 9: ボス
-        ];
-
-        // ノード生成
+        // 1. ノード初期化
+        // 一旦すべての可能な位置にノードを作成する
         for (let l = 0; l < LAYERS; l++) {
-            nodeStore[l] = [];
-            const count = layerNodeCounts[l];
-
-            // 4列グリッドに均等配置するためlaneを計算
+            const count = nodesPerLayer[l];
+            const layerNodes = [];
             for (let i = 0; i < count; i++) {
-                let lane;
-                if (count === 1) {
-                    lane = 1.5;  // 中央（グリッドでは gridColumn: "2 / span 2" で処理）
-                } else if (count === 2) {
-                    lane = i === 0 ? 1 : 2;  // 中央寄せ
-                } else if (count === 3) {
-                    lane = i === 0 ? 0 : i === 1 ? 1.5 : 3;  // 左、中央、右
-                } else {  // count === 4
-                    lane = i;  // 0, 1, 2, 3
-                }
+                // レーン位置は均等割り（0..count-1）で正規化
+                // 描画時に中央寄せするために相対位置を持つ
+                let lane = i;
+                if (count === 1) lane = 2; // 中央付近
 
-                nodeStore[l].push({
+                layerNodes.push({
                     layer: l,
+                    index: i,
                     lane: lane,
-                    position: i,  // 元のインデックスも保持（接続用）
-                    type: '?',
                     nextNodes: [],
-                    parents: []
+                    parents: [],
+                    type: 'battle',
+                    status: 'locked',
+                    valid: true // フィルタリング用フラグ
                 });
             }
+            nodeStore.push(layerNodes);
         }
 
-        // ========================================
-        // 2. 接続生成（クロス最小化）
-        // ========================================
+        // 2. 接続生成（厳密なクロス禁止ロジック）
+        // ルール: ノード N(i) の接続先ターゲットの最小インデックス >= ノード N(i-1) の接続先ターゲットの最大インデックス
+
         for (let l = 0; l < LAYERS - 1; l++) {
             const currentLayer = nodeStore[l];
             const nextLayer = nodeStore[l + 1];
-            const nextCount = nextLayer.length;
 
-            // 各ノードへの接続数をカウント（最大2接続まで）
-            const connectionCounts = new Array(nextCount).fill(0);
+            let minNextIndex = 0; // 次のノードが選べる最小のインデックス
 
-            currentLayer.forEach((node, nodeIdx) => {
-                // 各ノードは1-2個の次ノードに接続
-                const numConnections = Math.random() < 0.6 ? 1 : 2;
-                const connections = [];
+            currentLayer.forEach((node, idx) => {
+                // 自分のレーンに近いターゲット候補を探す
+                // lane差が1.5以内などを候補とする（あまり遠くへは行けない）
+                const potentialCandidates = nextLayer.filter(target =>
+                    target.index >= minNextIndex && // クロス防止制約
+                    Math.abs(target.lane - node.lane) <= 1.5 // 物理的距離制約（調整可）
+                );
 
-                // 現在のノードの相対位置を計算
-                const currentRatio = currentLayer.length > 1
-                    ? nodeIdx / (currentLayer.length - 1)
-                    : 0.5;
-
-                // 次のレイヤーでの近い位置を探す
-                const targetPos = currentRatio * (nextCount - 1);
-
-                // 候補: 近い位置とその隣
-                const candidates = [
-                    Math.floor(targetPos),
-                    Math.ceil(targetPos),
-                    Math.max(0, Math.floor(targetPos) - 1),
-                    Math.min(nextCount - 1, Math.ceil(targetPos) + 1)
-                ];
-
-                // 重複削除とソート
-                const uniqueCandidates = [...new Set(candidates)].sort((a, b) => {
-                    const distA = Math.abs(a - targetPos);
-                    const distB = Math.abs(b - targetPos);
-                    return distA - distB;
-                });
-
-                // 接続数が少ない候補を優先
-                uniqueCandidates.sort((a, b) => {
-                    const countDiff = connectionCounts[a] - connectionCounts[b];
-                    if (countDiff !== 0) return countDiff;
-                    return Math.abs(a - targetPos) - Math.abs(b - targetPos);
-                });
-
-                // 接続を追加
-                for (const candidate of uniqueCandidates) {
-                    if (connections.length >= numConnections) break;
-                    if (connectionCounts[candidate] < 2) {  // 最大2接続まで
-                        connections.push(candidate);
-                        connectionCounts[candidate]++;
-                    }
+                if (potentialCandidates.length === 0) {
+                    // 候補がない場合（端など）、接続なし（後で間引かれる）
+                    return;
                 }
 
-                // 接続が確保できなかった場合の保証
-                if (connections.length === 0) {
-                    const fallback = Math.floor(targetPos);
-                    connections.push(fallback);
-                    connectionCounts[fallback]++;
+                // ランダムに1～3個選ぶ（連続した範囲である必要あり）
+                // [T1, T2, T3] のうち {T1}, {T2}, {T1, T2} など
+                // 飛び地選択 {T1, T3} はクロスのもとなので禁止（連続性維持）
+
+                const maxConnections = (l === 0) ? 2 : (Math.random() < 0.5 ? 1 : 2);
+                const numConnections = Math.min(potentialCandidates.length, maxConnections);
+
+                // 候補の中から連続した部分配列を選ぶ
+                // 開始位置をランダムに
+                const maxStart = Math.max(0, potentialCandidates.length - numConnections);
+                const startIndex = Math.floor(Math.random() * (maxStart + 1));
+
+                const selectedTargets = [];
+                for (let k = 0; k < numConnections; k++) {
+                    selectedTargets.push(potentialCandidates[startIndex + k]);
                 }
 
-                node.nextNodes = connections;
+                // 接続適用
+                if (selectedTargets.length > 0) {
+                    selectedTargets.forEach(target => {
+                        node.nextNodes.push(target.index);
+                        target.parents.push(node.index);
+                    });
 
-                // 親ノード情報を記録
-                connections.forEach(targetIdx => {
-                    nextLayer[targetIdx].parents.push(nodeIdx);
-                });
-            });
-
-            // 到達不可能なノードがないか確認
-            nextLayer.forEach((node, idx) => {
-                if (node.parents.length === 0) {
-                    // 到達不可能ノードを修正：最も近い親から接続
-                    const nodeRatio = nextLayer.length > 1
-                        ? idx / (nextLayer.length - 1)
-                        : 0.5;
-                    const parentPos = Math.round(nodeRatio * (currentLayer.length - 1));
-                    const parentIdx = Math.max(0, Math.min(currentLayer.length - 1, parentPos));
-
-                    if (!currentLayer[parentIdx].nextNodes.includes(idx)) {
-                        currentLayer[parentIdx].nextNodes.push(idx);
-                        node.parents.push(parentIdx);
-                    }
+                    // 次のノードのための制約を更新
+                    // 現在のノードが選んだ「最大のインデックス」が、次のノードの「最小インデックス」の下限になる
+                    minNextIndex = selectedTargets[selectedTargets.length - 1].index;
                 }
             });
         }
 
-        // ========================================
-        // 3. ノードタイプの割り当て（ルールベース + 難易度）
-        // ========================================
+        // 3. 有効ノードの選別（Reachability Check）
 
-        // 難易度設定を取得
-        const difficulty = this.state.difficulty || 0;
-        const diffConfig = DIFFICULTY_CONFIG[difficulty];
-        const eliteBoost = diffConfig ? diffConfig.eliteBonus * 5 : 0;  // 1段階につき+5%
+        // (A) Startから到達可能なノードをマーク
+        // Layer 0 は全て到達可能
+        nodeStore[0].forEach(n => n.reachable = true);
 
-        // 親ノードのタイプを取得
-        const getParentTypes = (layer, nodeIdx) => {
-            if (layer === 0) return [];
-            const node = nodeStore[layer][nodeIdx];
-            return node.parents.map(pIdx => nodeStore[layer - 1][pIdx].type);
-        };
+        for (let l = 0; l < LAYERS - 1; l++) {
+            nodeStore[l].forEach(node => {
+                if (node.reachable) {
+                    node.nextNodes.forEach(nextIdx => {
+                        nodeStore[l + 1][nextIdx].reachable = true;
+                    });
+                }
+            });
+        }
+
+        // (B) Bossまで到達可能なノードをマーク (Reverse check)
+        // Layer 9 (Boss) はゴール
+        nodeStore[LAYERS - 1].forEach(n => n.canReachBoss = true);
+
+        for (let l = LAYERS - 2; l >= 0; l--) {
+            nodeStore[l].forEach(node => {
+                // 自分の子が一つでも Boss到達可能なら OK
+                const hasPath = node.nextNodes.some(nextIdx => nodeStore[l + 1][nextIdx].canReachBoss);
+                if (hasPath) node.canReachBoss = true;
+            });
+        }
+
+        // 両方満たすノードのみ残す
+        // parents/nextNodes のインデックスずれを防ぐため、再構築する
+
+        const finalStore = [];
 
         for (let l = 0; l < LAYERS; l++) {
-            nodeStore[l].forEach((node, idx) => {
-                // Layer 0: 戦闘のみ
-                if (l === 0) {
-                    node.type = 'battle';
-                    return;
-                }
+            // 有効なノードだけ抽出
+            const validNodes = nodeStore[l].filter(n => n.reachable && n.canReachBoss);
 
-                // Layer 8: 休憩のみ（ボス前）
-                if (l === 8) {
-                    node.type = 'rest';
-                    return;
-                }
+            // インデックスの振り直しが必要
+            // ただし nextNodes は「次のレイヤーの古いインデックス」を指しているため、
+            // 次のレイヤーの修正マップが必要になる。
+            finalStore.push(validNodes);
+        }
 
-                // Layer 9: ボス
-                if (l === 9) {
-                    node.type = 'boss';
-                    return;
-                }
+        // リンク情報の再マッピング
+        for (let l = 0; l < LAYERS - 1; l++) {
+            const currentLayer = finalStore[l];
+            const nextLayer = finalStore[l + 1];
 
-                // 親ノードのタイプを確認
+            // nextLayerの「古いインデックス -> 新しいオブジェクト」のマップ作成
+            const nextMap = {};
+            nextLayer.forEach((n, newIdx) => {
+                nextMap[n.index] = { newNode: n, newIdx: newIdx };
+            });
+
+            currentLayer.forEach(node => {
+                // 古い nextNodes を走査し、新しいレイヤーに残っているか確認
+                const newNextNodes = [];
+                node.nextNodes.forEach(oldNextIdx => {
+                    if (nextMap[oldNextIdx]) {
+                        newNextNodes.push(nextMap[oldNextIdx].newIdx);
+                        // ついでに親情報の更新などは…今回は generateMapの最後で parents を消去しているので
+                        // nextNodes だけ正しければ描画はできる。
+                        // 親情報が必要なのはタイプ決定時なので、ここで親情報も再構築が必要。
+                    }
+                });
+                node.nextNodes = newNextNodes;
+            });
+        }
+
+        // 親情報の再構築（タイプ決定用）
+        for (let l = 1; l < LAYERS; l++) {
+            const currentLayer = finalStore[l];
+            const prevLayer = finalStore[l - 1];
+
+            currentLayer.forEach(node => {
+                node.parents = []; // リセット
+            });
+
+            prevLayer.forEach((pNode, pIdx) => {
+                pNode.nextNodes.forEach(childIdx => {
+                    const child = currentLayer[childIdx];
+                    if (child) {
+                        child.parents.push(pIdx);
+                    }
+                });
+            });
+        }
+
+        // currentLayerの index プロパティなどを更新
+        // laneも再計算して中央揃えにする
+        for (let l = 0; l < LAYERS; l++) {
+            const layerNodes = finalStore[l];
+            const count = layerNodes.length;
+            layerNodes.forEach((node, idx) => {
+                node.index = idx; // 新しいインデックス
+                node.id = `${l}-${idx}`;
+                node.status = (l === 0) ? 'available' : 'locked';
+
+                // 表示用 Lane 再計算 (均等配置)
+                // 元のlane情報を維持するとスカスカになるので、詰める
+                if (count === 1) node.lane = 1.5; // Fixed center
+                else if (count === 2) node.lane = idx === 0 ? 1 : 2;
+                else if (count === 3) node.lane = idx + 0.5;
+                else node.lane = idx * (3 / (count - 1)); // 0..3に正規化
+            });
+        }
+
+        // グローバルへ反映前に中身置き換え
+        // nodeStore = finalStore だが、GameLogic上の nodeStore はローカル変数
+        // 最後に this.state.nodeMap = finalStore する
+
+        // ========================================
+        // 4. ノードタイプの割り当て
+        // ========================================
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const eliteBoost = diffConfig ? diffConfig.eliteBonus * 5 : 0;
+
+        const getParentTypes = (layer, nodeIdx) => {
+            if (layer === 0) return [];
+            const node = finalStore[layer][nodeIdx];
+            return node.parents.map(pIdx => finalStore[layer - 1][pIdx].type);
+        };
+
+        let shopCount = 0;
+
+        for (let l = 0; l < LAYERS; l++) {
+            finalStore[l].forEach((node, idx) => {
+                // 固定タイプ
+                if (l === 0) { node.type = 'battle'; return; }
+                if (l === 8) { node.type = 'rest'; return; }
+                if (l === 9) { node.type = 'boss'; return; }
+
                 const parentTypes = getParentTypes(l, idx);
                 const hasRestParent = parentTypes.includes('rest');
                 const hasShopParent = parentTypes.includes('shop');
+                const hasEventParent = parentTypes.includes('event');
 
-                // Layer 1: 戦闘 or イベント
-                if (l === 1) {
-                    node.type = Math.random() < 0.6 ? 'battle' : 'event';
-                    return;
-                }
-
-                // Layer 2: 戦闘 or イベント or エリート（難易度でエリート率上昇）
+                if (l === 1) { node.type = Math.random() < 0.6 ? 'battle' : 'event'; return; }
                 if (l === 2) {
                     const r = Math.random() * 100;
-                    const eliteChance = 15 + eliteBoost;
                     if (r < 50) node.type = 'battle';
-                    else if (r < 100 - eliteChance) node.type = 'event';
+                    else if (r < 85 - eliteBoost) node.type = 'event';
                     else node.type = 'elite';
                     return;
                 }
 
-                // Layer 3-7: 全タイプ可能だが制限付き
-
-                // 休憩/ショップの後は戦闘 or エリート（難易度でエリート率上昇）
                 if (hasRestParent || hasShopParent) {
                     const eliteChance = 30 + eliteBoost;
                     node.type = Math.random() * 100 < eliteChance ? 'elite' : 'battle';
                     return;
                 }
 
-                // Layer 7: 休憩前（戦闘 or エリート中心、難易度でエリート率上昇）
                 if (l === 7) {
                     const r = Math.random() * 100;
-                    const eliteChance = 30 + eliteBoost;
                     if (r < 50 - eliteBoost) node.type = 'battle';
-                    else if (r < 50 + eliteChance) node.type = 'elite';
+                    else if (r < 80) node.type = 'elite';
                     else node.type = 'event';
                     return;
                 }
 
-                // Layer 3-6: バランス型（難易度でエリート率上昇）
                 const baseEliteWeight = l >= 5 ? 20 : 10;
                 const weights = {
                     battle: 35 - eliteBoost,
@@ -966,41 +999,49 @@ class Game {
                     rest: 10
                 };
 
+                if (hasEventParent) {
+                    weights.event = 10;
+                    weights.battle += 15;
+                }
+
                 node.type = this.weightedRandom(weights);
+                if (node.type === 'shop') shopCount++;
             });
         }
 
-        // ========================================
-        // 4. 連続ルールの適用（休憩連続防止）
-        // ========================================
-        for (let l = 1; l < LAYERS - 2; l++) {  // Layer 8は固定休憩なのでスキップ
-            nodeStore[l].forEach((node, idx) => {
+        // ショップ確定保証 (ノード数が減っている可能性があるので注意)
+        if (shopCount === 0) {
+            const targetLayers = [4, 5, 6].filter(l => finalStore[l] && finalStore[l].length > 0);
+            if (targetLayers.length > 0) {
+                const l = targetLayers[Math.floor(Math.random() * targetLayers.length)];
+                const candidates = finalStore[l];
+                candidates[Math.floor(Math.random() * candidates.length)].type = 'shop';
+            }
+        }
+
+        // 休憩連続防止
+        for (let l = 1; l < LAYERS - 2; l++) {
+            finalStore[l].forEach((node, idx) => {
                 if (node.type === 'rest') {
                     const parentTypes = getParentTypes(l, idx);
                     if (parentTypes.includes('rest')) {
-                        // 休憩が連続しないように変更
-                        node.type = Math.random() < 0.5 ? 'battle' : 'event';
+                        node.type = 'battle';
                     }
                 }
             });
         }
 
-        // ========================================
-        // 5. データ構造の最終化
-        // ========================================
-        const finalLayers = [];
+        // 最終クリーンアップ
         for (let l = 0; l < LAYERS; l++) {
-            nodeStore[l].forEach((n, idx) => {
-                n.index = idx;
-                n.id = `${l}-${idx}`;
-                n.completed = false;
-                n.status = (l === 0) ? 'available' : 'locked';
-                delete n.parents;  // 不要になった親情報を削除
+            finalStore[l].forEach(n => {
+                delete n.parents;
+                delete n.valid;
+                delete n.reachable;
+                delete n.canReachBoss;
             });
-            finalLayers.push(nodeStore[l]);
         }
 
-        this.state.nodeMap = finalLayers;
+        this.state.nodeMap = finalStore;
         this.state.currentLayer = 0;
     }
 
@@ -1187,20 +1228,11 @@ class Game {
             row.className = 'map-layer-row';
             row.dataset.layer = layerIndex;
 
-            // Laneベースのレイアウト改め、基本は4列Grid
-            // ただし Layer 0 (Start) は3つなので均等配置(Flexbox)にする
-            if (layerIndex === 0) {
-                row.style.display = 'flex';
-                row.style.justifyContent = 'space-evenly';
-                row.style.alignItems = 'center';
-                row.style.width = '100%';
-            } else {
-                row.style.display = 'grid';
-                row.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                row.style.gap = '4px';
-                row.style.width = '100%';
-                row.style.justifyItems = 'center';
-            }
+            // 全レイヤーをFlexboxで均等配置（ノード数が可変のためGridより自然）
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-evenly';
+            row.style.alignItems = 'center';
+            row.style.width = '100%';
 
             // 7レーン分のセルを作成し、ノードがある場所にのみ配置
             // または、ノードに gridColumn を指定する
@@ -1217,17 +1249,7 @@ class Game {
                     nodeEl.innerHTML = `<div class="node-icon">${NODE_TYPES[node.type].icon}</div>`;
                 }
 
-                // Grid配置 (Layer 0以外)
-                if (layerIndex !== 0) {
-                    // laneが1.5の場合は中央配置（2カラムまたぐ）
-                    if (node.lane === 1.5) {
-                        nodeEl.style.gridColumn = "2 / span 2";
-                    } else {
-                        // 整数laneの場合は通常配置
-                        nodeEl.style.gridColumn = Math.floor(node.lane) + 1;
-                    }
-                }
-                // Layer 0はFlexboxなのでgridColumn設定不要（自動で均等配置）
+                // Grid配置ロジックは廃止（Flexboxの自動配置に任せる）
 
                 if (node.completed) nodeEl.classList.add('completed');
 
@@ -1307,14 +1329,14 @@ class Game {
                         line.setAttribute("y2", y2);
 
                         // 線の配色：清潔感のある白系に変更
-                        let strokeColor = "rgba(255, 255, 255, 0.1)"; // 未開放
+                        let strokeColor = "rgba(255, 255, 255, 0.5)"; // 未開放（見やすく）
                         let strokeWidth = "1.5";
 
                         if (node.completed && this.isNodeAvailable(node.layer + 1, nextIdx)) {
                             strokeColor = "rgba(255, 255, 255, 0.9)"; // 攻略ルート（くっきり白）
                             strokeWidth = "3";
                         } else if (node.status === 'available') {
-                            strokeColor = "rgba(255, 255, 255, 0.4)"; // 選択可能候補（薄い白）
+                            strokeColor = "rgba(255, 255, 255, 0.7)"; // 選択可能候補（かなり見やすい白）
                             strokeWidth = "2";
                         }
 
@@ -1563,6 +1585,8 @@ class Game {
                 </div>
                 <div class="status-ailments">${this.renderStatusAilments(enemy)}</div>
             `;
+            // 敵クリックでステータス表示
+            unit.onclick = () => this.showCharacterDetail(idx, 'enemy_battle');
             area.appendChild(unit);
         });
     }
@@ -1755,7 +1779,7 @@ class Game {
         };
 
         return unit.statusEffects
-            .filter(s => s.type !== 'gmax') // gmaxはアイコン表示しない
+            .filter(s => s.type !== 'gmax' && s.type !== 'critBoost') // gmax, critBoostはアイコン表示しない
             .map(s => {
                 const label = statusLabels[s.type] || s.type.charAt(0);
                 // 配色用のクラスを追加
@@ -3208,16 +3232,16 @@ class Game {
             const rank = enemy.rank || 'normal';
             switch (rank) {
                 case 'normal':
-                    spGain += 1; // 1体あたり1SP
+                    spGain += 3; // 1体あたり3SP
                     goldGain += 40 + Math.floor(Math.random() * 21); // 40-60円
                     break;
                 case 'elite':
-                    spGain += 3; // 1体あたり3SP
+                    spGain += 10; // 1体あたり10SP
                     goldGain += 180 + Math.floor(Math.random() * 41); // 180-220円
                     break;
                 case 'boss':
                 case 'last_boss':
-                    spGain += 10;
+                    spGain += 30;
                     goldGain += 450 + Math.floor(Math.random() * 101); // 450-550円
                     break;
                 default:
@@ -4248,6 +4272,10 @@ class Game {
         let char;
         if (context === 'party') {
             char = CHARACTERS[charId];
+        } else if (context === 'enemy_battle') {
+            // 敵の場合はインデックスで取得
+            char = this.state.battle.enemies[charId];
+            if (!char) return;
         } else {
             char = this.state.party.find(p => p.id === charId);
             if (!char) return;
@@ -4260,20 +4288,26 @@ class Game {
         const content = document.createElement('div');
         content.className = 'detail-content';
 
-        // Battle context: no image
-        if (context !== 'battle') {
-            const imageDiv = document.createElement('div');
-            imageDiv.className = 'detail-image';
-            imageDiv.innerHTML = `<img src="${char.image.full}" alt="${char.name}" onerror="this.style.background='#555'">`;
-            content.appendChild(imageDiv);
+        // Image (Always show full, but style differs for enemy)
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'detail-image';
+        let imgStyle = '';
+        if (context === 'enemy_battle') {
+            imgStyle = 'object-fit:contain; aspect-ratio:1/1; width:100%;';
         }
+        // Enemy uses full image same as ally in this context
+        const imgSrc = char.image.full || char.image.face;
+        imageDiv.innerHTML = `<img src="${imgSrc}" alt="${char.name}" style="${imgStyle}" onerror="this.style.background='#555'">`;
+        content.appendChild(imageDiv);
 
         // Stats area
         const statsDiv = document.createElement('div');
         statsDiv.className = 'detail-stats';
 
-        const typeLabel = this.getTypeLabel(char.type);
-        statsDiv.innerHTML = `<div class="detail-type">タイプ：${typeLabel}</div>`;
+        if (context !== 'enemy_battle') {
+            const typeLabel = this.getTypeLabel(char.type);
+            statsDiv.innerHTML = `<div class="detail-type">タイプ：${typeLabel}</div>`;
+        }
 
         // 通常攻撃タイプを判定（素のステータスで高い方）
         const basePhys = CHARACTERS[char.id]?.stats.physicalAttack || char.stats.physicalAttack;
@@ -4284,17 +4318,17 @@ class Game {
         const hpColor = '#4ecdc4'; // 戦闘画面のHPバーと同じ色
         const mpColor = '#4facfe'; // 戦闘画面のMPバーと同じ色
 
+        let hpMpHtml = '';
         if (context === 'party') {
-            statsDiv.innerHTML += `
-                <div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${char.stats.hp}</span></div>
-                <div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${char.stats.mp}</span></div>
-            `;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${char.stats.hp}</span></div>`;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${char.stats.mp}</span></div>`;
         } else {
-            statsDiv.innerHTML += `
-                <div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${Math.floor(char.currentHp)}/${char.stats.hp}</span></div>
-                <div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${Math.floor(char.currentMp)}/${char.stats.mp}</span></div>
-            `;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${Math.floor(char.currentHp)}/${char.stats.hp}</span></div>`;
+            if (context !== 'enemy_battle') {
+                hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${Math.floor(char.currentMp)}/${char.stats.mp}</span></div>`;
+            }
         }
+        statsDiv.innerHTML += hpMpHtml;
 
         // Other stats with attack highlights
         const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
@@ -4341,66 +4375,90 @@ class Game {
             statsDiv.innerHTML += `<div class="stat-row"><span class="stat-label" style="${labelStyle}">${statLabels[stat]}:</span> <span class="stat-value" style="${valueStyle}">${displayText}</span></div>`;
         });
 
+        // 会心率 (Crit Rate)
+        {
+            const effectiveLuck = (context === 'battle' || context === 'enemy_battle') ? this.getEffectiveStat(char, 'luck') : char.stats.luck;
+            let baseCrit = 5 + Math.floor(effectiveLuck / 3) + (char.critBonus || 0); // 基本 + 運補正 + 装備補正(仮)
+
+            // バフ補正 (戦闘中のみ)
+            let buffVal = 0;
+            if (context === 'battle' || context === 'enemy_battle') {
+                const critStatus = char.statusEffects.find(e => e.type === 'critBoost');
+                if (critStatus) buffVal = critStatus.value;
+            }
+
+            let finalCrit = baseCrit + buffVal;
+            let displayCrit = `${finalCrit}%`;
+
+            if (buffVal !== 0) {
+                const arrow = buffVal > 0 ? '↑' : '↓';
+                const changeClass = buffVal > 0 ? 'stat-change' : 'stat-change down';
+                // 元の値(baseCrit) → 新しい値(finalCrit) ... というよりは、最終値 + バフ分を表示
+                // ここではシンプルに「最終値 (矢印)」にする
+                displayCrit = `${baseCrit}% → ${finalCrit}% <span class="${changeClass}">${arrow}</span>`;
+            }
+
+            statsDiv.innerHTML += `<div class="stat-row"><span class="stat-label">会心率:</span> <span class="stat-value">${displayCrit}</span></div>`;
+        }
+
         content.appendChild(statsDiv);
         bodyEl.appendChild(content);
 
-        // Unique Skill
-        const uniqueSection = document.createElement('div');
-        uniqueSection.className = 'detail-section';
-        uniqueSection.innerHTML = '<h4>【固有スキル】</h4>';
+        // Skills (Unified List)
+        const skillsSection = document.createElement('div');
+        skillsSection.className = 'detail-section';
+        skillsSection.innerHTML = '<h4>【スキル】</h4>';
 
-        const uniqueSkill = char.uniqueSkill;
-        if (uniqueSkill) {
-            const skillItem = document.createElement('div');
-            skillItem.className = 'skill-item';
-            skillItem.innerHTML = `
-                <div class="skill-item-header">
-                    <span class="skill-item-name">${uniqueSkill.displayName || uniqueSkill.id}</span>
-                    <span class="skill-item-cost">MP: ${uniqueSkill.mpCost || 0}</span>
-                </div>
-                <div class="skill-item-desc">${uniqueSkill.description || ''}</div>
-            `;
-            uniqueSection.appendChild(skillItem);
+        // 固有スキルと通常スキルを統合
+        let skillList = [];
+        if (char.uniqueSkill) skillList.push(char.uniqueSkill);
+        if (char.skills && char.skills.length > 0) {
+            skillList = skillList.concat(char.skills);
         }
-        bodyEl.appendChild(uniqueSection);
 
-        // Acquired Skills (map/battle only)
-        if (context !== 'party' && char.skills && char.skills.length > 0) {
-            const skillsSection = document.createElement('div');
-            skillsSection.className = 'detail-section';
-            skillsSection.innerHTML = '<h4>【獲得スキル】</h4>';
+        if (skillList.length > 0) {
+            skillList.forEach(skill => {
+                // 文字列IDの場合とオブジェクトの場合に対応
+                const skillId = (typeof skill === 'string') ? skill : skill.id;
+                const skillData = SKILLS[skillId] || skill; // SKILLSになければそのまま(uniqueSkill等)、あるいはID表示
 
-            char.skills.forEach(skill => {
-                const skillData = SKILLS[skill.id] || {};
+                // 敵の場合はMPコスト非表示
+                const showCost = context !== 'enemy_battle';
+
                 const skillItem = document.createElement('div');
                 skillItem.className = 'skill-item';
                 skillItem.innerHTML = `
-                    <div class="skill-item-header">
-                        <span class="skill-item-name">${skill.displayName || skillData.name || skill.id}</span>
-                        <span class="skill-item-cost">MP: ${skillData.mpCost || 0}</span>
-                    </div>
-                    <div class="skill-item-desc">${skillData.description || ''}</div>
-                `;
+                     <div class="skill-item-header">
+                         <span class="skill-item-name">${skillData.displayName || skillData.name || skillId}</span>
+                         ${showCost ? `<span class="skill-item-cost">MP: ${skillData.mpCost || 0}</span>` : ''}
+                     </div>
+                     <div class="skill-item-desc">${skillData.description || ''}</div>
+                 `;
                 skillsSection.appendChild(skillItem);
             });
             bodyEl.appendChild(skillsSection);
         }
 
         // Status ailments (battle only)
-        if (context === 'battle' && char.statusEffects && char.statusEffects.length > 0) {
-            const statusSection = document.createElement('div');
-            statusSection.className = 'detail-section';
-            statusSection.innerHTML = '<h4>【状態異常】</h4><div class="status-list"></div>';
+        if ((context === 'battle' || context === 'enemy_battle') && char.statusEffects && char.statusEffects.length > 0) {
+            // critBoostは詳細リストからも除外
+            const visibleEffects = char.statusEffects.filter(e => e.type !== 'critBoost');
 
-            const statusList = statusSection.querySelector('.status-list');
-            char.statusEffects.forEach(effect => {
-                const tag = document.createElement('span');
-                tag.className = 'status-tag ailment';
-                const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御', gmax: 'G-MAX' };
-                tag.textContent = `${labels[effect.type] || effect.type}(残${effect.duration}T)`;
-                statusList.appendChild(tag);
-            });
-            bodyEl.appendChild(statusSection);
+            if (visibleEffects.length > 0) {
+                const statusSection = document.createElement('div');
+                statusSection.className = 'detail-section';
+                statusSection.innerHTML = '<h4>【状態異常】</h4><div class="status-list"></div>';
+
+                const statusList = statusSection.querySelector('.status-list');
+                visibleEffects.forEach(effect => {
+                    const tag = document.createElement('span');
+                    tag.className = 'status-tag ailment';
+                    const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御', gmax: 'G-MAX' };
+                    tag.textContent = `${labels[effect.type] || effect.type}(残${effect.duration}T)`;
+                    statusList.appendChild(tag);
+                });
+                bodyEl.appendChild(statusSection);
+            }
         }
 
         modal.classList.remove('hidden');

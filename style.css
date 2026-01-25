@@ -786,6 +786,12 @@ h3 {
     border-color: #ffff44;
 }
 
+.node-type-shop {
+    background: radial-gradient(circle, #4a4a2a, #2a2a0a);
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
 .node-type-boss {
     width: 80px !important;
     height: 80px !important;
