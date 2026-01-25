@@ -1620,7 +1620,7 @@ class Game {
         };
 
         return unit.statusEffects
-            .filter(s => s.type !== 'gmax') // gmaxはアイコン表示しない
+            .filter(s => s.type !== 'gmax' && s.type !== 'critBoost') // gmaxとcritBoostはアイコン表示しない
             .map(s => {
                 const label = statusLabels[s.type] || s.type.charAt(0);
                 // 配色用のクラスを追加
@@ -3073,20 +3073,24 @@ class Game {
             const rank = enemy.rank || 'normal';
             switch (rank) {
                 case 'normal':
-                    spGain += 1; // 1体あたり1SP
+                    spGain += 3; // 1体あたり3SP
                     goldGain += 40 + Math.floor(Math.random() * 21); // 40-60円
                     break;
                 case 'elite':
-                    spGain += 3; // 1体あたり3SP
+                    spGain += 10; // 1体あたり10SP
                     goldGain += 180 + Math.floor(Math.random() * 41); // 180-220円
                     break;
                 case 'boss':
-                case 'last_boss':
-                    spGain += 10;
+                    spGain += 30; // ボス30SP
                     goldGain += 450 + Math.floor(Math.random() * 101); // 450-550円
                     break;
+                case 'last_boss':
+                    // ラスボスはSP・お金獲得なし（終わりなので意味がない）
+                    spGain += 0;
+                    goldGain += 0;
+                    break;
                 default:
-                    spGain += 1;
+                    spGain += 3;
                     goldGain += 40;
             }
         });
