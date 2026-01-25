@@ -238,7 +238,7 @@ const ENEMIES = {
         displayName: 'ばいきんまん',
         type: 'physical_attacker',
         baseStats: {
-            hp: 675, mp: 140, physicalAttack: 75, magicAttack: 60,
+            hp: 540, mp: 140, physicalAttack: 75, magicAttack: 60,
             physicalDefense: 160, magicDefense: 140, speed: 88, luck: 70
         },
         skills: ['poison_single'],
@@ -262,7 +262,7 @@ const ENEMIES = {
         displayName: 'ギギネブラ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 675, mp: 180, physicalAttack: 70, magicAttack: 75,
+            hp: 540, mp: 180, physicalAttack: 70, magicAttack: 75,
             physicalDefense: 150, magicDefense: 180, speed: 78, luck: 65
         },
         skills: ['weaken_all'],
@@ -288,7 +288,7 @@ const ENEMIES = {
         displayName: '夏油傑',
         type: 'magic_attacker',
         baseStats: {
-            hp: 700, mp: 190, physicalAttack: 65, magicAttack: 80,
+            hp: 560, mp: 190, physicalAttack: 65, magicAttack: 80,
             physicalDefense: 160, magicDefense: 190, speed: 82, luck: 72
         },
         skills: ['defense_boost'],
@@ -311,7 +311,7 @@ const ENEMIES = {
         displayName: 'バンギラス',
         type: 'physical_attacker',
         baseStats: {
-            hp: 720, mp: 130, physicalAttack: 85, magicAttack: 70,
+            hp: 576, mp: 130, physicalAttack: 85, magicAttack: 70,
             physicalDefense: 170, magicDefense: 160, speed: 72, luck: 65
         },
         skills: ['attack_boost'],
@@ -335,7 +335,7 @@ const ENEMIES = {
         displayName: '大蛇丸',
         type: 'magic_attacker',
         baseStats: {
-            hp: 630, mp: 200, physicalAttack: 60, magicAttack: 80,
+            hp: 504, mp: 200, physicalAttack: 60, magicAttack: 80,
             physicalDefense: 140, magicDefense: 200, speed: 90, luck: 75
         },
         skills: ['speed_down'],
@@ -365,7 +365,7 @@ const ENEMIES = {
         displayName: 'ブルファンゴ',
         type: 'physical_attacker',
         baseStats: {
-            hp: 180, mp: 70, physicalAttack: 95, magicAttack: 40,
+            hp: 144, mp: 70, physicalAttack: 81, magicAttack: 34,
             physicalDefense: 100, magicDefense: 85, speed: 75, luck: 52
         },
         skills: [],
@@ -388,7 +388,7 @@ const ENEMIES = {
         displayName: 'メトロイド',
         type: 'magic_attacker',
         baseStats: {
-            hp: 160, mp: 100, physicalAttack: 50, magicAttack: 92,
+            hp: 128, mp: 100, physicalAttack: 43, magicAttack: 78,
             physicalDefense: 90, magicDefense: 110, speed: 68, luck: 58
         },
         skills: [],
@@ -414,7 +414,7 @@ const ENEMIES = {
         displayName: 'リーデッド',
         type: 'physical_attacker',
         baseStats: {
-            hp: 170, mp: 75, physicalAttack: 88, magicAttack: 45,
+            hp: 136, mp: 75, physicalAttack: 75, magicAttack: 38,
             physicalDefense: 95, magicDefense: 95, speed: 55, luck: 50
         },
         skills: [],
@@ -440,7 +440,7 @@ const ENEMIES = {
         displayName: 'ボム兵',
         type: 'physical_attacker',
         baseStats: {
-            hp: 150, mp: 60, physicalAttack: 100, magicAttack: 35,
+            hp: 120, mp: 60, physicalAttack: 85, magicAttack: 30,
             physicalDefense: 85, magicDefense: 80, speed: 50, luck: 45
         },
         skills: [],
@@ -467,7 +467,7 @@ const ENEMIES = {
         displayName: 'ストリンダー',
         type: 'magic_attacker',
         baseStats: {
-            hp: 165, mp: 95, physicalAttack: 55, magicAttack: 90,
+            hp: 132, mp: 95, physicalAttack: 47, magicAttack: 77,
             physicalDefense: 90, magicDefense: 105, speed: 82, luck: 60
         },
         skills: [],
@@ -497,7 +497,7 @@ const ENEMIES = {
         displayName: 'クッパJr.',
         type: 'magic_attacker',
         baseStats: {
-            hp: 360, mp: 160, physicalAttack: 75, magicAttack: 75,
+            hp: 306, mp: 160, physicalAttack: 68, magicAttack: 68,
             physicalDefense: 126, magicDefense: 144, speed: 85, luck: 68
         },
         skills: ['defense_boost'],
@@ -523,7 +523,7 @@ const ENEMIES = {
         displayName: 'メタナイト',
         type: 'physical_attacker',
         baseStats: {
-            hp: 342, mp: 130, physicalAttack: 70, magicAttack: 50,
+            hp: 291, mp: 130, physicalAttack: 63, magicAttack: 45,
             physicalDefense: 117, magicDefense: 112, speed: 115, luck: 75
         },
         skills: ['speed_boost'],
@@ -547,7 +547,7 @@ const ENEMIES = {
         displayName: 'ヒソカ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 351, mp: 150, physicalAttack: 70, magicAttack: 80,
+            hp: 298, mp: 150, physicalAttack: 63, magicAttack: 72,
             physicalDefense: 108, magicDefense: 130, speed: 100, luck: 75
         },
         skills: ['attack_boost'],
@@ -573,7 +573,7 @@ const ENEMIES = {
         displayName: 'ダークプリキュア',
         type: 'physical_attacker',
         baseStats: {
-            hp: 378, mp: 140, physicalAttack: 80, magicAttack: 60,
+            hp: 321, mp: 140, physicalAttack: 72, magicAttack: 54,
             physicalDefense: 130, magicDefense: 121, speed: 95, luck: 70
         },
         skills: ['weaken_all'],

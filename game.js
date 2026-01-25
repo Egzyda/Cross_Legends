@@ -1515,26 +1515,98 @@ class Game {
 
     // バフ/デバフオーバーレイ表示（画像左上に重ねて表示）
     renderBuffOverlay(unit) {
-        const statLabels = {
-            physicalAttack: '物攻', magicAttack: '魔攻',
-            physicalDefense: '物防', magicDefense: '魔防',
-            speed: '速', luck: '運', hp: 'HP', mp: 'MP'
-        };
-
         let html = '';
 
-        // バフ（同じstatは統合して表示）
-        const uniqueBuffs = [...new Set(unit.buffs.map(b => b.stat))];
-        uniqueBuffs.forEach(stat => {
-            const label = statLabels[stat] || stat;
-            html += `<span class="buff-item">${label}↑</span>`;
+        // バフの統合処理
+        const buffStats = [...new Set(unit.buffs.map(b => b.stat))];
+        const hasPA = buffStats.includes('physicalAttack');
+        const hasMA = buffStats.includes('magicAttack');
+        const hasPD = buffStats.includes('physicalDefense');
+        const hasMD = buffStats.includes('magicDefense');
+        const hasSpeed = buffStats.includes('speed');
+
+        // クリティカル率バフの確認
+        const hasCrit = unit.statusEffects.some(e => e.type === 'critBoost' && e.value > 0);
+
+        // 攻撃統合表示
+        if (hasPA && hasMA) {
+            html += `<span class="buff-item">攻撃↑</span>`;
+        } else if (hasPA) {
+            html += `<span class="buff-item">物攻↑</span>`;
+        } else if (hasMA) {
+            html += `<span class="buff-item">魔攻↑</span>`;
+        }
+
+        // 防御統合表示
+        if (hasPD && hasMD) {
+            html += `<span class="buff-item">防御↑</span>`;
+        } else if (hasPD) {
+            html += `<span class="buff-item">物防↑</span>`;
+        } else if (hasMD) {
+            html += `<span class="buff-item">魔防↑</span>`;
+        }
+
+        // 速度とクリティカル統合表示
+        if (hasSpeed && hasCrit) {
+            html += `<span class="buff-item">速会↑</span>`;
+        } else if (hasSpeed) {
+            html += `<span class="buff-item">速度↑</span>`;
+        } else if (hasCrit) {
+            html += `<span class="buff-item">会心↑</span>`;
+        }
+
+        // その他のバフ（HP, MP, luck等）
+        buffStats.forEach(stat => {
+            if (!['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed'].includes(stat)) {
+                const label = stat === 'hp' ? 'HP' : stat === 'mp' ? 'MP' : stat === 'luck' ? '運' : stat;
+                html += `<span class="buff-item">${label}↑</span>`;
+            }
         });
 
-        // デバフ（同じstatは統合して表示）
-        const uniqueDebuffs = [...new Set(unit.debuffs.map(d => d.stat))];
-        uniqueDebuffs.forEach(stat => {
-            const label = statLabels[stat] || stat;
-            html += `<span class="debuff-item">${label}↓</span>`;
+        // デバフの統合処理
+        const debuffStats = [...new Set(unit.debuffs.map(d => d.stat))];
+        const hasDebuffPA = debuffStats.includes('physicalAttack');
+        const hasDebuffMA = debuffStats.includes('magicAttack');
+        const hasDebuffPD = debuffStats.includes('physicalDefense');
+        const hasDebuffMD = debuffStats.includes('magicDefense');
+        const hasDebuffSpeed = debuffStats.includes('speed');
+
+        // クリティカル率デバフの確認
+        const hasDebuffCrit = unit.statusEffects.some(e => e.type === 'critBoost' && e.value < 0);
+
+        // 攻撃統合表示
+        if (hasDebuffPA && hasDebuffMA) {
+            html += `<span class="debuff-item">攻撃↓</span>`;
+        } else if (hasDebuffPA) {
+            html += `<span class="debuff-item">物攻↓</span>`;
+        } else if (hasDebuffMA) {
+            html += `<span class="debuff-item">魔攻↓</span>`;
+        }
+
+        // 防御統合表示
+        if (hasDebuffPD && hasDebuffMD) {
+            html += `<span class="debuff-item">防御↓</span>`;
+        } else if (hasDebuffPD) {
+            html += `<span class="debuff-item">物防↓</span>`;
+        } else if (hasDebuffMD) {
+            html += `<span class="debuff-item">魔防↓</span>`;
+        }
+
+        // 速度とクリティカル統合表示
+        if (hasDebuffSpeed && hasDebuffCrit) {
+            html += `<span class="debuff-item">速会↓</span>`;
+        } else if (hasDebuffSpeed) {
+            html += `<span class="debuff-item">速度↓</span>`;
+        } else if (hasDebuffCrit) {
+            html += `<span class="debuff-item">会心↓</span>`;
+        }
+
+        // その他のデバフ（HP, MP, luck等）
+        debuffStats.forEach(stat => {
+            if (!['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed'].includes(stat)) {
+                const label = stat === 'hp' ? 'HP' : stat === 'mp' ? 'MP' : stat === 'luck' ? '運' : stat;
+                html += `<span class="debuff-item">${label}↓</span>`;
+            }
         });
 
         return html;
