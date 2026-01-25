@@ -548,7 +548,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 351, mp: 150, physicalAttack: 70, magicAttack: 80,
-            physicalDefense: 108, magicDefense: 130, speed: 100, luck: 80
+            physicalDefense: 108, magicDefense: 130, speed: 100, luck: 75
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -602,7 +602,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 850, mp: 250, physicalAttack: 100, magicAttack: 80,
-            physicalDefense: 112, magicDefense: 120, speed: 110, luck: 90
+            physicalDefense: 112, magicDefense: 120, speed: 110, luck: 75
         },
         skills: ['magic_storm'],
         uniqueSkill: {
@@ -625,7 +625,7 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 935, mp: 220, physicalAttack: 85, magicAttack: 90,
-            physicalDefense: 192, magicDefense: 168, speed: 125, luck: 95
+            physicalDefense: 192, magicDefense: 168, speed: 125, luck: 75
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -651,7 +651,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 850, mp: 260, physicalAttack: 95, magicAttack: 85,
-            physicalDefense: 184, magicDefense: 216, speed: 115, luck: 100
+            physicalDefense: 184, magicDefense: 216, speed: 115, luck: 75
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -680,8 +680,8 @@ const ENEMIES = {
         displayName: 'ウルトラネクロズマ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 850, mp: 280, physicalAttack: 120, magicAttack: 90,
-            physicalDefense: 168, magicDefense: 192, speed: 130, luck: 105
+            hp: 850, mp: 280, physicalAttack: 105, magicAttack: 90,
+            physicalDefense: 168, magicDefense: 192, speed: 130, luck: 75
         },
         skills: ['speed_boost'],
         uniqueSkill: {
@@ -704,7 +704,7 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 1020, mp: 200, physicalAttack: 95, magicAttack: 85,
-            physicalDefense: 208, magicDefense: 184, speed: 105, luck: 85
+            physicalDefense: 208, magicDefense: 184, speed: 105, luck: 75
         },
         skills: ['iron_wall'],
         uniqueSkill: {
@@ -730,7 +730,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 850, mp: 240, physicalAttack: 110, magicAttack: 85,
-            physicalDefense: 160, magicDefense: 184, speed: 100, luck: 88
+            physicalDefense: 160, magicDefense: 184, speed: 100, luck: 75
         },
         skills: ['armor_break_all'],
         uniqueSkill: {
