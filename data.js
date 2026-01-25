@@ -1024,6 +1024,109 @@ const MAP_CONFIG = {
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
         elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
         bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
-        multiplier: { start: 1.2, mid: 1.4, elite: 1.6, boss: 1.8 }
+        multiplier: { start: 1.0, mid: 1.0, elite: 1.0, boss: 1.0 }  // 難易度システムで調整
+    }
+};
+
+// 難易度設定（0-10）
+const DIFFICULTY_CONFIG = {
+    0: {
+        name: '基準',
+        description: '標準的な難易度。勝率50%程度を想定。',
+        hpMultiplier: 1.00,
+        attackMultiplier: 1.00,
+        eliteBonus: 0,
+        restHealPercent: 100,
+        shopPriceMultiplier: 1.00
+    },
+    1: {
+        name: '難易度1',
+        description: '少し難しくなります。',
+        hpMultiplier: 1.05,
+        attackMultiplier: 1.02,
+        eliteBonus: 1,
+        restHealPercent: 100,
+        shopPriceMultiplier: 1.05
+    },
+    2: {
+        name: '難易度2',
+        description: 'エリートが増加します。',
+        hpMultiplier: 1.10,
+        attackMultiplier: 1.04,
+        eliteBonus: 1,
+        restHealPercent: 90,
+        shopPriceMultiplier: 1.10
+    },
+    3: {
+        name: '難易度3',
+        description: '回復量が減少します。',
+        hpMultiplier: 1.15,
+        attackMultiplier: 1.06,
+        eliteBonus: 1,
+        restHealPercent: 80,
+        shopPriceMultiplier: 1.15
+    },
+    4: {
+        name: '難易度4',
+        description: 'エリートがさらに増加します。',
+        hpMultiplier: 1.20,
+        attackMultiplier: 1.08,
+        eliteBonus: 2,
+        restHealPercent: 70,
+        shopPriceMultiplier: 1.20
+    },
+    5: {
+        name: '難易度5',
+        description: '中級者向けの難易度。',
+        hpMultiplier: 1.25,
+        attackMultiplier: 1.10,
+        eliteBonus: 2,
+        restHealPercent: 60,
+        shopPriceMultiplier: 1.25
+    },
+    6: {
+        name: '難易度6',
+        description: '回復がさらに減少します。',
+        hpMultiplier: 1.30,
+        attackMultiplier: 1.12,
+        eliteBonus: 2,
+        restHealPercent: 60,
+        shopPriceMultiplier: 1.30
+    },
+    7: {
+        name: '難易度7',
+        description: 'エリートが大幅に増加します。',
+        hpMultiplier: 1.35,
+        attackMultiplier: 1.15,
+        eliteBonus: 3,
+        restHealPercent: 50,
+        shopPriceMultiplier: 1.40
+    },
+    8: {
+        name: '難易度8',
+        description: '上級者向けの難易度。',
+        hpMultiplier: 1.40,
+        attackMultiplier: 1.18,
+        eliteBonus: 3,
+        restHealPercent: 50,
+        shopPriceMultiplier: 1.50
+    },
+    9: {
+        name: '難易度9',
+        description: '非常に高い難易度。',
+        hpMultiplier: 1.45,
+        attackMultiplier: 1.20,
+        eliteBonus: 3,
+        restHealPercent: 40,
+        shopPriceMultiplier: 1.60
+    },
+    10: {
+        name: '難易度10（極限）',
+        description: '最高難易度。生き残れるか？',
+        hpMultiplier: 1.50,
+        attackMultiplier: 1.25,
+        eliteBonus: 4,
+        restHealPercent: 40,
+        shopPriceMultiplier: 1.80
     }
 };

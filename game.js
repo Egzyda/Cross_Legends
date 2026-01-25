@@ -16,7 +16,8 @@ class Game {
             battle: null,
             currentTab: 'all',
             currentSort: 'default',
-            selectedChar: null
+            selectedChar: null,
+            difficulty: 0  // 難易度（0-10）
         };
 
         this.init();
@@ -236,6 +237,13 @@ class Game {
             }
         });
 
+        // 難易度選択
+        document.getElementById('difficulty-select').addEventListener('change', (e) => {
+            const difficulty = parseInt(e.target.value);
+            this.state.difficulty = difficulty;
+            this.updateDifficultyDescription(difficulty);
+        });
+
         // パーティ編成
         document.getElementById('start-run-btn').addEventListener('click', () => {
             this.startRun();
@@ -357,6 +365,33 @@ class Game {
         } else {
             continueBtn.style.display = 'none';
         }
+
+        // 難易度説明を初期化
+        this.updateDifficultyDescription(this.state.difficulty);
+    }
+
+    // 難易度説明の更新
+    updateDifficultyDescription(difficulty) {
+        const config = DIFFICULTY_CONFIG[difficulty];
+        if (!config) return;
+
+        const descEl = document.getElementById('difficulty-description');
+        const hpPercent = Math.round((config.hpMultiplier - 1) * 100);
+        const atkPercent = Math.round((config.attackMultiplier - 1) * 100);
+        const eliteText = config.eliteBonus > 0 ? `+${config.eliteBonus}` : '通常';
+        const restText = config.restHealPercent < 100 ? `${config.restHealPercent}%` : '100%';
+        const shopText = config.shopPriceMultiplier > 1 ? `+${Math.round((config.shopPriceMultiplier - 1) * 100)}%` : '通常';
+
+        descEl.innerHTML = `
+            <div style="margin-bottom: 8px;">${config.description}</div>
+            <div style="font-size: 12px; color: #aaa;">
+                敵HP: ${hpPercent > 0 ? '+' : ''}${hpPercent}% /
+                敵攻撃: ${atkPercent > 0 ? '+' : ''}${atkPercent}%<br>
+                エリート数: ${eliteText} /
+                休憩回復: ${restText} /
+                ショップ価格: ${shopText}
+            </div>
+        `;
     }
 
     // パーティ編成画面表示
@@ -701,6 +736,7 @@ class Game {
     // マップ生成
     // マップ生成（Slay the Spire風：クロスなし、戦略的配置）
     // マップ生成（グリッドベース：4列固定 + 収束）
+    // マップ生成（Slay the Spire風：戦略的ルート選択可能）
     generateMap() {
         const config = this.state.currentAct === 1 ? MAP_CONFIG.act1 : MAP_CONFIG.act2;
 
@@ -708,179 +744,247 @@ class Game {
         const bossId = config.bosses[Math.floor(Math.random() * config.bosses.length)];
         this.state.mapBoss = bossId;
 
-        const LANES = 4;
         const LAYERS = 10;
-        const nodeStore = {};
+        const nodeStore = [];
 
-        // 1. ノード配置（骨格作成）
-
-        // Layer 0: Start (3つ: Lane 0, 1, 3 を使用して分散)
-        // Flexbox配置されるため、Lane番号は接続ロジックでのみ重要
-        nodeStore[0] = [
-            { layer: 0, lane: 0, type: 'battle', nextLanes: [] },
-            { layer: 0, lane: 1, type: 'battle', nextLanes: [] },
-            { layer: 0, lane: 3, type: 'battle', nextLanes: [] }
+        // ========================================
+        // 1. レイヤー構造の定義（ノード数決定）
+        // ========================================
+        const layerNodeCounts = [
+            3,  // Layer 0: 戦闘スタート
+            3,  // Layer 1: 序盤
+            Math.random() < 0.5 ? 3 : 4,  // Layer 2: 中盤開始
+            Math.random() < 0.5 ? 2 : 3,  // Layer 3: 収束
+            Math.random() < 0.5 ? 3 : 4,  // Layer 4: 拡散
+            Math.random() < 0.5 ? 2 : 3,  // Layer 5: 収束
+            Math.random() < 0.5 ? 3 : 4,  // Layer 6: 拡散
+            Math.random() < 0.5 ? 2 : 3,  // Layer 7: 終盤
+            2,  // Layer 8: 休憩（ボス前）
+            1   // Layer 9: ボス
         ];
 
-        // Layer 1-3: 4 Lanes (Full Grid)
-        for (let l = 1; l <= 3; l++) {
+        // ノード生成
+        for (let l = 0; l < LAYERS; l++) {
             nodeStore[l] = [];
-            for (let lane = 0; lane < LANES; lane++) {
-                nodeStore[l].push({ layer: l, lane: lane, type: '?', nextLanes: [] });
+            const count = layerNodeCounts[l];
+            for (let i = 0; i < count; i++) {
+                nodeStore[l].push({
+                    layer: l,
+                    position: i,  // 左から右への位置
+                    type: '?',
+                    nextNodes: [],
+                    parents: []   // 親ノード追跡用
+                });
             }
         }
 
-        // Layer 4: Shop (Convergence) - Single Node Lane 1
-        nodeStore[4] = [{ layer: 4, lane: 1, type: 'shop', nextLanes: [] }];
-
-        // Layer 5-7: 4 Lanes (Full Grid)
-        for (let l = 5; l <= 7; l++) {
-            nodeStore[l] = [];
-            for (let lane = 0; lane < LANES; lane++) {
-                nodeStore[l].push({ layer: l, lane: lane, type: '?', nextLanes: [] });
-            }
-        }
-
-        // Layer 8: Rest (Convergence)
-        nodeStore[8] = [{ layer: 8, lane: 1, type: 'rest', nextLanes: [] }];
-
-        // Layer 9: Boss (Convergence)
-        nodeStore[9] = [{ layer: 9, lane: 1, type: 'boss', nextLanes: [] }];
-
-
-        // 2. 接続ロジック（交差なし・到達保証）
+        // ========================================
+        // 2. 接続生成（クロス最小化）
+        // ========================================
         for (let l = 0; l < LAYERS - 1; l++) {
-            const currentNodes = nodeStore[l];
-            const nextNodes = nodeStore[l + 1];
+            const currentLayer = nodeStore[l];
+            const nextLayer = nodeStore[l + 1];
+            const nextCount = nextLayer.length;
 
-            // A: 次が収束地点 (1ノード) なら全員集合
-            if (nextNodes.length === 1) {
-                const targetLane = nextNodes[0].lane;
-                currentNodes.forEach(node => node.nextLanes.push(targetLane));
-                continue;
-            }
+            // 各ノードへの接続数をカウント（最大2接続まで）
+            const connectionCounts = new Array(nextCount).fill(0);
 
-            // B: 現在が収束地点 (1ノード) なら全員拡散
-            if (currentNodes.length === 1) {
-                const node = currentNodes[0];
-                nextNodes.forEach(next => node.nextLanes.push(next.lane));
-                continue;
-            }
+            currentLayer.forEach((node, nodeIdx) => {
+                // 各ノードは1-2個の次ノードに接続
+                const numConnections = Math.random() < 0.6 ? 1 : 2;
+                const connections = [];
 
-            // C: グリッド間接続 (隣接レーンへ: Lane -1, 0, +1)
-            currentNodes.forEach(node => {
-                const potentialLanes = [node.lane - 1, node.lane, node.lane + 1];
-                potentialLanes.forEach(pLane => {
-                    // 次のレイヤーにそのレーンが存在すれば接続
-                    if (nextNodes.some(n => n.lane === pLane)) {
-                        node.nextLanes.push(pLane);
+                // 現在のノードの相対位置を計算
+                const currentRatio = currentLayer.length > 1
+                    ? nodeIdx / (currentLayer.length - 1)
+                    : 0.5;
+
+                // 次のレイヤーでの近い位置を探す
+                const targetPos = currentRatio * (nextCount - 1);
+
+                // 候補: 近い位置とその隣
+                const candidates = [
+                    Math.floor(targetPos),
+                    Math.ceil(targetPos),
+                    Math.max(0, Math.floor(targetPos) - 1),
+                    Math.min(nextCount - 1, Math.ceil(targetPos) + 1)
+                ];
+
+                // 重複削除とソート
+                const uniqueCandidates = [...new Set(candidates)].sort((a, b) => {
+                    const distA = Math.abs(a - targetPos);
+                    const distB = Math.abs(b - targetPos);
+                    return distA - distB;
+                });
+
+                // 接続数が少ない候補を優先
+                uniqueCandidates.sort((a, b) => {
+                    const countDiff = connectionCounts[a] - connectionCounts[b];
+                    if (countDiff !== 0) return countDiff;
+                    return Math.abs(a - targetPos) - Math.abs(b - targetPos);
+                });
+
+                // 接続を追加
+                for (const candidate of uniqueCandidates) {
+                    if (connections.length >= numConnections) break;
+                    if (connectionCounts[candidate] < 2) {  // 最大2接続まで
+                        connections.push(candidate);
+                        connectionCounts[candidate]++;
                     }
+                }
+
+                // 接続が確保できなかった場合の保証
+                if (connections.length === 0) {
+                    const fallback = Math.floor(targetPos);
+                    connections.push(fallback);
+                    connectionCounts[fallback]++;
+                }
+
+                node.nextNodes = connections;
+
+                // 親ノード情報を記録
+                connections.forEach(targetIdx => {
+                    nextLayer[targetIdx].parents.push(nodeIdx);
                 });
             });
-        }
 
+            // 到達不可能なノードがないか確認
+            nextLayer.forEach((node, idx) => {
+                if (node.parents.length === 0) {
+                    // 到達不可能ノードを修正：最も近い親から接続
+                    const nodeRatio = nextLayer.length > 1
+                        ? idx / (nextLayer.length - 1)
+                        : 0.5;
+                    const parentPos = Math.round(nodeRatio * (currentLayer.length - 1));
+                    const parentIdx = Math.max(0, Math.min(currentLayer.length - 1, parentPos));
 
-        // 3. タイプ決定（動的ウェイト）
-        const isSafe = (type) => ['shop', 'rest', 'event'].includes(type);
-
-        // 親のタイプを取得するヘルパー
-        const getParentTypes = (layerIdx, currentLane) => {
-            if (layerIdx === 0) return [];
-            const parents = [];
-            nodeStore[layerIdx - 1].forEach(p => {
-                if (p.nextLanes.includes(currentLane)) {
-                    parents.push(p.type);
+                    if (!currentLayer[parentIdx].nextNodes.includes(idx)) {
+                        currentLayer[parentIdx].nextNodes.push(idx);
+                        node.parents.push(parentIdx);
+                    }
                 }
             });
-            return parents;
+        }
+
+        // ========================================
+        // 3. ノードタイプの割り当て（ルールベース + 難易度）
+        // ========================================
+
+        // 難易度設定を取得
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const eliteBoost = diffConfig ? diffConfig.eliteBonus * 5 : 0;  // 1段階につき+5%
+
+        // 親ノードのタイプを取得
+        const getParentTypes = (layer, nodeIdx) => {
+            if (layer === 0) return [];
+            const node = nodeStore[layer][nodeIdx];
+            return node.parents.map(pIdx => nodeStore[layer - 1][pIdx].type);
         };
 
-        Object.keys(nodeStore).forEach(key => {
-            const l = parseInt(key);
-            if (l === 0) {
-                // Act 1: Battle Only, Act 2: Random
-                if (this.state.currentAct > 1) {
-                    nodeStore[l].forEach(n => {
-                        const r = Math.random();
-                        if (r < 0.4) n.type = 'battle';
-                        else if (r < 0.7) n.type = 'event';
-                        else n.type = 'shop';
-                    });
+        for (let l = 0; l < LAYERS; l++) {
+            nodeStore[l].forEach((node, idx) => {
+                // Layer 0: 戦闘のみ
+                if (l === 0) {
+                    node.type = 'battle';
+                    return;
                 }
-                return;
-            }
-            if (l === 4 || l === 8 || l === 9) return; // Fixed Nodes
 
-            nodeStore[l].forEach(node => {
-                // 固定ルール（バッファ層）
+                // Layer 8: 休憩のみ（ボス前）
+                if (l === 8) {
+                    node.type = 'rest';
+                    return;
+                }
+
+                // Layer 9: ボス
+                if (l === 9) {
+                    node.type = 'boss';
+                    return;
+                }
+
+                // 親ノードのタイプを確認
+                const parentTypes = getParentTypes(l, idx);
+                const hasRestParent = parentTypes.includes('rest');
+                const hasShopParent = parentTypes.includes('shop');
+
+                // Layer 1: 戦闘 or イベント
+                if (l === 1) {
+                    node.type = Math.random() < 0.6 ? 'battle' : 'event';
+                    return;
+                }
+
+                // Layer 2: 戦闘 or イベント or エリート（難易度でエリート率上昇）
+                if (l === 2) {
+                    const r = Math.random() * 100;
+                    const eliteChance = 15 + eliteBoost;
+                    if (r < 50) node.type = 'battle';
+                    else if (r < 100 - eliteChance) node.type = 'event';
+                    else node.type = 'elite';
+                    return;
+                }
+
+                // Layer 3-7: 全タイプ可能だが制限付き
+
+                // 休憩/ショップの後は戦闘 or エリート（難易度でエリート率上昇）
+                if (hasRestParent || hasShopParent) {
+                    const eliteChance = 30 + eliteBoost;
+                    node.type = Math.random() * 100 < eliteChance ? 'elite' : 'battle';
+                    return;
+                }
+
+                // Layer 7: 休憩前（戦闘 or エリート中心、難易度でエリート率上昇）
                 if (l === 7) {
-                    // 休憩前: エリート率高め
-                    node.type = Math.random() < 0.4 ? 'elite' : 'battle';
+                    const r = Math.random() * 100;
+                    const eliteChance = 30 + eliteBoost;
+                    if (r < 50 - eliteBoost) node.type = 'battle';
+                    else if (r < 50 + eliteChance) node.type = 'elite';
+                    else node.type = 'event';
                     return;
                 }
-                if (l === 3) {
-                    // ショップ前: 戦闘のみ
-                    node.type = Math.random() < 0.2 ? 'elite' : 'battle';
-                    return;
-                }
 
-                // 親ノードチェック（動的ウェイト）
-                const parentTypes = getParentTypes(l, node.lane);
-                const anyParentSafe = parentTypes.some(t => isSafe(t));
-
-                let weights = { battle: 0, elite: 0, event: 0, shop: 0, rest: 0 };
-
-                if (anyParentSafe) {
-                    // 親が安全 → 次は戦闘推奨 (イベント率激減)
-                    weights.battle = 70;
-                    weights.elite = (l >= 5) ? 25 : 5;
-                    weights.event = 5;
-                    weights.shop = 0; // 連続ショップ禁止
-                    weights.rest = 0;
-                } else {
-                    // 親が戦闘 → イベントチャンス
-                    weights.battle = 20;
-                    weights.elite = (l >= 5) ? 15 : 5;
-                    weights.event = 45;
-                    weights.shop = 10;
-                    weights.rest = 10;
-                }
+                // Layer 3-6: バランス型（難易度でエリート率上昇）
+                const baseEliteWeight = l >= 5 ? 20 : 10;
+                const weights = {
+                    battle: 35 - eliteBoost,
+                    elite: baseEliteWeight + eliteBoost,
+                    event: 25,
+                    shop: l >= 3 ? 10 : 0,
+                    rest: 10
+                };
 
                 node.type = this.weightedRandom(weights);
             });
-        });
+        }
 
-        // 4. データ構造変換（ID割り当て・接続解決）
+        // ========================================
+        // 4. 連続ルールの適用（休憩連続防止）
+        // ========================================
+        for (let l = 1; l < LAYERS - 2; l++) {  // Layer 8は固定休憩なのでスキップ
+            nodeStore[l].forEach((node, idx) => {
+                if (node.type === 'rest') {
+                    const parentTypes = getParentTypes(l, idx);
+                    if (parentTypes.includes('rest')) {
+                        // 休憩が連続しないように変更
+                        node.type = Math.random() < 0.5 ? 'battle' : 'event';
+                    }
+                }
+            });
+        }
+
+        // ========================================
+        // 5. データ構造の最終化
+        // ========================================
         const finalLayers = [];
         for (let l = 0; l < LAYERS; l++) {
-            nodeStore[l].sort((a, b) => a.lane - b.lane);
             nodeStore[l].forEach((n, idx) => {
                 n.index = idx;
                 n.id = `${l}-${idx}`;
+                n.completed = false;
+                n.status = (l === 0) ? 'available' : 'locked';
+                delete n.parents;  // 不要になった親情報を削除
             });
             finalLayers.push(nodeStore[l]);
         }
-
-        // nextLanes -> nextNodes (index verify)
-        for (let l = 0; l < LAYERS - 1; l++) {
-            finalLayers[l].forEach(node => {
-                node.nextNodes = [];
-                node.nextLanes.forEach(targetLane => {
-                    const targetIdx = finalLayers[l + 1].findIndex(n => n.lane === targetLane);
-                    if (targetIdx !== -1) {
-                        node.nextNodes.push(targetIdx);
-                    }
-                });
-                node.completed = false;
-                node.status = (l === 0) ? 'available' : 'locked';
-            });
-        }
-        // Boss
-        finalLayers[LAYERS - 1].forEach(node => {
-            node.nextNodes = [];
-            node.completed = false;
-            node.status = 'locked';
-        });
 
         this.state.nodeMap = finalLayers;
         this.state.currentLayer = 0;
@@ -1339,17 +1443,34 @@ class Game {
         this.startCommandPhase();
     }
 
-    // 敵生成
+    // 敵生成（難易度対応）
     createEnemy(enemyId, multiplier, isElite = false) {
         const template = ENEMIES[enemyId];
         const stats = {};
 
+        // 難易度設定を取得
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const hpMult = diffConfig ? diffConfig.hpMultiplier : 1.0;
+        const atkMult = diffConfig ? diffConfig.attackMultiplier : 1.0;
+
         Object.keys(template.baseStats).forEach(stat => {
-            if (stat === 'speed') {
-                stats[stat] = template.baseStats[stat];
+            let value = template.baseStats[stat];
+
+            // ステータスごとに倍率を適用
+            if (stat === 'hp') {
+                value = Math.floor(value * hpMult);
+            } else if (stat === 'physicalAttack' || stat === 'magicAttack') {
+                value = Math.floor(value * atkMult);
+            } else if (stat === 'speed') {
+                // 速度は据え置き
+                value = value;
             } else {
-                stats[stat] = Math.floor(template.baseStats[stat] * multiplier);
+                // 防御・MP・luckは据え置き
+                value = value;
             }
+
+            stats[stat] = value;
         });
 
         // エリートはHP+30%
@@ -3455,21 +3576,26 @@ class Game {
         this.showMapScreen();
     }
 
-    // 休憩処理
+    // 休憩処理（難易度対応）
     handleRest(type) {
+        // 難易度設定を取得
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const healMultiplier = diffConfig ? (diffConfig.restHealPercent / 100) : 1.0;
+
         this.state.party.forEach(member => {
             if (member.currentHp <= 0) return;
 
             switch (type) {
                 case 'hp':
-                    member.currentHp = Math.min(member.stats.hp, member.currentHp + member.stats.hp * 0.4);
+                    member.currentHp = Math.min(member.stats.hp, member.currentHp + Math.floor(member.stats.hp * 0.4 * healMultiplier));
                     break;
                 case 'mp':
-                    member.currentMp = Math.min(member.stats.mp, member.currentMp + member.stats.mp * 0.4);
+                    member.currentMp = Math.min(member.stats.mp, member.currentMp + Math.floor(member.stats.mp * 0.4 * healMultiplier));
                     break;
                 case 'both':
-                    member.currentHp = Math.min(member.stats.hp, member.currentHp + member.stats.hp * 0.2);
-                    member.currentMp = Math.min(member.stats.mp, member.currentMp + member.stats.mp * 0.2);
+                    member.currentHp = Math.min(member.stats.hp, member.currentHp + Math.floor(member.stats.hp * 0.2 * healMultiplier));
+                    member.currentMp = Math.min(member.stats.mp, member.currentMp + Math.floor(member.stats.mp * 0.2 * healMultiplier));
                     break;
             }
         });
@@ -3819,10 +3945,15 @@ class Game {
     generateShopStock() {
         const stock = { skills: [], items: [], special: [] };
 
+        // 難易度設定を取得
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const priceMultiplier = diffConfig ? diffConfig.shopPriceMultiplier : 1.0;
+
         // アイテム（6枠: 重複なし）
         const itemPool = [...ITEM_POOL];
         const itemStockCount = Math.min(6, itemPool.length);
-        
+
         for (let i = 0; i < itemStockCount; i++) {
             const randIdx = Math.floor(Math.random() * itemPool.length);
             const itemId = itemPool[randIdx];
@@ -3830,7 +3961,7 @@ class Game {
 
             const itemData = ITEMS[itemId];
             const basePrice = itemData.price || 100;
-            const price = Math.max(10, basePrice + Math.floor(Math.random() * 101) - 50);
+            const price = Math.max(10, Math.floor((basePrice + Math.floor(Math.random() * 101) - 50) * priceMultiplier));
             stock.items.push({ type: 'item', id: itemId, price, purchased: false });
         }
 
@@ -3844,31 +3975,31 @@ class Game {
             ...SKILL_POOLS.debuffer
         ];
         const uniqueSkills = [...new Set(allGenericSkills)]; // Unique generic skills
-        
+
         const skillStockCount = Math.min(6, uniqueSkills.length);
         for (let i = 0; i < skillStockCount; i++) {
             const randIdx = Math.floor(Math.random() * uniqueSkills.length);
             const skillId = uniqueSkills[randIdx];
             uniqueSkills.splice(randIdx, 1); // Remove from pool
 
-            // 価格: 200-400
-            const price = 200 + Math.floor(Math.random() * 201);
+            // 価格: 200-400（難易度倍率適用）
+            const price = Math.floor((200 + Math.floor(Math.random() * 201)) * priceMultiplier);
             stock.skills.push({ type: 'skill', id: skillId, price, purchased: false });
         }
 
         // スペシャル
-        // SP獲得 (+3, 150-300円)
-        const spPrice = 150 + Math.floor(Math.random() * 151);
+        // SP獲得 (+3, 150-300円、難易度倍率適用）
+        const spPrice = Math.floor((150 + Math.floor(Math.random() * 151)) * priceMultiplier);
         stock.special.push({ type: 'sp', value: 3, price: spPrice, name: '即効性SP (+3)', desc: 'SPを3獲得する', purchased: false });
 
-        // 休憩セット (HP/MP 50%回復, 200-300円)
-        const healPrice = 200 + Math.floor(Math.random() * 101);
+        // 休憩セット (HP/MP 50%回復, 200-300円、難易度倍率適用）
+        const healPrice = Math.floor((200 + Math.floor(Math.random() * 101)) * priceMultiplier);
         stock.special.push({ type: 'heal_all_mp', percent: 50, price: healPrice, name: '休憩セット', desc: '全員のHP・MP50%回復', purchased: false });
 
         // 蘇生薬（レア枠 15%）
         if (Math.random() < 0.15) {
             const revPot = ITEMS['revive_potion'];
-            const revPrice = Math.max(400, revPot.price + Math.floor(Math.random() * 101) - 50);
+            const revPrice = Math.max(400, Math.floor((revPot.price + Math.floor(Math.random() * 101) - 50) * priceMultiplier));
             stock.special.push({ type: 'item', id: 'revive_potion', price: revPrice, purchased: false });
         }
 

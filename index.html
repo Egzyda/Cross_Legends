@@ -26,6 +26,28 @@
         <div id="title-screen" class="screen active">
             <h1>Cross Legends</h1>
             <p class="subtitle">Roguelite Game</p>
+
+            <!-- 難易度選択 -->
+            <div class="difficulty-selector">
+                <label for="difficulty-select">難易度</label>
+                <select id="difficulty-select" class="difficulty-dropdown">
+                    <option value="0">0 - 基準</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10 - 極限</option>
+                </select>
+                <div id="difficulty-description" class="difficulty-description">
+                    標準的な難易度。勝率50%程度を想定。
+                </div>
+            </div>
+
             <button id="start-btn" class="btn-primary">GAME START</button>
             <button id="continue-btn" class="btn-primary" style="margin-top: 16px; display: none;">CONTINUE</button>
         </div>
