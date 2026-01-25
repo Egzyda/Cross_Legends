@@ -167,11 +167,16 @@
             </div>
         </div>
 
-        <!-- クリア画面 -->
-        <div id="clear-screen" class="screen">
-            <h2>VICTORY!</h2>
-            <p>ラスボスを倒しました！</p>
-            <button id="clear-retry-btn" class="btn-primary">タイトルに戻る</button>
+        <!-- Victory Modal (Rich Overlay) -->
+        <div id="victory-modal" class="victory-overlay hidden">
+            <div class="victory-content">
+                <h2 class="victory-title">VICTORY!</h2>
+                <div class="victory-divider"></div>
+                <p class="victory-message">おめでとうございます！<br>ラスボスを倒し、世界を救いました！</p>
+                <div class="victory-actions">
+                    <button id="victory-btn-modal" class="btn-victory">タイトルへ戻る</button>
+                </div>
+            </div>
         </div>
 
         <!-- Custom Modal -->
