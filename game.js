@@ -1523,15 +1523,17 @@ class Game {
 
         let html = '';
 
-        // バフ（同じstatは統合済みなので全て表示）
-        unit.buffs.forEach(b => {
-            const label = statLabels[b.stat] || b.stat;
+        // バフ（同じstatは統合して表示）
+        const uniqueBuffs = [...new Set(unit.buffs.map(b => b.stat))];
+        uniqueBuffs.forEach(stat => {
+            const label = statLabels[stat] || stat;
             html += `<span class="buff-item">${label}↑</span>`;
         });
 
-        // デバフ
-        unit.debuffs.forEach(d => {
-            const label = statLabels[d.stat] || d.stat;
+        // デバフ（同じstatは統合して表示）
+        const uniqueDebuffs = [...new Set(unit.debuffs.map(d => d.stat))];
+        uniqueDebuffs.forEach(stat => {
+            const label = statLabels[stat] || stat;
             html += `<span class="debuff-item">${label}↓</span>`;
         });
 
@@ -2537,13 +2539,8 @@ class Game {
                 const buffTargets = effect.type === 'self_buff' ? [actor] : targets;
                 await Promise.all(buffTargets.map(async (t) => {
                     await this.showEffectIcon(t, skill, 'buff');
-                    const existing = t.buffs.find(b => b.stat === effect.stat);
-                    if (existing) {
-                        existing.duration = Math.max(existing.duration, effect.duration);
-                        if (effect.value > existing.value) existing.value = effect.value;
-                    } else {
-                        t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
-                    }
+                    // 重複許可：常に新規追加
+                    t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                 }));
                 this.renderBattle(); // UI同期（全対象完了後）
                 break;
@@ -2552,13 +2549,8 @@ class Game {
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
                 await Promise.all(debuffTargets.map(async (t) => {
                     await this.showEffectIcon(t, skill, 'debuff');
-                    const existing = t.debuffs.find(d => d.stat === effect.stat);
-                    if (existing) {
-                        existing.duration = Math.max(existing.duration, effect.duration);
-                        if (Math.abs(effect.value) > Math.abs(existing.value)) existing.value = effect.value;
-                    } else {
-                        t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
-                    }
+                    // 重複許可：常に新規追加
+                    t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
                 }));
                 this.renderBattle(); // UI同期（全対象完了後）
                 break;
@@ -2703,13 +2695,8 @@ class Game {
                 case 'debuff':
                     if (item.effect.effects) {
                         item.effect.effects.forEach(eff => {
-                            const existing = target.debuffs.find(d => d.stat === eff.stat);
-                            if (existing) {
-                                existing.duration = Math.max(existing.duration, eff.duration);
-                                if (Math.abs(eff.value) > Math.abs(existing.value)) existing.value = eff.value;
-                            } else {
-                                target.debuffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
-                            }
+                            const existing = null; // デバフも重複許可につき既存チェック無効化
+                            target.debuffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
                         });
                         this.addLog(`${target.displayName}の能力が低下した！`);
                     }
@@ -2720,13 +2707,8 @@ class Game {
                             if (eff.stat === 'critBoost') {
                                 target.statusEffects.push({ type: 'critBoost', value: eff.value, duration: eff.duration });
                             } else {
-                                const existing = target.buffs.find(b => b.stat === eff.stat);
-                                if (existing) {
-                                    existing.duration = Math.max(existing.duration, eff.duration);
-                                    if (eff.value > existing.value) existing.value = eff.value;
-                                } else {
-                                    target.buffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
-                                }
+                                // 重複許可：常に新規追加
+                                target.buffs.push({ stat: eff.stat, value: eff.value, duration: eff.duration });
                             }
                         });
                         this.addLog(`${target.displayName}のステータスが強化された！`);

@@ -402,7 +402,7 @@ const ENEMIES = {
             effects: [
                 { type: 'mp_drain', value: 0.1 }
             ],
-            description: '単体に魔法攻撃（威力160%）+ MP吸収10%'
+            description: '単体に魔法攻撃（威力160%）+ MP吸収10'
         },
         image: { full: 'img/enemy/metoroid.png' },
         rank: 'normal'
