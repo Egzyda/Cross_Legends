@@ -1499,7 +1499,7 @@ class Game {
         this.startCommandPhase();
     }
 
-    // 敵生成（難易度対応）
+    // 敵生成（難易度対応 + マップ進行倍率対応）
     createEnemy(enemyId, multiplier, isElite = false) {
         const template = ENEMIES[enemyId];
         const stats = {};
@@ -1510,19 +1510,27 @@ class Game {
         const hpMult = diffConfig ? diffConfig.hpMultiplier : 1.0;
         const atkMult = diffConfig ? diffConfig.attackMultiplier : 1.0;
 
+        // マップ進行倍率（multiplier）: 序盤0.9, 中盤1.1, エリート1.25, ボス1.4
+        const mapMultiplier = multiplier || 1.0;
+
         Object.keys(template.baseStats).forEach(stat => {
             let value = template.baseStats[stat];
 
             // ステータスごとに倍率を適用
             if (stat === 'hp') {
-                value = Math.floor(value * hpMult);
+                // HP: 難易度倍率 × マップ進行倍率
+                value = Math.floor(value * hpMult * mapMultiplier);
             } else if (stat === 'physicalAttack' || stat === 'magicAttack') {
-                value = Math.floor(value * atkMult);
+                // 攻撃: 難易度倍率 × マップ進行倍率
+                value = Math.floor(value * atkMult * mapMultiplier);
+            } else if (stat === 'physicalDefense' || stat === 'magicDefense') {
+                // 防御: マップ進行倍率のみ（難易度でインフレしすぎないよう）
+                value = Math.floor(value * mapMultiplier);
             } else if (stat === 'speed') {
-                // 速度は据え置き
+                // 速度は据え置き（ゲームテンポ維持）
                 value = value;
             } else {
-                // 防御・MP・luckは据え置き
+                // MP・luckは据え置き
                 value = value;
             }
 
