@@ -632,7 +632,6 @@ class Game {
         charData.buffs = [];
         charData.debuffs = [];
         charData.statusEffects = [];
-        charData.statBoosts = {};
         charData.skills = [];
         this.state.party.push(charData);
 
@@ -2977,10 +2976,11 @@ class Game {
                     }
                     break;
                 case 'status_cure':
-                    // 全ての状態異常を解除
-                    if (target.statusEffects.length > 0) {
-                        target.statusEffects = []; // 空にする（バフデバフは別配列なので維持される）
-                        // 厳密には buff/debuff ではなく statusEffects (毒、麻痺、スタン等) のみ
+                    // 悪い状態異常のみを解除（有益なステータスは維持）
+                    const badStatuses = ['poison', 'paralysis', 'silence', 'stun', 'burn'];
+                    const beforeCount = target.statusEffects.length;
+                    target.statusEffects = target.statusEffects.filter(e => !badStatuses.includes(e.type));
+                    if (target.statusEffects.length < beforeCount) {
                         this.addLog(`${target.displayName}の状態異常が全て回復した！`);
                         this.showDamagePopup(target, '全快', 'heal');
                     } else {
@@ -3015,7 +3015,9 @@ class Game {
         }
 
         // 防御力100につき被ダメージを約50%軽減する計算式
-        let damage = baseDamage / (1 + (defense / 100));
+        // 防御力の実効値が負になりすぎないようガード（最大ダメージ2倍）
+        const effectiveDefense = Math.max(-50, defense);
+        let damage = baseDamage / (1 + (effectiveDefense / 100));
 
         // 乱数
         damage *= 0.9 + Math.random() * 0.2;
@@ -3890,9 +3892,12 @@ class Game {
                         const pool = SKILL_POOLS[char.type] || SKILL_POOLS.physical_attacker;
                         const newSkillId = pool[Math.floor(Math.random() * pool.length)];
                         const skillData = SKILLS[newSkillId];
-                        if (skillData && !char.skills.some(s => s.id === newSkillId)) {
+                        // スキル上限チェック（固有スキル含めて4つ = skills配列は最大3）
+                        if (skillData && !char.skills.some(s => s.id === newSkillId) && char.skills.length < 3) {
                             char.skills.push({ id: skillData.id, displayName: skillData.name });
                             message = `${char.displayName}は${skillData.name}を習得した！`;
+                        } else if (char.skills.length >= 3) {
+                            message = 'スキル枠がいっぱいで習得できなかった...';
                         } else {
                             message = '新たな力は得られなかった...';
                         }
@@ -4170,8 +4175,8 @@ class Game {
                     return;
                 }
 
-                // スキルスロットがいっぱいの場合 (仮に6個制限)
-                if (targetChar.skills.length >= 6) {
+                // スキルスロットがいっぱいの場合（固有スキル含めて4つ = skills配列は最大3）
+                if (targetChar.skills.length >= 3) {
                     this.showSkillSwapModal(targetChar, item.id, (swapped) => {
                         if (swapped) {
                             this.finalizePurchase(item, el, `${targetChar.displayName}は新スキルを習得した`);
