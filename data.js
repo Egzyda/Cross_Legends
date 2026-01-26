@@ -119,7 +119,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 3 }
         ],
-        description: '3T挑発状態、自分の物防/魔防+20%（先制）'
+        description: '挑発＋物防・魔防+20% (3T)（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -967,7 +967,7 @@ const ITEMS = {
         id: 'status_recovery_potion',
         name: '状態異常回復薬',
         description: '味方1人の全ての状態異常を回復',
-        basePrice: 150,
+        price: 150,
         type: 'consumable',
         target: 'single_ally',
         usableOnMap: true,

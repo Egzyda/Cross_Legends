@@ -22,7 +22,9 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'taunt',
             displayName: '星屑クルージング',
-            basePower: 0,
+            type: 'buff',
+            target: 'self',
+            power: 0,
             mpCost: 40,
             priority: 'first',
             effects: [
@@ -30,7 +32,7 @@ const CHARACTERS = {
                 { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 3 },
                 { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 3 }
             ],
-            description: '自分に挑発＋物防・魔防+25% (3T)（先制）',
+            description: '挑発＋物防・魔防+25% (3T)（先制）',
         },
         image: {
             full: 'img/keke_full.png',
@@ -57,7 +59,9 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'ultra_attack',
             displayName: 'スカイパンチ',
-            basePower: 220,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            power: 220,
             mpCost: 60,
             effects: [],
             description: '単体に強力な物理攻撃（威力220%）',
@@ -87,6 +91,8 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'heal',
             displayName: 'クレイジー・D',
+            type: 'heal',
+            target: 'single_ally',
             healPercent: 50,
             mpCost: 35,
             description: '単体HP 50%回復',
@@ -116,10 +122,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'daten_bind',
             displayName: '堕天龍鳳凰縛',
-            basePower: 0,
-            mpCost: 25,
             type: 'debuff',
             target: 'single_enemy',
+            power: 0,
+            mpCost: 25,
             effects: [
                 { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
@@ -149,10 +155,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'aura_sphere',
             displayName: 'はどうだん',
-            basePower: 170,
-            mpCost: 30,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 170,
+            mpCost: 30,
             effects: [],
             description: '単体に魔法攻撃（威力170%）',
         },
@@ -181,10 +187,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'scarlet_storm',
             displayName: 'せつ菜⭐︎スカーレットストーム',
-            basePower: 90,
-            mpCost: 50,
-            target: 'all_enemies',
             type: 'magic_attack',
+            target: 'all_enemies',
+            power: 90,
+            mpCost: 50,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
             ],
@@ -313,10 +319,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'ice_wall',
             displayName: '穿天氷壁',
-            basePower: 120,
-            mpCost: 50,
             type: 'magic_attack',
             target: 'all_enemies',
+            power: 120,
+            mpCost: 50,
             effects: [],
             description: '全体に魔法攻撃（威力120%）',
         },
@@ -345,10 +351,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'raikiri',
             displayName: '雷切',
-            basePower: 140,
-            mpCost: 35,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 140,
+            mpCost: 35,
             critBonus: 40,
             effects: [],
             description: '単体物理攻撃（威力140%＋クリティカル率40%）',
@@ -444,10 +450,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'muryokushou',
             displayName: '無量空処',
-            basePower: 220,
-            mpCost: 60,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 220,
+            mpCost: 60,
             effects: [],
             description: '単体に強力な魔法攻撃（威力220%）',
         },
@@ -476,10 +482,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'divine_departure',
             displayName: '神避',
-            basePower: 120,
-            mpCost: 50,
             type: 'physical_attack',
             target: 'all_enemies',
+            power: 120,
+            mpCost: 50,
             effects: [],
             description: '全体に物理攻撃（威力120%）',
         },
@@ -608,10 +614,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'shiny_tornado',
             displayName: 'シャイニートルネード',
-            basePower: 120,
-            mpCost: 30,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 120,
+            mpCost: 30,
             effects: [
                 { type: 'taunt', duration: 3 }
             ],
@@ -642,10 +648,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'star_platinum',
             displayName: 'スタープラチナ',
-            basePower: 22,
-            mpCost: 60,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 22,
+            mpCost: 60,
             hits: 10,
             effects: [],
             description: '単体物理攻撃（10回連続攻撃、威力22%）'
@@ -675,10 +681,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'burst_stream',
             displayName: '滅びの爆裂疾風弾',
-            basePower: 140,
-            mpCost: 50,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 140,
+            mpCost: 50,
             critBonus: 40,
             effects: [],
             description: '単体魔法攻撃（威力140%＋クリティカル率40%）'
@@ -773,10 +779,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'judrajim',
             displayName: '破滅の雷を放つ魔法 - ジュドラジルム',
-            basePower: 140,
-            mpCost: 35,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 140,
+            mpCost: 35,
             effects: [
                 { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
@@ -807,10 +813,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'teppen_strike',
             displayName: 'てっぺんの一撃',
-            basePower: 220,
-            mpCost: 60,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 220,
+            mpCost: 60,
             effects: [],
             description: '単体に強力な物理攻撃（威力220%）'
         },
@@ -873,10 +879,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'dark_slash',
             displayName: '闇纏・次元斬り',
-            basePower: 150,
-            mpCost: 30,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 150,
+            mpCost: 30,
             effects: [
                 { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 3 },
                 { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 3 }
@@ -908,10 +914,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'mentan_ken',
             displayName: 'ﾒﾝﾀﾝﾋﾟﾝﾄﾞﾗﾄﾞﾗﾄﾞﾗｺﾞﾝｼｮｳﾘｭｳｹﾝ',
-            basePower: 150,
-            mpCost: 30,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 150,
+            mpCost: 30,
             effects: [
                 { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
                 { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 3 }
@@ -977,10 +983,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'rasengan',
             displayName: '螺旋丸',
-            basePower: 220,
-            mpCost: 60,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 220,
+            mpCost: 60,
             effects: [],
             description: '単体に強力な魔法攻撃（威力220%）'
         },
@@ -1009,10 +1015,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'flame_alchemy',
             displayName: '焔の錬金術',
-            basePower: 200,
-            mpCost: 60,
             type: 'magic_attack',
             target: 'single_enemy',
+            power: 200,
+            mpCost: 60,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
             ],
@@ -1043,10 +1049,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'electric_tower',
             displayName: 'エレクトリック・タワー',
-            basePower: 90,
-            mpCost: 50,
             type: 'magic_attack',
             target: 'all_enemies',
+            power: 90,
+            mpCost: 50,
             effects: [
                 { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
@@ -1205,10 +1211,10 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'shadow_possession',
             displayName: '影真似の術',
-            basePower: 140,
-            mpCost: 30,
             type: 'physical_attack',
             target: 'single_enemy',
+            power: 140,
+            mpCost: 30,
             effects: [
                 { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
             ],

@@ -23,7 +23,7 @@ const ENEMIES = {
             displayName: '体当たり',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 30,
             description: '単体に物理攻撃（威力160%）'
         },
@@ -46,7 +46,7 @@ const ENEMIES = {
             displayName: '頭突き',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 30,
             description: '単体に物理攻撃（威力160%）'
         },
@@ -69,7 +69,7 @@ const ENEMIES = {
             displayName: 'どくどく',
             type: 'debuff',
             target: 'single_enemy',
-            basePower: 0,
+            power: 0,
             mpCost: 25,
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }
@@ -95,7 +95,7 @@ const ENEMIES = {
             displayName: 'ビームショット',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 30,
             description: '単体に魔法攻撃（威力160%）'
         },
@@ -118,7 +118,7 @@ const ENEMIES = {
             displayName: '魔法の杖',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 30,
             description: '単体に魔法攻撃（威力160%）'
         },
@@ -145,7 +145,7 @@ const ENEMIES = {
             displayName: 'どくどくのキバ',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 140,
+            power: 140,
             mpCost: 35,
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }
@@ -171,7 +171,7 @@ const ENEMIES = {
             displayName: 'バラバラアタック',
             type: 'physical_attack',
             target: 'all_enemies',
-            basePower: 70,
+            power: 70,
             mpCost: 55,
             description: '全体に物理攻撃（威力70%）'
         },
@@ -194,7 +194,7 @@ const ENEMIES = {
             displayName: 'カオスランス',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 48,
             effects: [
                 { type: 'debuff', stat: 'speed', value: -0.25, duration: 3 }
@@ -220,7 +220,7 @@ const ENEMIES = {
             displayName: 'タックル',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 150,
+            power: 150,
             mpCost: 35,
             description: '単体に物理攻撃（威力150%）'
         },
@@ -247,7 +247,7 @@ const ENEMIES = {
             displayName: 'バイキンパンチ',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 140,
+            power: 140,
             mpCost: 65,
             effects: [],
             description: '単体に強力な物理攻撃（威力140%）'
@@ -271,7 +271,7 @@ const ENEMIES = {
             displayName: '毒液噴射',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 55,
+            power: 55,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'poison', chance: 30, duration: 3 }
@@ -297,7 +297,7 @@ const ENEMIES = {
             displayName: '呪霊操術',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 150,
+            power: 150,
             mpCost: 55,
             description: '単体に強力な魔法攻撃（威力150%）'
         },
@@ -320,7 +320,7 @@ const ENEMIES = {
             displayName: 'ストーンエッジ',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 140,
+            power: 140,
             mpCost: 65,
             critBonus: 20,
             description: '単体に強力な物理攻撃（威力140%、クリ率+20%）'
@@ -344,7 +344,7 @@ const ENEMIES = {
             displayName: '草薙の剣',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 200,
+            power: 200,
             mpCost: 58,
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
@@ -374,7 +374,7 @@ const ENEMIES = {
             displayName: '突進',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 165,
+            power: 165,
             mpCost: 32,
             description: '単体に物理攻撃（威力165%）'
         },
@@ -397,7 +397,7 @@ const ENEMIES = {
             displayName: 'エネルギードレイン',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 35,
             effects: [
                 { type: 'mp_drain', value: 0.1 }
@@ -423,7 +423,7 @@ const ENEMIES = {
             displayName: '絞殺',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 100,
+            power: 100,
             mpCost: 35,
             effects: [
                 { type: 'status', status: 'stun', chance: 30, duration: 1 }
@@ -441,21 +441,20 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 120, mp: 60, physicalAttack: 85, magicAttack: 30,
-            physicalDefense: 85, magicDefense: 80, speed: 50, luck: 45
+            physicalDefense: 85, magicDefense: 80, speed: 1, luck: 45
         },
         skills: [],
         uniqueSkill: {
-            id: 'countdown',
-            displayName: 'カウントダウン',
-            type: 'special',
+            id: 'self_destruct',
+            displayName: '自爆',
+            type: 'physical_attack',
             target: 'all_enemies',
-            basePower: 280,
+            power: 200,
             mpCost: 0,
             effects: [
-                { type: 'countdown', turns: 2, action: 'explode' },
                 { type: 'self_ko' }
             ],
-            description: '2ターン後に全体に大ダメージ（威力280%）、自分は戦闘不能'
+            description: '全体に物理攻撃（威力200%）、自分は戦闘不能'
         },
         image: { full: 'img/enemy/bombhei.png' },
         rank: 'normal'
@@ -476,7 +475,7 @@ const ENEMIES = {
             displayName: 'オーバードライブ',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 120,
+            power: 120,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'stun', chance: 20, duration: 1 }
@@ -506,7 +505,7 @@ const ENEMIES = {
             displayName: 'クラウンブラスター',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 55,
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
@@ -532,7 +531,7 @@ const ENEMIES = {
             displayName: 'マッハトルネイド',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 70,
+            power: 70,
             hits: 2,
             mpCost: 45,
             description: '単体に2回攻撃（威力70%×2）'
@@ -556,7 +555,7 @@ const ENEMIES = {
             displayName: '伸縮自在の愛（バンジーガム）',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 140,
+            power: 140,
             mpCost: 50,
             effects: [
                 { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
@@ -582,7 +581,7 @@ const ENEMIES = {
             displayName: 'ダークネスウィング',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 130,
+            power: 130,
             mpCost: 65,
             effects: [],
             description: '単体に強力な物理攻撃（威力130%）'
@@ -610,7 +609,7 @@ const ENEMIES = {
             displayName: 'デスボール',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 160,
+            power: 160,
             mpCost: 60,
             description: '単体に超強力な魔法攻撃（威力180%）'
         },
@@ -633,7 +632,7 @@ const ENEMIES = {
             displayName: 'ザ・ワールド',
             type: 'physical_attack',
             target: 'all_enemies',
-            basePower: 85,
+            power: 85,
             mpCost: 90,
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
@@ -659,7 +658,7 @@ const ENEMIES = {
             displayName: '鏡花水月',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 85,
+            power: 85,
             mpCost: 70,
             effects: [
                 { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
@@ -689,7 +688,7 @@ const ENEMIES = {
             displayName: 'フォトンゲイザー',
             type: 'magic_attack',
             target: 'single_enemy',
-            basePower: 155,
+            power: 155,
             mpCost: 65,
             description: '単体に超強力な魔法攻撃（威力170%）'
         },
@@ -712,7 +711,7 @@ const ENEMIES = {
             displayName: 'グランドスラム',
             type: 'physical_attack',
             target: 'single_enemy',
-            basePower: 140,
+            power: 140,
             mpCost: 70,
             effects: [
                 { type: 'status', status: 'stun', chance: 15, duration: 1 }
@@ -738,7 +737,7 @@ const ENEMIES = {
             displayName: '崩壊',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 85,
+            power: 85,
             mpCost: 65,
             effects: [
                 { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
@@ -765,7 +764,7 @@ const ENEMIES = {
             displayName: 'クッパブレス',
             type: 'magic_attack',
             target: 'all_enemies',
-            basePower: 90,
+            power: 90,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
