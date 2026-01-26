@@ -1152,7 +1152,7 @@ const CHARACTERS = {
             face: 'img/minato_face.png'
         },
         skills: [],
-        excludeSkills: [speed_boost_all]
+        excludeSkills: ['speed_boost_all']
     },
     anya: {
         id: 'anya',
@@ -1185,7 +1185,7 @@ const CHARACTERS = {
             face: 'img/anya_face.png'
         },
         skills: [],
-        excludeSkills: [luck_boost_all]
+        excludeSkills: ['luck_boost_all']
     },
     shikamaru: {
         id: 'shikamaru',
@@ -1253,6 +1253,6 @@ const CHARACTERS = {
             face: 'img/loid_face.png'
         },
         skills: [],
-        excludeSkills: [armor_break_all]
+        excludeSkills: ['armor_break_all']
     }
 };
