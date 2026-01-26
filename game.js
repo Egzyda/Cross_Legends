@@ -4882,12 +4882,23 @@ class Game {
     async showAttackEffect(actor, target, skill, damageType) {
         const skillId = skill ? skill.id : 'normal_attack';
         const isPhysical = (damageType === 'physical');
-        const unitEl = document.querySelector(this.getUnitSelector(target));
-        if (!unitEl) return;
+
+        // 自身対象のバフ技は画面中央に表示
+        const centerScreenSkills = ['doshatto', 'delorieran', 'gmax', 'big_light'];
+        let vfxParent, unitEl;
+
+        if (centerScreenSkills.includes(skillId)) {
+            vfxParent = document.getElementById('battle-screen');
+            if (!vfxParent) return;
+        } else {
+            unitEl = document.querySelector(this.getUnitSelector(target));
+            if (!unitEl) return;
+            vfxParent = unitEl;
+        }
 
         const vfx = document.createElement('div');
-        vfx.className = 'vfx-container';
-        unitEl.appendChild(vfx);
+        vfx.className = centerScreenSkills.includes(skillId) ? 'vfx-container-fullscreen' : 'vfx-container';
+        vfxParent.appendChild(vfx);
 
         // --- プロレベル演出ロジック ---
 
@@ -4959,6 +4970,25 @@ class Game {
             el.appendChild(lightning);
             vfx.appendChild(el);
         } else if (skillId === 'aura_sphere') { // ルカリオ：はどうだん
+            // チャージエフェクト（actor側）
+            const actorEl = document.querySelector(this.getUnitSelector(actor));
+            if (actorEl) {
+                const chargeVfx = document.createElement('div');
+                chargeVfx.className = 'vfx-container';
+                actorEl.appendChild(chargeVfx);
+                const chargeCore = document.createElement('div');
+                chargeCore.className = 'vfx-aura-charge-actor';
+                chargeVfx.appendChild(chargeCore);
+                // チャージリング
+                for (let i = 0; i < 2; i++) {
+                    const ring = document.createElement('div');
+                    ring.className = 'vfx-aura-charge-ring';
+                    ring.style.setProperty('--delay', `${i * 0.1}s`);
+                    chargeVfx.appendChild(ring);
+                }
+                setTimeout(() => chargeVfx.remove(), 700);
+            }
+
             const el = document.createElement('div'); el.className = 'vfx-aura-sphere';
             // 波動球本体
             const sphere = document.createElement('div'); sphere.className = 'vfx-aura-sphere-core';
@@ -5353,13 +5383,28 @@ class Game {
                 setTimeout(() => screen.classList.remove('void-invert'), 300);
             }, 800);
 
+            // チャージエフェクト（actor側）
+            const actorEl = document.querySelector(this.getUnitSelector(actor));
+            if (actorEl) {
+                const chargeVfx = document.createElement('div');
+                chargeVfx.className = 'vfx-container';
+                actorEl.appendChild(chargeVfx);
+                const charge = document.createElement('div');
+                charge.className = 'vfx-burst-charge';
+                chargeVfx.appendChild(charge);
+                setTimeout(() => chargeVfx.remove(), 1000);
+            }
+
+            // ビーム軌跡（発射元から対象へ）
+            const beamLine = document.createElement('div');
+            beamLine.className = 'vfx-burst-beam-line';
+            screen.appendChild(beamLine);
+            setTimeout(() => beamLine.remove(), 1300);
+
             const el = document.createElement('div'); el.className = 'vfx-burst-stream';
-            // エネルギー球の収束
-            const charge = document.createElement('div'); charge.className = 'vfx-burst-charge';
-            el.appendChild(charge);
-            // 螺旋状のビーム本体
-            const beam = document.createElement('div'); beam.className = 'vfx-burst-beam';
-            el.appendChild(beam);
+            // 爆発エフェクト
+            const explosion = document.createElement('div'); explosion.className = 'vfx-burst-explosion';
+            el.appendChild(explosion);
             // 回転する光粒子（20個）
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
