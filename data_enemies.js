@@ -276,7 +276,7 @@ const ENEMIES = {
             effects: [
                 { type: 'status', status: 'poison', chance: 30, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力70%）+ 毒付与30%（3T）'
+            description: '全体に魔法攻撃（威力55%）+ 毒付与30%（3T）'
         },
         image: { full: 'img/enemy/giginebura.png' },
         rank: 'boss'
@@ -349,7 +349,7 @@ const ENEMIES = {
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
             ],
-            description: '単体に強力な魔法攻撃（威力220%）+ 沈黙状態にする'
+            description: '単体に強力な魔法攻撃（威力200%）+ 沈黙状態にする'
         },
         image: { full: 'img/enemy/orochimaru.png' },
         rank: 'boss'
@@ -611,7 +611,7 @@ const ENEMIES = {
             target: 'single_enemy',
             power: 160,
             mpCost: 60,
-            description: '単体に超強力な魔法攻撃（威力180%）'
+            description: '単体に超強力な魔法攻撃（威力160%）'
         },
         image: { full: 'img/enemy/freeza.png' },
         rank: 'last_boss'
@@ -637,7 +637,7 @@ const ENEMIES = {
             effects: [
                 { type: 'status', status: 'stun', chance: 100, duration: 1 }
             ],
-            description: '全体に強力な物理攻撃（威力90%）+ スタン状態にする'
+            description: '全体に強力な物理攻撃（威力85%）+ スタン状態にする'
         },
         image: { full: 'img/enemy/dio.png' },
         rank: 'last_boss'
@@ -667,7 +667,7 @@ const ENEMIES = {
                 { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 3 },
                 { type: 'debuff', stat: 'speed', value: -0.15, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力90%）+ 全ステータス-15% 3ターン'
+            description: '全体に魔法攻撃（威力85%）+ 全ステータス-15% 3ターン'
         },
         image: { full: 'img/enemy/aizen.png' },
         rank: 'last_boss'
@@ -690,7 +690,7 @@ const ENEMIES = {
             target: 'single_enemy',
             power: 155,
             mpCost: 65,
-            description: '単体に超強力な魔法攻撃（威力170%）'
+            description: '単体に超強力な魔法攻撃（威力155%）'
         },
         image: { full: 'img/enemy/ultra_necrozma.png' },
         rank: 'last_boss'
@@ -716,7 +716,7 @@ const ENEMIES = {
             effects: [
                 { type: 'status', status: 'stun', chance: 15, duration: 1 }
             ],
-            description: '単体に超強力な物理攻撃（威力150%）+ スタン15%'
+            description: '単体に超強力な物理攻撃（威力140%）+ スタン15%'
         },
         image: { full: 'img/enemy/masterhand.png' },
         rank: 'last_boss'
@@ -743,7 +743,7 @@ const ENEMIES = {
                 { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
                 { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力90%）+ 防御-20% 3ターン'
+            description: '全体に魔法攻撃（威力85%）+ 防御-20% 3ターン'
         },
         image: { full: 'img/enemy/tomura.png' },
         rank: 'last_boss'
@@ -769,7 +769,7 @@ const ENEMIES = {
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力100%）+ 火傷状態にする'
+            description: '全体に魔法攻撃（威力90%）+ 火傷状態にする'
         },
         image: { full: 'img/enemy/koopa.png' },
         rank: 'last_boss'

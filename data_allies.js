@@ -416,7 +416,7 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'solitude_rain',
             displayName: 'Solitude Rain',
-            basePower: 0,
+            power: 0,
             mpCost: 25,
             type: 'debuff',
             target: 'single_enemy',
@@ -845,7 +845,7 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'sand_coffin',
             displayName: '砂縛柩',
-            basePower: 0,
+            power: 0,
             mpCost: 25,
             type: 'debuff',
             target: 'single_enemy',
@@ -949,7 +949,7 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'assassination',
             displayName: '暗殺術',
-            basePower: 65,
+            power: 65,
             mpCost: 40,
             type: 'physical_attack',
             target: 'single_enemy',
