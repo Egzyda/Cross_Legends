@@ -5426,16 +5426,28 @@ class Game {
             // 紫の魔法陣
             const circle = document.createElement('div'); circle.className = 'vfx-thunder-circle';
             el.appendChild(circle);
-            // 巨大な紫雷（SVGで3本）
+            // 巨大な紫雷（SVGで3本、太く美しく）
             for (let i = 0; i < 3; i++) {
                 const bolt = document.createElement('div');
                 bolt.className = 'vfx-thunder-bolt';
                 bolt.innerHTML = `
-                    <svg width="60" height="250" viewBox="0 0 60 250" style="overflow:visible;">
-                        <polygon points="25,0 35,0 20,80 40,80 15,160 28,160 10,250 32,120 20,120 38,40 28,40" class="thunder-shape" />
+                    <svg width="80" height="200" viewBox="0 0 80 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="thunderGradient${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#a855f7;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#d946ef;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <polygon points="35,0 45,0 28,60 52,60 20,120 36,120 10,200 45,100 30,100 50,40 38,40"
+                                 fill="url(#thunderGradient${i})"
+                                 stroke="#fff" stroke-width="1"
+                                 class="thunder-shape" />
+                        <polygon points="32,70 35,70 18,100" fill="url(#thunderGradient${i})" stroke="#fff" stroke-width="0.5" opacity="0.8" />
+                        <polygon points="48,50 51,50 62,75" fill="url(#thunderGradient${i})" stroke="#fff" stroke-width="0.5" opacity="0.8" />
                     </svg>
                 `;
-                bolt.style.setProperty('--x', `${(i - 1) * 50}px`);
+                bolt.style.setProperty('--x', `${(i - 1) * 60}px`);
                 bolt.style.setProperty('--delay', `${0.5 + i * 0.1}s`);
                 el.appendChild(bolt);
             }
