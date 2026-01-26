@@ -2774,6 +2774,20 @@ h3 {
     /* 合成モードで光を強調 */
 }
 
+.vfx-container-fullscreen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* 行動中のユニットの強調アニメーション */
 .battle-unit.acting {
     border-color: #ffd700 !important;
@@ -3350,9 +3364,13 @@ h3 {
         transform: translate(-50%, -50%) rotate(var(--angle)) scale(1.1);
         opacity: 1;
     }
-    100% {
+    85% {
         transform: translate(-50%, -50%) rotate(var(--angle)) scale(1);
-        opacity: 0.9;
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(0.7);
+        opacity: 0;
     }
 }
 
@@ -3372,6 +3390,46 @@ h3 {
 }
 
 /* はどうだん（ルカリオ）：強化版 */
+.vfx-aura-charge-actor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #fff 0%, #4facfe 40%, #00f2fe 70%, transparent 90%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 25px #4facfe) drop-shadow(0 0 40px #00f2fe);
+    animation: aura-actor-charge 0.5s ease-out forwards;
+}
+
+@keyframes aura-actor-charge {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+}
+
+.vfx-aura-charge-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border: 3px solid rgba(79, 172, 254, 0.7);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 15px #4facfe);
+    animation: aura-charge-ring-pulse 0.6s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes aura-charge-ring-pulse {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
 .vfx-aura-sphere {
     position: absolute;
     width: 250px;
@@ -6219,13 +6277,40 @@ h3 {
     100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-.vfx-burst-beam {
+.vfx-burst-beam-line {
+    position: fixed;
+    top: 50%;
+    left: 25%;
+    width: 50%;
+    height: 80px;
+    background: linear-gradient(to right,
+        rgba(59, 130, 246, 0.9) 0%,
+        rgba(147, 197, 253, 1) 20%,
+        rgba(255, 255, 255, 1) 50%,
+        rgba(147, 197, 253, 1) 80%,
+        rgba(59, 130, 246, 0.9) 100%);
+    filter: drop-shadow(0 0 40px #3b82f6) drop-shadow(0 0 60px #93c5fd) drop-shadow(0 0 80px #fff);
+    box-shadow: 0 0 50px #3b82f6, 0 0 80px #93c5fd, inset 0 0 30px rgba(255, 255, 255, 0.9);
+    animation: burst-beam-shoot 0.4s 0.5s ease-out forwards;
+    opacity: 0;
+    z-index: 180;
+    transform: translateY(-50%);
+}
+
+@keyframes burst-beam-shoot {
+    0% { transform: translateY(-50%) scaleX(0); opacity: 0; }
+    30% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+    70% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+    100% { transform: translateY(-50%) scaleX(0.8); opacity: 0; }
+}
+
+.vfx-burst-explosion {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     background: radial-gradient(circle,
         rgba(255, 255, 255, 1) 0%,
         rgba(147, 197, 253, 0.95) 20%,
@@ -6233,15 +6318,15 @@ h3 {
         rgba(30, 58, 138, 0.6) 70%,
         transparent 90%);
     border-radius: 50%;
-    filter: drop-shadow(0 0 35px #3b82f6) drop-shadow(0 0 55px #93c5fd);
-    animation: burst-beam-fire 0.4s 0.5s ease-out forwards;
+    filter: drop-shadow(0 0 40px #3b82f6) drop-shadow(0 0 60px #93c5fd);
+    animation: burst-explosion-grow 0.5s 0.8s ease-out forwards;
     opacity: 0;
 }
 
-@keyframes burst-beam-fire {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+@keyframes burst-explosion-grow {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
 }
 
 .vfx-beam-particle {
@@ -6521,9 +6606,26 @@ h3 {
 }
 
 @keyframes thunder-bolt-strike {
-    0% { transform: translate(-50%, -50%) translateX(var(--x)) scale(0.5); opacity: 0; }
-    30% { opacity: 1; }
-    100% { transform: translate(-50%, -50%) translateX(var(--x)) scale(1.2); opacity: 0.95; }
+    0% {
+        transform: translate(-50%, -150%) translateX(var(--x)) scale(0.8);
+        opacity: 0;
+    }
+    20% {
+        transform: translate(-50%, -80%) translateX(var(--x)) scale(1);
+        opacity: 1;
+    }
+    40% {
+        transform: translate(-50%, -50%) translateX(var(--x)) scale(1.2);
+        opacity: 1;
+    }
+    70% {
+        transform: translate(-50%, -50%) translateX(var(--x)) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) translateX(var(--x)) scale(1.1);
+        opacity: 0;
+    }
 }
 
 .vfx-electric-spark {
