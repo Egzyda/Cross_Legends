@@ -1032,7 +1032,7 @@ const MAP_CONFIG = {
 const DIFFICULTY_CONFIG = {
     0: {
         name: '基準',
-        description: '標準的な難易度。勝率50%程度を想定。',
+        description: '標準的な難易度',
         hpMultiplier: 1.00,
         attackMultiplier: 1.00,
         eliteBonus: 0,
@@ -1041,7 +1041,7 @@ const DIFFICULTY_CONFIG = {
     },
     1: {
         name: '難易度1',
-        description: '少し難しくなります。',
+        description: '少し難易度アップ',
         hpMultiplier: 1.05,
         attackMultiplier: 1.02,
         eliteBonus: 1,
@@ -1050,7 +1050,7 @@ const DIFFICULTY_CONFIG = {
     },
     2: {
         name: '難易度2',
-        description: 'エリートが増加します。',
+        description: 'エリート数が増加',
         hpMultiplier: 1.10,
         attackMultiplier: 1.04,
         eliteBonus: 1,
@@ -1059,7 +1059,7 @@ const DIFFICULTY_CONFIG = {
     },
     3: {
         name: '難易度3',
-        description: '回復量が減少します。',
+        description: '休憩の回復量が減少',
         hpMultiplier: 1.15,
         attackMultiplier: 1.06,
         eliteBonus: 1,
@@ -1068,7 +1068,7 @@ const DIFFICULTY_CONFIG = {
     },
     4: {
         name: '難易度4',
-        description: 'エリートがさらに増加します。',
+        description: 'エリート数がさらに増加',
         hpMultiplier: 1.20,
         attackMultiplier: 1.08,
         eliteBonus: 2,
@@ -1077,7 +1077,7 @@ const DIFFICULTY_CONFIG = {
     },
     5: {
         name: '難易度5',
-        description: '中級者向けの難易度。',
+        description: '中級者向けの難易度',
         hpMultiplier: 1.25,
         attackMultiplier: 1.10,
         eliteBonus: 2,
@@ -1086,7 +1086,7 @@ const DIFFICULTY_CONFIG = {
     },
     6: {
         name: '難易度6',
-        description: '回復がさらに減少します。',
+        description: '休憩の回復量がさらに減少',
         hpMultiplier: 1.30,
         attackMultiplier: 1.12,
         eliteBonus: 2,
@@ -1095,7 +1095,7 @@ const DIFFICULTY_CONFIG = {
     },
     7: {
         name: '難易度7',
-        description: 'エリートが大幅に増加します。',
+        description: 'エリートが大幅に増加',
         hpMultiplier: 1.35,
         attackMultiplier: 1.15,
         eliteBonus: 3,
@@ -1104,7 +1104,7 @@ const DIFFICULTY_CONFIG = {
     },
     8: {
         name: '難易度8',
-        description: '上級者向けの難易度。',
+        description: '上級者向けの難易度',
         hpMultiplier: 1.40,
         attackMultiplier: 1.18,
         eliteBonus: 3,
@@ -1113,7 +1113,7 @@ const DIFFICULTY_CONFIG = {
     },
     9: {
         name: '難易度9',
-        description: '非常に高い難易度。',
+        description: '非常に高い難易度',
         hpMultiplier: 1.45,
         attackMultiplier: 1.20,
         eliteBonus: 3,
@@ -1122,7 +1122,7 @@ const DIFFICULTY_CONFIG = {
     },
     10: {
         name: '難易度10（極限）',
-        description: '最高難易度。生き残れるか？',
+        description: '最高難易度',
         hpMultiplier: 1.50,
         attackMultiplier: 1.25,
         eliteBonus: 4,

@@ -696,24 +696,39 @@ class Game {
     // Long press listener helper
     addLongPressListener(element, callback) {
         let pressTimer;
-        let didLongPress = false;
+        let startX, startY;
 
         const startPress = (e) => {
-            didLongPress = false;
+            if (e.touches && e.touches[0]) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }
             pressTimer = setTimeout(() => {
-                didLongPress = true;
                 callback();
             }, 500);
         };
 
+        const movePress = (e) => {
+            if (!pressTimer || !e.touches || !e.touches[0]) return;
+            const dx = e.touches[0].clientX - startX;
+            const dy = e.touches[0].clientY - startY;
+            // 10px以上動いたら長押しをキャンセル
+            if (Math.sqrt(dx * dx + dy * dy) > 10) {
+                clearTimeout(pressTimer);
+                pressTimer = null;
+            }
+        };
+
         const endPress = () => {
             clearTimeout(pressTimer);
+            pressTimer = null;
         };
 
         element.addEventListener('mousedown', startPress);
         element.addEventListener('mouseup', endPress);
         element.addEventListener('mouseleave', endPress);
-        element.addEventListener('touchstart', startPress);
+        element.addEventListener('touchstart', startPress, { passive: true });
+        element.addEventListener('touchmove', movePress, { passive: true });
         element.addEventListener('touchend', endPress);
         element.addEventListener('touchcancel', endPress);
 
