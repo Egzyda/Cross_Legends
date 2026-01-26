@@ -3305,114 +3305,155 @@ h3 {
     }
 }
 
-/* 堕天拘束（エンリコ・プッチ）：鎖のエフェクト */
+/* 堕天龍鳳凰縛（津島善子）：強化版 */
 .vfx-fallen-bind {
     position: absolute;
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-dark-aura {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(139, 0, 139, 0.4) 0%, transparent 70%);
+    animation: dark-pulse 0.4s ease-out forwards;
+}
+
+@keyframes dark-pulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
 }
 
 .vfx-chain {
     position: absolute;
-    width: 100%;
-    height: 10px;
-    background: linear-gradient(90deg, transparent, #9b59b6, transparent);
-    filter: drop-shadow(0 0 12px #9b59b6);
-    animation: chain-wrap 0.6s ease-out forwards;
-}
-
-.vfx-chain:nth-child(1) {
-    top: 30%;
-    transform: rotate(0deg);
-}
-
-.vfx-chain:nth-child(2) {
     top: 50%;
-    transform: rotate(15deg);
-    animation-delay: 0.1s;
+    left: 50%;
+    width: 200px;
+    height: 8px;
+    background: linear-gradient(90deg, transparent, #9b59b6 20%, #d946ef 50%, #9b59b6 80%, transparent);
+    filter: drop-shadow(0 0 12px #9b59b6);
+    transform-origin: 0 50%;
+    transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(0);
+    animation: chain-spiral 0.5s ease-out forwards;
+    animation-delay: var(--delay);
 }
 
-.vfx-chain:nth-child(3) {
-    top: 70%;
-    transform: rotate(-15deg);
-    animation-delay: 0.2s;
+@keyframes chain-spiral {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(0); opacity: 0; }
+    30% { opacity: 1; }
+    60% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(1.2); }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(1); opacity: 0.8; }
 }
 
-@keyframes chain-wrap {
-    0% {
-        transform: scaleX(0);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    70% {
-        transform: scaleX(1.4);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scaleX(1.2);
-        opacity: 0;
-    }
+.vfx-purple-lightning {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.6) 0%, transparent 50%);
+    filter: drop-shadow(0 0 20px #a855f7);
+    animation: lightning-flash 0.3s 0.9s ease-out forwards;
+    opacity: 0;
 }
 
-/* はどうだん（ルカリオ）：波動弾 */
+@keyframes lightning-flash {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* はどうだん（ルカリオ）：強化版 */
 .vfx-aura-sphere {
     position: absolute;
-    width: 120px;
-    height: 120px;
-    background: radial-gradient(circle, #4facfe 0%, #00f2fe 30%, transparent 70%);
-    border-radius: 50%;
-    filter: drop-shadow(0 0 25px #4facfe);
-    animation: aura-sphere-anim 0.5s ease-out forwards;
+    width: 250px;
+    height: 250px;
 }
 
-.vfx-aura-sphere::before {
-    content: '';
+.vfx-aura-sphere-core {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 120%;
-    height: 120%;
     transform: translate(-50%, -50%);
-    border: 4px solid rgba(79, 172, 254, 0.5);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #fff 0%, #4facfe 30%, #00f2fe 60%, transparent 100%);
     border-radius: 50%;
-    animation: aura-ring 0.5s ease-out forwards;
+    filter: drop-shadow(0 0 30px #4facfe);
+    animation: aura-charge 0.5s ease-out forwards, aura-pulse 0.3s 0.5s ease-in-out infinite;
 }
 
-@keyframes aura-sphere-anim {
-    0% {
-        transform: scale(0.3);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(2.5);
-        opacity: 0;
-    }
+@keyframes aura-charge {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); }
 }
 
-@keyframes aura-ring {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0;
-    }
+@keyframes aura-pulse {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 30px #4facfe); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 40px #00f2fe); }
+}
 
-    30% {
-        opacity: 0.8;
-    }
+.vfx-aura-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border: 3px solid rgba(79, 172, 254, 0.6);
+    border-radius: 50%;
+    animation: aura-ring-rotate 0.8s linear infinite, aura-ring-expand 1.3s ease-out forwards;
+    animation-delay: var(--delay);
+    transform-origin: center;
+}
 
-    100% {
-        transform: translate(-50%, -50%) scale(2.5);
-        opacity: 0;
-    }
+@keyframes aura-ring-rotate {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)); }
+    100% { transform: translate(-50%, -50%) rotate(calc(var(--angle) + 360deg)); }
+}
+
+@keyframes aura-ring-expand {
+    0% { opacity: 0; }
+    20% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+.vfx-aura-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border: 2px solid rgba(79, 172, 254, 0.4);
+    border-radius: 50%;
+    animation: aura-ripple-wave 0.6s 0.7s ease-out forwards;
+}
+
+@keyframes aura-ripple-wave {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+.vfx-aura-impact {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 40px #4facfe);
+    animation: aura-impact-burst 0.3s 1s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes aura-impact-burst {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
 }
 
 /* スカーレットストーム（優木せつ菜）：多層爆発と閃光 */
@@ -3559,207 +3600,329 @@ h3 {
     }
 }
 
-/* フュージョンクラスト（セラス）：白き光柱 (強化版) */
+/* フュージョンクラスト（セラス）：蘇生強化版 */
 .vfx-fusion-crust {
     position: absolute;
-    width: 120px;
-    height: 400px;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8), transparent);
-    filter: drop-shadow(0 0 30px #fff) drop-shadow(0 0 60px #87ceeb);
-    animation: light-pillar 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    mix-blend-mode: overlay;
+    width: 300px;
+    height: 300px;
 }
 
-@keyframes light-pillar {
-    0% {
-        transform: scaleY(0);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: scaleY(1.8);
-        opacity: 0;
-    }
+.vfx-blood-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 3px solid #dc2626;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #dc2626, inset 0 0 20px rgba(220, 38, 38, 0.3);
+    animation: blood-circle-expand 0.5s ease-out forwards;
 }
 
-/* ドシャット（黒尾鉄朗）：オレンジの盾 (強化版) */
+@keyframes blood-circle-expand {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(180deg); }
+}
+
+.vfx-blood-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #ef4444, #dc2626);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #dc2626);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(100px);
+    animation: blood-converge 0.5s ease-in forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes blood-converge {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(100px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0); opacity: 0; }
+}
+
+.vfx-revival-cross {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    animation: revival-cross-appear 0.4s 0.9s ease-out forwards;
+    opacity: 0;
+}
+
+.vfx-revival-cross::before,
+.vfx-revival-cross::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(to right, transparent, #dc2626, #fff, #dc2626, transparent);
+    filter: drop-shadow(0 0 15px #fff);
+}
+
+.vfx-revival-cross::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    transform: translateY(-50%);
+}
+
+.vfx-revival-cross::after {
+    top: 0;
+    left: 50%;
+    width: 4px;
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+@keyframes revival-cross-appear {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+}
+
+.vfx-revival-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 30px #dc2626);
+    animation: revival-glow-pulse 0.5s 1.2s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes revival-glow-pulse {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 0.8; }
+    100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* ドシャット（黒尾鉄朗）：防御強化版 */
 .vfx-doshatto {
     position: absolute;
-    width: 200px;
-    height: 220px;
-    border: 8px solid #f39c12;
-    border-radius: 10px 10px 50% 50%;
-    background: linear-gradient(135deg, rgba(243, 156, 18, 0.4), rgba(255, 200, 50, 0.1));
-    box-shadow: 0 0 20px #f39c12, inset 0 0 20px #f39c12;
-    animation: shield-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    width: 250px;
+    height: 250px;
 }
 
-.vfx-doshatto::after {
-    content: '';
+.vfx-metal-wall {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 80px;
-    height: 80px;
     transform: translate(-50%, -50%);
-    border: 4px solid #fff;
-    border-radius: 50%;
-    opacity: 0.6;
+    width: 180px;
+    height: 200px;
+    background: linear-gradient(135deg, #78716c 0%, #d6d3d1 50%, #78716c 100%);
+    border: 4px solid #57534e;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(87, 83, 78, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3);
+    animation: wall-rise 0.4s ease-out forwards;
 }
 
-@keyframes shield-appear {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    70% {
-        transform: scale(1.2);
-    }
-
-    100% {
-        transform: scale(1.1);
-        opacity: 0;
-    }
+@keyframes wall-rise {
+    0% { transform: translate(-50%, 50%) scaleY(0); opacity: 0; }
+    60% { transform: translate(-50%, -50%) scaleY(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scaleY(1); }
 }
 
-/* デロリエラン（若菜四季）：水色のMP回復波 (強化版) */
+.vfx-hex-barrier {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 46px;
+    background: rgba(251, 191, 36, 0.3);
+    border: 2px solid #f59e0b;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+    filter: drop-shadow(0 0 8px #f59e0b);
+    animation: hex-appear 0.3s ease-out forwards;
+    animation-delay: calc(0.4s + var(--delay));
+    opacity: 0;
+}
+
+@keyframes hex-appear {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+}
+
+.vfx-hex-barrier:nth-child(2) { transform: translate(-50%, -50%) translateX(-50px); }
+.vfx-hex-barrier:nth-child(3) { transform: translate(-50%, -50%) translateX(50px); }
+.vfx-hex-barrier:nth-child(4) { transform: translate(-50%, -50%) translateY(-50px); }
+.vfx-hex-barrier:nth-child(5) { transform: translate(-50%, -50%) translateY(50px); }
+.vfx-hex-barrier:nth-child(6) { transform: translate(-50%, -50%) translate(-35px, -35px); }
+.vfx-hex-barrier:nth-child(7) { transform: translate(-50%, -50%) translate(35px, -35px); }
+.vfx-hex-barrier:nth-child(8) { transform: translate(-50%, -50%) translate(-35px, 35px); }
+
+.vfx-counter-aura {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 25px #ef4444);
+    animation: counter-flame 0.3s 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes counter-flame {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.3); opacity: 0.6; }
+}
+
+/* デロリエラン（若菜四季）：MP回復強化版 */
 .vfx-delorieran {
     position: absolute;
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 191, 255, 0.3) 0%, transparent 60%);
-    filter: drop-shadow(0 0 15px #00bfff);
-    animation: mp-wave 1s ease-out forwards;
+    width: 300px;
+    height: 300px;
 }
 
-.vfx-delorieran::before,
-.vfx-delorieran::after {
-    content: '';
+.vfx-mp-particle {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #a855f7, #7c3aed);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #a855f7);
+    transform: translateX(var(--x));
+    animation: mp-particle-fall 0.7s ease-in forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes mp-particle-fall {
+    0% { transform: translateX(var(--x)) translateY(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateX(calc(var(--x) * 0.3)) translateY(150px); opacity: 0; }
+}
+
+.vfx-music-note {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 24px;
+    color: #a855f7;
+    filter: drop-shadow(0 0 10px #a855f7);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(80px);
+    animation: note-dance 0.5s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes note-dance {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(80px) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(120px) translateY(-30px) scale(1.2); opacity: 0; }
+}
+
+.vfx-mp-pillar {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 4px solid rgba(0, 191, 255, 0.8);
-    border-radius: 50%;
-    box-shadow: 0 0 10px #00bfff;
-    animation: mp-ring 1s ease-out forwards;
+    width: 120px;
+    height: 300px;
+    background: linear-gradient(to right, transparent, rgba(168, 85, 247, 0.4), rgba(168, 85, 247, 0.6), rgba(168, 85, 247, 0.4), transparent);
+    filter: drop-shadow(0 0 30px #a855f7);
+    animation: mp-pillar-rise 0.4s 0.7s ease-out forwards;
+    opacity: 0;
 }
 
-.vfx-delorieran::before {
-    width: 60%;
-    height: 60%;
+@keyframes mp-pillar-rise {
+    0% { transform: translate(-50%, -50%) scaleY(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scaleY(1); opacity: 0; }
 }
 
-.vfx-delorieran::after {
-    width: 80%;
-    height: 80%;
-    animation-delay: 0.1s;
-}
-
-@keyframes mp-wave {
-    0% {
-        transform: scale(0.3);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(2.0);
-        opacity: 0;
-    }
-}
-
-@keyframes mp-ring {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: translate(-50%, -50%) scale(2.0);
-        opacity: 0;
-    }
-}
-
-/* 穿天氷壁（轟焦凍）：鋭い氷柱群 */
+/* 穿天氷壁（轟焦凍）：強化版 */
 .vfx-ice-wall {
     position: absolute;
-    width: 220px;
-    height: 160px;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-ice-growth {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 60px;
+    background: radial-gradient(ellipse at bottom, rgba(135, 206, 235, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 15px #87ceeb);
+    animation: ice-ground-growth 0.4s ease-out forwards;
+}
+
+@keyframes ice-ground-growth {
+    0% { transform: translateX(-50%) scaleX(0); opacity: 0; }
+    100% { transform: translateX(-50%) scaleX(1); opacity: 0.8; }
 }
 
 .vfx-ice-pillar {
     position: absolute;
     bottom: 0;
-    width: 40px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(135, 206, 235, 0.8) 50%, rgba(0, 191, 255, 0.6) 100%);
-    clip-path: polygon(50% 0%, 80% 20%, 100% 100%, 0% 100%, 20% 20%);
-    border-top: 2px solid rgba(255, 255, 255, 0.8);
-    filter: drop-shadow(0 0 10px #00bfff);
-    animation: ice-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    left: calc(14.28% * var(--index));
+    width: 35px;
+    height: calc(120px + var(--index) * 15px - abs(var(--index) - 3) * 20px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(186, 230, 253, 0.85) 40%, rgba(56, 189, 248, 0.7) 100%);
+    clip-path: polygon(50% 0%, 75% 15%, 90% 30%, 100% 100%, 0% 100%, 10% 30%, 25% 15%);
+    border-top: 2px solid rgba(255, 255, 255, 0.9);
+    filter: drop-shadow(0 0 12px #38bdf8);
+    animation: ice-wall-rise 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: var(--delay);
+    transform-origin: bottom;
 }
 
-.vfx-ice-pillar:nth-child(1) {
-    left: 0%;
-    height: 100px;
-    animation-delay: 0s;
+@keyframes ice-wall-rise {
+    0% { transform: scaleY(0) scaleX(0.8); opacity: 0; }
+    60% { opacity: 1; }
+    100% { transform: scaleY(1.1) scaleX(1); }
 }
 
-.vfx-ice-pillar:nth-child(2) {
-    left: 20%;
-    height: 140px;
-    animation-delay: 0.05s;
+.vfx-ice-shard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 20px;
+    background: linear-gradient(135deg, #fff 0%, #38bdf8 100%);
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    filter: drop-shadow(0 0 6px #38bdf8);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: ice-shard-burst 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
 }
 
-.vfx-ice-pillar:nth-child(3) {
-    left: 40%;
-    height: 180px;
-    animation-delay: 0.1s;
+@keyframes ice-shard-burst {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-80px); opacity: 0; }
 }
 
-.vfx-ice-pillar:nth-child(4) {
-    left: 60%;
-    height: 140px;
-    animation-delay: 0.15s;
+.vfx-ice-mist {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(186, 230, 253, 0.3) 0%, transparent 70%);
+    filter: blur(8px) drop-shadow(0 0 20px #38bdf8);
+    animation: ice-mist-spread 0.5s 0.8s ease-out forwards;
+    opacity: 0;
 }
 
-.vfx-ice-pillar:nth-child(5) {
-    left: 80%;
-    height: 100px;
-    animation-delay: 0.2s;
-}
-
-@keyframes ice-rise {
-    0% {
-        transform: scaleY(0);
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: scaleY(1.2);
-        opacity: 0;
-    }
+@keyframes ice-mist-spread {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: scale(1.5); opacity: 0; }
 }
 
 /* 雷切（はたけカカシ）：SVGによる連結雷撃（突き上げ・強化版） */
@@ -3869,55 +4032,89 @@ h3 {
 
 
 
-/* 抹消（相澤消太）：赤い瞳の光＋帯 */
+/* 抹消（相澤消太）：強化版 */
 .vfx-erasure {
     position: absolute;
-    width: 200px;
-    height: 140px;
+    width: 300px;
+    height: 300px;
 }
 
 .vfx-erasure-eye {
     position: absolute;
     top: 30%;
-    width: 40px;
-    height: 20px;
-    background: radial-gradient(ellipse, #ff0000, transparent);
+    width: 50px;
+    height: 25px;
+    background: radial-gradient(ellipse, #ff0000 0%, #dc2626 40%, transparent 70%);
     border-radius: 50%;
-    filter: drop-shadow(0 0 25px #ff0000);
-    animation: erasure-glow 0.6s ease-out forwards;
+    filter: drop-shadow(0 0 30px #ff0000);
+    animation: erasure-eye-open 0.3s ease-out forwards;
 }
 
-.vfx-erasure-eye:nth-child(1) {
-    left: 25%;
+.vfx-erasure-eye.left { left: 20%; }
+.vfx-erasure-eye.right { left: 60%; }
+
+@keyframes erasure-eye-open {
+    0% { transform: scaleY(0); opacity: 0; }
+    50% { transform: scaleY(1.2); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 1; }
 }
 
-.vfx-erasure-eye:nth-child(2) {
-    left: 55%;
+.vfx-erasure-beam {
+    position: absolute;
+    top: 30%;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(239, 68, 68, 0.3) 30%,
+        rgba(220, 38, 38, 0.5) 50%,
+        rgba(239, 68, 68, 0.3) 70%,
+        transparent 100%);
+    filter: drop-shadow(0 0 20px #dc2626);
+    animation: erasure-beam-fire 0.3s 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes erasure-beam-fire {
+    0% { opacity: 0; transform: scaleY(0); }
+    50% { opacity: 1; transform: scaleY(1); }
+    100% { opacity: 0.6; transform: scaleY(1); }
 }
 
 .vfx-erasure-band {
     position: absolute;
-    top: 70%;
+    top: calc(70% + var(--index) * 15px);
     left: 0;
     width: 100%;
-    height: 12px;
-    background: linear-gradient(90deg, transparent, #aaa, transparent);
-    animation: erasure-wrap 0.5s ease-out forwards;
+    height: 10px;
+    background: linear-gradient(90deg, transparent, #d4d4d4 20%, #a3a3a3 50%, #d4d4d4 80%, transparent);
+    filter: drop-shadow(0 0 8px #a3a3a3);
+    animation: erasure-wrap 0.3s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
 }
 
-@keyframes erasure-glow {
-    0% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
+@keyframes erasure-wrap {
+    0% { transform: scaleX(0); opacity: 0; }
+    60% { opacity: 1; }
+    100% { transform: scaleX(1); opacity: 0.8; }
+}
 
-    30% {
-        opacity: 1;
-        transform: scale(1.4);
-    }
+.vfx-grayscale-filter {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(115, 115, 115, 0.4) 0%, transparent 70%);
+    filter: grayscale(1) contrast(0.8);
+    animation: grayscale-spread 0.3s 0.9s ease-out forwards;
+    opacity: 0;
+}
 
-    70% {
-        opacity: 1;
+@keyframes grayscale-spread {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: scale(1.5); opacity: 0; }
     }
 
     100% {
@@ -3941,55 +4138,89 @@ h3 {
     }
 }
 
-/* Solitude Rain（津島善子）：紫の雨エフェクト (強化版) */
+/* Solitude Rain（桜坂しずく）：強化版 */
 .vfx-solitude-rain {
     position: absolute;
-    width: 240px;
-    height: 280px;
+    width: 300px;
+    height: 300px;
     overflow: visible;
+}
+
+.vfx-rain-cloud {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(75, 85, 99, 0.6), rgba(55, 65, 81, 0.3));
+    border-radius: 50%;
+    filter: blur(8px) drop-shadow(0 0 10px rgba(75, 85, 99, 0.4));
+    animation: cloud-appear 0.4s ease-out forwards;
+}
+
+@keyframes cloud-appear {
+    0% { transform: translateX(-50%) scaleX(0); opacity: 0; }
+    100% { transform: translateX(-50%) scaleX(1); opacity: 0.8; }
 }
 
 .vfx-raindrop {
     position: absolute;
-    top: -50px;
+    top: 20px;
+    left: calc(50% + var(--x));
     width: 3px;
-    height: 60px;
-    background: linear-gradient(to bottom, transparent, #a29bfe, #fff);
-    filter: drop-shadow(0 0 5px #a29bfe);
-    animation: rain-fall 0.5s linear infinite;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, #a855f7 40%, #d946ef);
+    filter: drop-shadow(0 0 6px #a855f7);
+    animation: poison-rain-fall var(--duration) linear forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
 }
 
-.vfx-raindrop:nth-child(1) {
-    left: 15%;
-    animation-delay: 0s;
+@keyframes poison-rain-fall {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(200px); opacity: 0.6; }
 }
 
-.vfx-raindrop:nth-child(2) {
-    left: 30%;
-    animation-delay: 0.1s;
+.vfx-poison-puddle {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 30px;
+    background: radial-gradient(ellipse, rgba(168, 85, 247, 0.5) 0%, rgba(217, 70, 239, 0.3) 50%, transparent 80%);
+    border-radius: 50%;
+    filter: blur(4px);
+    animation: puddle-spread 0.5s 0.8s ease-out forwards;
+    opacity: 0;
 }
 
-.vfx-raindrop:nth-child(3) {
-    left: 45%;
-    animation-delay: 0.2s;
+@keyframes puddle-spread {
+    0% { transform: translateX(-50%) scaleX(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translateX(-50%) scaleX(1); opacity: 0.6; }
 }
 
-.vfx-raindrop:nth-child(4) {
-    left: 60%;
-    animation-delay: 0.05s;
+.vfx-poison-mist {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 150px;
+    background: radial-gradient(ellipse at bottom, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
+    filter: blur(10px);
+    animation: mist-rise 0.5s 1.1s ease-out forwards;
+    opacity: 0;
 }
 
-.vfx-raindrop:nth-child(5) {
-    left: 75%;
-    animation-delay: 0.25s;
+@keyframes mist-rise {
+    0% { transform: translateY(30px); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: translateY(0); opacity: 0.4; }
 }
 
-.vfx-raindrop:nth-child(6) {
-    left: 90%;
-    animation-delay: 0.15s;
-}
-
-@keyframes rain-fall {
+@keyframes rain-fall-old {
     to {
         transform: translateY(300px);
         opacity: 0;
@@ -5532,4 +5763,751 @@ h3 {
         inset 0 0 30px rgba(255, 215, 0, 0.2);
     transform: translateY(-2px);
     color: #fff;
+}
+/* ========================================
+   Cグループ: 味方固有技 新規エフェクト
+   ======================================== */
+
+/* 神避（シャンクス）：覇気の斬撃 */
+.vfx-divine-departure {
+    position: absolute;
+    width: 350px;
+    height: 350px;
+}
+
+.vfx-haki-aura {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(139, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 70%);
+    filter: drop-shadow(0 0 30px rgba(139, 0, 0, 0.8));
+    animation: haki-charge 0.4s ease-out forwards;
+}
+
+@keyframes haki-charge {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { opacity: 0.9; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.vfx-haki-slash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 6px;
+    background: linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.8) 10%, rgba(220, 38, 38, 1) 50%, rgba(139, 0, 0, 0.8) 90%, transparent);
+    filter: drop-shadow(0 0 15px #dc2626);
+    transform-origin: center;
+    animation: haki-slash-appear 0.3s 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.vfx-haki-slash.slash1 {
+    transform: translate(-50%, -50%) rotate(-30deg);
+}
+
+.vfx-haki-slash.slash2 {
+    transform: translate(-50%, -50%) rotate(30deg);
+    animation-delay: 0.45s;
+}
+
+@keyframes haki-slash-appear {
+    0% { transform: translate(-50%, -50%) rotate(var(--base-rotation, 0deg)) scaleX(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--base-rotation, 0deg)) scaleX(1.2); opacity: 0.8; }
+}
+
+.vfx-haki-bolt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, #fbbf24, #fff, #fbbf24, transparent);
+    filter: drop-shadow(0 0 10px #fbbf24);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: haki-bolt-flash 0.2s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes haki-bolt-flash {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1); opacity: 0; }
+}
+
+.vfx-haki-shockwave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 3px solid rgba(220, 38, 38, 0.6);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 20px #dc2626);
+    animation: haki-shockwave-expand 0.5s 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes haki-shockwave-expand {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    30% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+/* キョダイマックス（カメックス）：巨大化 */
+.vfx-gmax {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+}
+
+.vfx-gmax-crack {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #dc2626 30%, #ef4444 50%, #dc2626 70%, transparent);
+    filter: drop-shadow(0 0 10px #dc2626);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: gmax-crack-split 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes gmax-crack-split {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleX(1); opacity: 0.8; }
+}
+
+.vfx-gmax-shadow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 70%);
+    filter: blur(10px);
+    animation: gmax-shadow-grow 0.5s 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes gmax-shadow-grow {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0.6; }
+}
+
+.vfx-gmax-wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 4px solid rgba(239, 68, 68, 0.6);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 25px #ef4444);
+    animation: gmax-wave-expand 0.6s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes gmax-wave-expand {
+    0% { transform: translate(-50%, -50%) scale(calc(0.5 * var(--scale))); opacity: 0; }
+    30% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(calc(2 * var(--scale))); opacity: 0; }
+}
+
+.vfx-gmax-lightning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 100px;
+    background: linear-gradient(to bottom, #fbbf24, #fff, #fbbf24);
+    filter: drop-shadow(0 0 12px #fbbf24);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: gmax-lightning-strike 0.2s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes gmax-lightning-strike {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1); opacity: 0; }
+}
+
+/* こいかぜ（高垣楓）：優しい風の回復 */
+.vfx-koikaze {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-wind-wave {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: var(--height);
+    background: linear-gradient(90deg, transparent, rgba(134, 239, 172, 0.4), transparent);
+    filter: blur(2px) drop-shadow(0 0 10px #86efac);
+    transform: translateY(-50%);
+    animation: wind-flow 0.6s ease-in-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes wind-flow {
+    0% { transform: translateY(-50%) translateX(-100%); opacity: 0; }
+    50% { opacity: 0.7; }
+    100% { transform: translateY(-50%) translateX(100%); opacity: 0; }
+}
+
+.vfx-sakura-petal {
+    position: absolute;
+    top: 30%;
+    left: calc(50% + var(--x));
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(ellipse, #fff 0%, #fecdd3 60%, #fda4af);
+    border-radius: 50% 0 50% 0;
+    filter: drop-shadow(0 0 6px #fecdd3);
+    transform: rotate(var(--rotation));
+    animation: petal-float 0.7s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes petal-float {
+    0% { transform: translateY(-20px) rotate(var(--rotation)); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(100px) rotate(calc(var(--rotation) + 180deg)); opacity: 0; }
+}
+
+.vfx-heal-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(134, 239, 172, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 30px #86efac);
+    animation: heal-pulse 0.4s 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes heal-pulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* 吸い込み（カービィ）：状態異常浄化 */
+.vfx-inhale {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-inhale-spiral {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--size);
+    height: var(--size);
+    border: 3px solid rgba(236, 72, 153, 0.6);
+    border-radius: 50%;
+    border-style: dashed;
+    filter: drop-shadow(0 0 15px #ec4899);
+    animation: inhale-spin 0.6s linear infinite, inhale-shrink 0.5s ease-in forwards;
+    animation-delay: var(--delay);
+}
+
+@keyframes inhale-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes inhale-shrink {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+}
+
+.vfx-status-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: var(--color);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px var(--color));
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(100px);
+    animation: status-suck 0.5s ease-in forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes status-suck {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(100px); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0); opacity: 0; }
+}
+
+.vfx-purify-light {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, 0.6) 50%, transparent 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 30px #fff);
+    animation: purify-flash 0.3s 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes purify-flash {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.vfx-sparkle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #fbbf24);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(80px);
+    animation: sparkle-burst 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes sparkle-burst {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(50px) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(120px) scale(1.2); opacity: 0; }
+}
+
+/* シャイニートルネード（マリ）：金色の竜巻 */
+.vfx-shiny-tornado {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-tornado-particle {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #fbbf24, #f59e0b);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #fbbf24);
+    transform: translate(-50%, var(--y)) rotate(var(--angle)) translateX(40px);
+    animation: tornado-spiral 0.6s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes tornado-spiral {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(-50%, var(--y)) rotate(calc(var(--angle) + 180deg)) translateX(60px); opacity: 0; }
+}
+
+.vfx-tornado-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 200px;
+    background: linear-gradient(to top, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.5), transparent);
+    filter: blur(4px) drop-shadow(0 0 20px #fbbf24);
+    animation: tornado-spin 0.6s linear infinite, tornado-grow 0.6s ease-out forwards;
+}
+
+@keyframes tornado-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes tornado-grow {
+    0% { transform: translate(-50%, -50%) scaleY(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scaleY(1); opacity: 0.6; }
+}
+
+.vfx-tornado-burst {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, #fbbf24, #f59e0b);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 10px #fbbf24);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: tornado-burst-fly 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes tornado-burst-fly {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(120px); opacity: 0; }
+}
+
+/* 滅びの爆裂疾風弾（青眼の白龍）：青白ビーム */
+.vfx-burst-stream {
+    position: absolute;
+    width: 350px;
+    height: 350px;
+}
+
+.vfx-burst-charge {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #fff 0%, #3b82f6 40%, #1e3a8a 70%, transparent 90%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 30px #3b82f6);
+    animation: burst-charge-grow 0.5s ease-out forwards;
+}
+
+@keyframes burst-charge-grow {
+    0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.vfx-burst-beam {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 250px;
+    background: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(59, 130, 246, 0.8) 30%,
+        rgba(30, 58, 138, 0.6) 70%,
+        transparent 100%);
+    filter: drop-shadow(0 0 25px #3b82f6);
+    animation: burst-beam-fire 0.3s 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes burst-beam-fire {
+    0% { transform: translateX(-50%) scaleY(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(-50%) scaleY(1); opacity: 0.9; }
+}
+
+.vfx-beam-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #fff, #3b82f6);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #3b82f6);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: beam-particle-orbit 0.6s linear infinite, beam-particle-appear 0.3s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes beam-particle-orbit {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(40px); }
+    100% { transform: translate(-50%, -50%) rotate(calc(var(--angle) + 360deg)) translateX(40px); }
+}
+
+@keyframes beam-particle-appear {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.vfx-burst-cross {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    animation: burst-cross-explode 0.5s 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.vfx-burst-cross::before,
+.vfx-burst-cross::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(to right, transparent, #fff, #3b82f6, #fff, transparent);
+    filter: drop-shadow(0 0 20px #fff);
+}
+
+.vfx-burst-cross::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    transform: translateY(-50%);
+}
+
+.vfx-burst-cross::after {
+    top: 0;
+    left: 50%;
+    width: 6px;
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+@keyframes burst-cross-explode {
+    0% { transform: translateX(-50%) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+}
+
+/* 鳳梨磔（マルコ）：不死鳥の青い炎 */
+.vfx-pineapple-stake {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-phoenix-feather {
+    position: absolute;
+    top: 10%;
+    left: calc(50% + var(--x));
+    width: 25px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(147, 197, 253, 0.6) 50%, rgba(59, 130, 246, 0.4) 100%);
+    clip-path: polygon(50% 0%, 70% 30%, 100% 100%, 50% 80%, 0% 100%, 30% 30%);
+    filter: drop-shadow(0 0 12px #3b82f6);
+    animation: feather-fall 0.6s ease-in forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes feather-fall {
+    0% { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(150px) rotate(180deg); opacity: 0.6; }
+}
+
+.vfx-blue-flame-particle {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #93c5fd, #3b82f6);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 10px #3b82f6);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: blue-flame-spread 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes blue-flame-spread {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(80px); opacity: 0; }
+}
+
+.vfx-phoenix-heal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(147, 197, 253, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 30px #3b82f6);
+    animation: phoenix-heal-glow 0.5s 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes phoenix-heal-glow {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ビッグライト（ドラえもん）：光の拡散 */
+.vfx-big-light {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.vfx-light-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(59, 130, 246, 0.6) 50%, transparent 70%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 30px #3b82f6);
+    animation: light-ring-pulse 0.4s ease-out forwards;
+}
+
+@keyframes light-ring-pulse {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+.vfx-light-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #fff, #93c5fd);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px #3b82f6);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: light-particle-fly 0.6s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes light-particle-fly {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateX(150px); opacity: 0; }
+}
+
+.vfx-light-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border: 3px solid rgba(59, 130, 246, 0.5);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 15px #3b82f6);
+    animation: light-ripple-expand 0.6s 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes light-ripple-expand {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    30% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+.vfx-power-aura {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
+    filter: drop-shadow(0 0 30px #fbbf24);
+    animation: power-aura-rise 0.3s 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes power-aura-rise {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.3); opacity: 0.6; }
+}
+
+/* ジュドラジルム（フリーレン）：破滅の雷 */
+.vfx-judrajim {
+    position: absolute;
+    width: 350px;
+    height: 350px;
+}
+
+.vfx-thunder-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 220px;
+    border: 4px solid rgba(168, 85, 247, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.8), inset 0 0 25px rgba(168, 85, 247, 0.3);
+    animation: thunder-circle-spin 0.5s linear infinite, thunder-circle-appear 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes thunder-circle-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes thunder-circle-appear {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.vfx-thunder-bolt {
+    position: absolute;
+    top: 10%;
+    left: calc(50% + var(--x));
+    width: 60px;
+    height: 250px;
+    animation: thunder-bolt-strike 0.4s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+.thunder-shape {
+    fill: #a855f7;
+    filter: drop-shadow(0 0 15px #a855f7) drop-shadow(0 0 30px #d946ef);
+}
+
+@keyframes thunder-bolt-strike {
+    0% { transform: translateY(-50px); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(0); opacity: 0.9; }
+}
+
+.vfx-electric-spark {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    width: 4px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, #a855f7, #d946ef, #a855f7, transparent);
+    filter: drop-shadow(0 0 10px #a855f7);
+    transform: translate(-50%, -50%) rotate(var(--angle));
+    animation: electric-spark-flash 0.2s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+@keyframes electric-spark-flash {
+    0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1); opacity: 0; }
 }
