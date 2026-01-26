@@ -179,9 +179,9 @@ const SKILLS = {
         name: '全体回復',
         type: 'heal',
         target: 'all_allies',
-        mpCost: 60,
-        healPercent: 25,
-        description: '全体HP 25%回復'
+        mpCost: 50,
+        healPercent: 20,
+        description: '全体HP 20%回復'
     },
     revive: {
         id: 'revive',
@@ -425,7 +425,7 @@ const SKILLS = {
         name: '拘束',
         type: 'debuff',
         target: 'single_enemy',
-        mpCost: 25,
+        mpCost: 35,
         effects: [
             { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
         ],
@@ -461,7 +461,7 @@ const EVENTS = [
                 effect: { type: 'none' }
             },
             {
-                text: '脅して奪う<br><span class="event-desc">商人の品物を奪う</span>',
+                text: '脅して奪う<br><span class="event-desc">成功で品物 / 失敗で反撃（ダメージ）</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
@@ -496,7 +496,7 @@ const EVENTS = [
         description: 'かなり古そうな宝箱がある。罠が仕掛けられているかもしれない。',
         options: [
             {
-                text: '開ける<br><span class="event-desc">成功ですごい薬</span>',
+                text: '開ける<br><span class="event-desc">成功ですごい薬 / 失敗で罠（ダメージ）</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'high',
@@ -576,7 +576,7 @@ const EVENTS = [
                 effect: { type: 'stat_trade', targetStat: 'attack', targetValue: 0.15, costStat: 'max_hp', costValue: 0.10 }
             },
             {
-                text: '像を破壊する<br><span class="event-desc">成功でSP獲得</span>',
+                text: '像を破壊する<br><span class="event-desc">成功でSP獲得 / 失敗で呪い</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',
@@ -703,7 +703,7 @@ const EVENTS = [
                 effect: { type: 'heal_mp_all', percent: 100 }
             },
             {
-                text: '踊ってもらう<br><span class="event-desc">全員全ステータス+3%永続</span>',
+                text: '踊ってもらう<br><span class="event-desc">成功で全体強化 / 失敗でMP減少</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',

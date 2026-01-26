@@ -10,7 +10,7 @@ const CHARACTERS = {
         displayName: '唐可可',
         stats: {
             hp: 190,
-            mp: 93,
+            mp: 140,
             physicalAttack: 75,
             magicAttack: 35,
             physicalDefense: 145,
@@ -37,7 +37,7 @@ const CHARACTERS = {
             face: 'img/keke_face.png'
         },
         skills: [],
-        excludeSkills: ['taunt'] // 上位互換のため除外
+        excludeSkills: ['taunt']
     },
     sky: {
         id: 'sky',
@@ -45,7 +45,7 @@ const CHARACTERS = {
         displayName: 'キュアスカイ',
         stats: {
             hp: 135,
-            mp: 125,
+            mp: 175,
             physicalAttack: 140,
             magicAttack: 35,
             physicalDefense: 60,
@@ -67,7 +67,7 @@ const CHARACTERS = {
             face: 'img/sky_face.png'
         },
         skills: [],
-        excludeSkills: ['ultra_attack'] // 上位互換のため除外
+        excludeSkills: ['ultra_attack']
     },
     josuke: {
         id: 'josuke',
@@ -75,7 +75,7 @@ const CHARACTERS = {
         displayName: '東方仗助',
         stats: {
             hp: 125,
-            mp: 139,
+            mp: 225,
             physicalAttack: 110,
             magicAttack: 50,
             physicalDefense: 85,
@@ -96,7 +96,7 @@ const CHARACTERS = {
             face: 'img/josuke_face.png'
         },
         skills: [],
-        excludeSkills: ['heal'] // 上位互換のため除外
+        excludeSkills: ['heal']
     },
     yoshiko: {
         id: 'yoshiko',
@@ -104,7 +104,7 @@ const CHARACTERS = {
         displayName: '津島善子',
         stats: {
             hp: 110,
-            mp: 140,
+            mp: 170,
             physicalAttack: 40,
             magicAttack: 120,
             physicalDefense: 60,
@@ -123,7 +123,7 @@ const CHARACTERS = {
             effects: [
                 { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
-            description: '敵単体を麻痺状態にする（3ターン）',
+            description: '敵単体を麻痺状態にする（3T）',
         },
         image: {
             full: 'img/yoshiko_full.png',
@@ -137,9 +137,9 @@ const CHARACTERS = {
         displayName: 'ルカリオ',
         stats: {
             hp: 130,
-            mp: 99,
-            physicalAttack: 115,
-            magicAttack: 115,
+            mp: 185,
+            physicalAttack: 110,
+            magicAttack: 120,
             physicalDefense: 70,
             magicDefense: 70,
             speed: 90,
@@ -161,7 +161,7 @@ const CHARACTERS = {
             face: 'img/Lucario_face.png'
         },
         skills: [],
-        excludeSkills: ['magic_shot'] // 上位互換のため除外
+        excludeSkills: ['magic_shot']
     },
     setsuna: {
         id: 'setsuna',
@@ -169,7 +169,7 @@ const CHARACTERS = {
         displayName: '優木せつ菜',
         stats: {
             hp: 120,
-            mp: 108,
+            mp: 150,
             physicalAttack: 60,
             magicAttack: 140,
             physicalDefense: 110,
@@ -195,7 +195,7 @@ const CHARACTERS = {
             face: 'img/setsuna_face.png'
         },
         skills: [],
-        excludeSkills: ['wide_attack'] // 上位互換のため除外
+        excludeSkills: ['wide_attack']
     },
     ceras: {
         id: 'ceras',
@@ -203,7 +203,7 @@ const CHARACTERS = {
         displayName: 'セラス',
         stats: {
             hp: 150,
-            mp: 119,
+            mp: 190,
             physicalAttack: 40,
             magicAttack: 90,
             physicalDefense: 110,
@@ -227,7 +227,7 @@ const CHARACTERS = {
             face: 'img/Ceras_face.png'
         },
         skills: [],
-        excludeSkills: ['revive'] // 上位互換のため除外
+        excludeSkills: ['revive']
     },
     kuroo: {
         id: 'kuroo',
@@ -235,7 +235,7 @@ const CHARACTERS = {
         displayName: '黒尾鉄朗',
         stats: {
             hp: 180,
-            mp: 89,
+            mp: 130,
             physicalAttack: 90,
             magicAttack: 30,
             physicalDefense: 130,
@@ -262,7 +262,7 @@ const CHARACTERS = {
             face: 'img/kuroo_face.png'
         },
         skills: [],
-        excludeSkills: ['counter_stance'] // 上位互換のため除外
+        excludeSkills: ['counter_stance']
     },
     shiki: {
         id: 'shiki',
@@ -270,7 +270,7 @@ const CHARACTERS = {
         displayName: '若菜四季',
         stats: {
             hp: 110,
-            mp: 159,
+            mp: 190,
             physicalAttack: 50,
             magicAttack: 80,
             physicalDefense: 70,
@@ -285,210 +285,78 @@ const CHARACTERS = {
             mpCost: 50,
             type: 'mp_heal',
             target: 'all_allies',
-            mpHealPercent: 20,
-            effects: [],
-            description: '味方全員のMPを20%回復',
+            mpHealPercent: 35,
+            description: '味方全体のMP 35%回復'
         },
         image: {
             full: 'img/shiki_full.png',
             face: 'img/shiki_face.png'
         },
-        skills: []
-    },
-    shoto: {
-        id: 'shoto',
-        name: '轟焦凍',
-        displayName: '轟焦凍',
-        stats: {
-            hp: 125,
-            mp: 108,
-            physicalAttack: 70,
-            magicAttack: 145,
-            physicalDefense: 75,
-            magicDefense: 80,
-            speed: 95,
-            luck: 50
-        },
-        type: 'magic_attacker',
-        uniqueSkill: {
-            id: 'ice_wall',
-            displayName: '穿天氷壁',
-            basePower: 110,
-            mpCost: 50,
-            type: 'magic_attack',
-            target: 'all_enemies',
-            effects: [],
-            description: '全体に魔法攻撃（威力110%）',
-        },
-        image: {
-            full: 'img/shoto_full.png',
-            face: 'img/shoto_face.png'
-        },
         skills: [],
-        excludeSkills: ['magic_storm'] // 上位互換のため除外
-    },
-    kakasi: {
-        id: 'kakasi',
-        name: 'はたけカカシ',
-        displayName: 'はたけカカシ',
-        stats: {
-            hp: 120,
-            mp: 93,
-            physicalAttack: 140,
-            magicAttack: 60,
-            physicalDefense: 70,
-            magicDefense: 60,
-            speed: 130,
-            luck: 80
-        },
-        type: 'physical_attacker',
-        uniqueSkill: {
-            id: 'raikiri',
-            displayName: '雷切',
-            basePower: 140,
-            mpCost: 35,
-            type: 'physical_attack',
-            target: 'single_enemy',
-            critBonus: 40,
-            effects: [],
-            description: '単体物理攻撃（威力140%、高クリティカル）',
-        },
-        image: {
-            full: 'img/kakasi_full.png',
-            face: 'img/kakasi_face.png'
-        },
-        skills: [],
-        excludeSkills: ['critical_attack'] // 上位互換のため除外
-    },
-    shota: {
-        id: 'shota',
-        name: '相澤消太',
-        displayName: '相澤消太',
-        stats: {
-            hp: 130,
-            mp: 101,
-            physicalAttack: 95,
-            magicAttack: 95,
-            physicalDefense: 85,
-            magicDefense: 85,
-            speed: 90,
-            luck: 70
-        },
-        type: 'debuffer',
-        uniqueSkill: {
-            id: 'erasure',
-            displayName: '抹消',
-            mpCost: 80,
-            type: 'debuff',
-            target: 'single_enemy',
-            effects: [
-                { type: 'status', status: 'stun', chance: 100, duration: 1 }
-            ],
-            description: '敵単体をスタンにする（1T行動不能）',
-        },
-        image: {
-            full: 'img/shota_full.png',
-            face: 'img/shota_face.png'
-        },
-        skills: []
+        excludeSkills: ['mp_restore']
     },
     shizuku: {
         id: 'shizuku',
         name: '桜坂しずく',
         displayName: '桜坂しずく',
         stats: {
-            hp: 120,
-            mp: 121,
-            physicalAttack: 80,
-            magicAttack: 80,
-            physicalDefense: 90,
-            magicDefense: 90,
-            speed: 90,
-            luck: 70
+            hp: 135,
+            mp: 190,
+            physicalAttack: 50,
+            magicAttack: 95,
+            physicalDefense: 75,
+            magicDefense: 130,
+            speed: 80,
+            luck: 55
         },
-        type: 'debuffer',
+        type: 'healer',
         uniqueSkill: {
-            id: 'solitude_rain',
-            displayName: 'Solitude Rain',
-            basePower: 0,
-            mpCost: 20,
-            type: 'debuff',
-            target: 'single_enemy',
-            effects: [
-                { type: 'status', status: 'poison', chance: 100, duration: 3 }
-            ],
-            description: '敵単体を毒状態にする（3T）',
+            id: 'kiraboshi_oath',
+            displayName: '綺羅星の誓い',
+            mpCost: 60,
+            type: 'heal',
+            target: 'all_allies',
+            healPercent: 25,
+            description: '味方全体HP 25%回復'
         },
         image: {
             full: 'img/shizuku_full.png',
             face: 'img/shizuku_face.png'
         },
         skills: [],
-        excludeSkills: ['poison_single']
+        excludeSkills: ['heal_all']
     },
     gojo: {
-        id: 'gojo',
+        id: 'satoru',
         name: '五条悟',
         displayName: '五条悟',
         stats: {
-            hp: 115,
-            mp: 129,
-            physicalAttack: 45,
-            magicAttack: 155,
-            physicalDefense: 65,
+            hp: 125,
+            mp: 185,
+            physicalAttack: 55,
+            magicAttack: 140,
+            physicalDefense: 75,
             magicDefense: 95,
-            speed: 95,
-            luck: 55
+            speed: 115,
+            luck: 60
         },
         type: 'magic_attacker',
         uniqueSkill: {
-            id: 'muryokushou',
-            displayName: '無量空処',
-            basePower: 220,
-            mpCost: 60,
+            id: 'reversal_red',
+            displayName: '術式反転「赫」',
+            basePower: 200,
+            mpCost: 55,
             type: 'magic_attack',
             target: 'single_enemy',
             effects: [],
-            description: '単体に強力な魔法攻撃（威力220%）',
+            description: '単体に強力な魔法攻撃（威力200%）'
         },
         image: {
             full: 'img/satoru_full.png',
             face: 'img/satoru_face.png'
         },
         skills: [],
-        excludeSkills: ['strong_magic_shot'] // 上位互換のため除外
-    },
-    shanks: {
-        id: 'shanks',
-        name: 'シャンクス',
-        displayName: 'シャンクス',
-        stats: {
-            hp: 140,
-            mp: 117,
-            physicalAttack: 150,
-            magicAttack: 30,
-            physicalDefense: 70,
-            magicDefense: 60,
-            speed: 110,
-            luck: 110
-        },
-        type: 'physical_attacker',
-        uniqueSkill: {
-            id: 'divine_departure',
-            displayName: '神避',
-            basePower: 120,
-            mpCost: 50,
-            type: 'physical_attack',
-            target: 'all_enemies',
-            effects: [],
-            description: '全体に物理攻撃（威力120%）',
-        },
-        image: {
-            full: 'img/Shanks_full.png',
-            face: 'img/Shanks_face.png'
-        },
-        skills: [],
-        excludeSkills: ['wide_attack']
+        excludeSkills: ['strong_magic_shot']
     },
     blastoise: {
         id: 'blastoise',
@@ -496,13 +364,13 @@ const CHARACTERS = {
         displayName: 'カメックス',
         stats: {
             hp: 200,
-            mp: 88,
-            physicalAttack: 50,
-            magicAttack: 90,
-            physicalDefense: 130,
-            magicDefense: 130,
-            speed: 40,
-            luck: 50
+            mp: 155,
+            physicalAttack: 60,
+            magicAttack: 120,
+            physicalDefense: 150,
+            magicDefense: 125,
+            speed: 55,
+            luck: 30
         },
         type: 'tank',
         uniqueSkill: {
@@ -535,7 +403,7 @@ const CHARACTERS = {
         displayName: '高垣楓',
         stats: {
             hp: 130,
-            mp: 151,
+            mp: 210,
             physicalAttack: 40,
             magicAttack: 110,
             physicalDefense: 70,
@@ -566,7 +434,7 @@ const CHARACTERS = {
         displayName: 'カービィ',
         stats: {
             hp: 130,
-            mp: 106,
+            mp: 190,
             physicalAttack: 90,
             magicAttack: 90,
             physicalDefense: 80,
@@ -596,7 +464,7 @@ const CHARACTERS = {
         displayName: 'マリ',
         stats: {
             hp: 185,
-            mp: 101,
+            mp: 160,
             physicalAttack: 60,
             magicAttack: 120,
             physicalDefense: 135,
@@ -630,7 +498,7 @@ const CHARACTERS = {
         displayName: '空条承太郎',
         stats: {
             hp: 140,
-            mp: 95,
+            mp: 140,
             physicalAttack: 135,
             magicAttack: 35,
             physicalDefense: 95,
@@ -663,7 +531,7 @@ const CHARACTERS = {
         displayName: '青眼の白龍',
         stats: {
             hp: 120,
-            mp: 124,
+            mp: 185,
             physicalAttack: 55,
             magicAttack: 150,
             physicalDefense: 70,
@@ -696,7 +564,7 @@ const CHARACTERS = {
         displayName: 'マルコ',
         stats: {
             hp: 130,
-            mp: 131,
+            mp: 205,
             physicalAttack: 115,
             magicAttack: 65,
             physicalDefense: 80,
@@ -727,7 +595,7 @@ const CHARACTERS = {
         displayName: 'ドラえもん',
         stats: {
             hp: 125,
-            mp: 150,
+            mp: 210,
             physicalAttack: 80,
             magicAttack: 95,
             physicalDefense: 85,
@@ -761,7 +629,7 @@ const CHARACTERS = {
         displayName: 'フリーレン',
         stats: {
             hp: 115,
-            mp: 134,
+            mp: 200,
             physicalAttack: 45,
             magicAttack: 145,
             physicalDefense: 75,
@@ -788,5 +656,471 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_impact']
+    },
+    hajime: {
+        id: 'hajime',
+        name: '梅宮一',
+        displayName: '梅宮一',
+        stats: {
+            hp: 200,
+            mp: 140,
+            physicalAttack: 85,
+            magicAttack: 25,
+            physicalDefense: 140,
+            magicDefense: 100,
+            speed: 50,
+            luck: 60
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'teppen_strike',
+            displayName: 'てっぺんの一撃',
+            basePower: 220,
+            mpCost: 60,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            effects: [],
+            description: '単体に強力な物理攻撃（威力220%）'
+        },
+        image: {
+            full: 'img/hajime_full.png',
+            face: 'img/hajime_face.png'
+        },
+        skills: [],
+        excludeSkills: ['ultra_attack']
+    },
+    gaara: {
+        id: 'gaara',
+        name: '我愛羅',
+        displayName: '我愛羅',
+        stats: {
+            hp: 150,
+            mp: 140,
+            physicalAttack: 110,
+            magicAttack: 50,
+            physicalDefense: 150,
+            magicDefense: 120,
+            speed: 55,
+            luck: 40
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'sand_coffin',
+            displayName: '砂縛柩',
+            basePower: 0,
+            mpCost: 25,
+            type: 'debuff',
+            target: 'single_enemy',
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '敵単体を麻痺状態にする（3T）'
+        },
+        image: {
+            full: 'img/gaara_full.png',
+            face: 'img/gaara_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    yami: {
+        id: 'yami',
+        name: 'ヤミ・スケヒロ',
+        displayName: 'ヤミ・スケヒロ',
+        stats: {
+            hp: 140,
+            mp: 135,
+            physicalAttack: 155,
+            magicAttack: 30,
+            physicalDefense: 75,
+            magicDefense: 50,
+            speed: 95,
+            luck: 70
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'dark_slash',
+            displayName: '闇纏・次元斬り',
+            basePower: 150,
+            mpCost: 30,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 3 }
+            ],
+            description: '単体物理攻撃（威力150%）＋敵の防御-15% 3ターン'
+        },
+        image: {
+            full: 'img/yami_full.png',
+            face: 'img/yami_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_attack']
+    },
+    gintoki: {
+        id: 'gintoki',
+        name: '坂田銀時',
+        displayName: '坂田銀時',
+        stats: {
+            hp: 130,
+            mp: 135,
+            physicalAttack: 140,
+            magicAttack: 25,
+            physicalDefense: 85,
+            magicDefense: 70,
+            speed: 105,
+            luck: 85
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'mentan_ken',
+            displayName: 'メンタンピンドラドラドラゴンショウリュウケン',
+            basePower: 150,
+            mpCost: 30,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 3 }
+            ],
+            description: '単体物理攻撃（威力150%）＋攻撃-15% 3T'
+        },
+        image: {
+            full: 'img/gintoki_full.png',
+            face: 'img/gintoki_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_attack']
+    },
+    yor: {
+        id: 'yor',
+        name: 'ヨル・フォージャー',
+        displayName: 'ヨル・フォージャー',
+        stats: {
+            hp: 120,
+            mp: 115,
+            physicalAttack: 150,
+            magicAttack: 20,
+            physicalDefense: 60,
+            magicDefense: 55,
+            speed: 125,
+            luck: 90
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'assassination',
+            displayName: '暗殺術',
+            basePower: 65,
+            mpCost: 40,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            hits: 2,
+            critBonus: 40,
+            effects: [],
+            description: '単体物理攻撃（2連続、威力65%）＋クリティカル率+40%（この攻撃のみ）'
+        },
+        image: {
+            full: 'img/yor_full.png',
+            face: 'img/yor_face.png'
+        },
+        skills: [],
+        excludeSkills: ['double_attack']
+    },
+    naruto: {
+        id: 'naruto',
+        name: 'うずまきナルト',
+        displayName: 'うずまきナルト',
+        stats: {
+            hp: 145,
+            mp: 130,
+            physicalAttack: 120,
+            magicAttack: 135,
+            physicalDefense: 75,
+            magicDefense: 65,
+            speed: 100,
+            luck: 75
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'rasengan',
+            displayName: '螺旋丸',
+            basePower: 220,
+            mpCost: 60,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [],
+            description: '単体に強力な魔法攻撃（威力220%）'
+        },
+        image: {
+            full: 'img/naruto_full.png',
+            face: 'img/naruto_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_magic_shot']
+    },
+    roy: {
+        id: 'roy',
+        name: 'ロイ・マスタング',
+        displayName: 'ロイ・マスタング',
+        stats: {
+            hp: 115,
+            mp: 175,
+            physicalAttack: 35,
+            magicAttack: 145,
+            physicalDefense: 65,
+            magicDefense: 90,
+            speed: 95,
+            luck: 70
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'flame_alchemy',
+            displayName: '焔の錬金術',
+            basePower: 200,
+            mpCost: 60,
+            type: 'magic_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '単体魔法攻撃（威力200%）＋火傷100% 3ターン'
+        },
+        image: {
+            full: 'img/roy_full.png',
+            face: 'img/roy_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_magic_shot']
+    },
+    gamma: {
+        id: 'gamma',
+        name: 'ガンマ',
+        displayName: 'ガンマ',
+        stats: {
+            hp: 120,
+            mp: 175,
+            physicalAttack: 30,
+            magicAttack: 150,
+            physicalDefense: 60,
+            magicDefense: 105,
+            speed: 90,
+            luck: 60
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'electric_tower',
+            displayName: 'エレクトリック・タワー',
+            basePower: 90,
+            mpCost: 50,
+            type: 'magic_attack',
+            target: 'all_enemies',
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '全体魔法攻撃（威力90%）＋麻痺100% 3T'
+        },
+        image: {
+            full: 'img/gamma_full.png',
+            face: 'img/gamma_face.png'
+        },
+        skills: [],
+        excludeSkills: ['magic_storm']
+    },
+    yosano: {
+        id: 'akiko',
+        name: '与謝野晶子',
+        displayName: '与謝野晶子',
+        stats: {
+            hp: 130,
+            mp: 210,
+            physicalAttack: 45,
+            magicAttack: 80,
+            physicalDefense: 90,
+            magicDefense: 110,
+            speed: 75,
+            luck: 55
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'thou_shalt_not_die',
+            displayName: '君死給勿',
+            mpCost: 50,
+            type: 'heal',
+            target: 'single_ally',
+            healPercent: 65,
+            description: '単体HP 65%回復'
+        },
+        image: {
+            full: 'img/akiko_full.png',
+            face: 'img/akiko_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    kaho: {
+        id: 'kaho',
+        name: '日野下花帆',
+        displayName: '日野下花帆',
+        stats: {
+            hp: 135,
+            mp: 190,
+            physicalAttack: 40,
+            magicAttack: 75,
+            physicalDefense: 95,
+            magicDefense: 115,
+            speed: 80,
+            luck: 65
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'ouka_ranman',
+            displayName: '謳歌爛漫',
+            mpCost: 80,
+            type: 'heal',
+            target: 'all_allies',
+            healPercent: 50,
+            description: '味方全体HP 50%回復'
+        },
+        image: {
+            full: 'img/kaho_full.png',
+            face: 'img/kaho_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    minato: {
+        id: 'minato',
+        name: '波風ミナト',
+        displayName: '波風ミナト',
+        stats: {
+            hp: 125,
+            mp: 170,
+            physicalAttack: 100,
+            magicAttack: 70,
+            physicalDefense: 70,
+            magicDefense: 75,
+            speed: 130,
+            luck: 60
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'flying_raijin',
+            displayName: '飛雷神の術',
+            mpCost: 50,
+            type: 'buff',
+            target: 'all_allies',
+            effects: [
+                { type: 'buff', stat: 'speed', value: 0.5, duration: 3 }
+            ],
+            description: '味方全体の速度+50% 3ターン'
+        },
+        image: {
+            full: 'img/minato_full.png',
+            face: 'img/minato_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    anya: {
+        id: 'anya',
+        name: 'アーニャ・フォージャー',
+        displayName: 'アーニャ・フォージャー',
+        stats: {
+            hp: 110,
+            mp: 210,
+            physicalAttack: 30,
+            magicAttack: 85,
+            physicalDefense: 70,
+            magicDefense: 100,
+            speed: 85,
+            luck: 120
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'mind_reading',
+            displayName: '心を読む力',
+            mpCost: 50,
+            type: 'buff',
+            target: 'all_allies',
+            effects: [
+                { type: 'critBoost', value: 50, duration: 3 }
+            ],
+            description: '味方全体のクリティカル率+50% 3ターン'
+        },
+        image: {
+            full: 'img/anya_full.png',
+            face: 'img/anya_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    shikamaru: {
+        id: 'shikamaru',
+        name: '奈良シカマル',
+        displayName: '奈良シカマル',
+        stats: {
+            hp: 120,
+            mp: 170,
+            physicalAttack: 70,
+            magicAttack: 95,
+            physicalDefense: 80,
+            magicDefense: 95,
+            speed: 70,
+            luck: 90
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'shadow_possession',
+            displayName: '影真似の術',
+            basePower: 140,
+            mpCost: 30,
+            type: 'physical_attack',
+            target: 'single_enemy',
+            effects: [
+                { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
+            ],
+            description: '単体物理攻撃（140%）＋速度-30% 3ターン'
+        },
+        image: {
+            full: 'img/shikamaru_full.png',
+            face: 'img/shikamaru_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_attack']
+    },
+    loid: {
+        id: 'loid',
+        name: 'ロイド・フォージャー',
+        displayName: 'ロイド・フォージャー',
+        stats: {
+            hp: 125,
+            mp: 180,
+            physicalAttack: 105,
+            magicAttack: 50,
+            physicalDefense: 85,
+            magicDefense: 80,
+            speed: 110,
+            luck: 80
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'spy_technique',
+            displayName: 'スパイ技術',
+            mpCost: 45,
+            type: 'debuff',
+            target: 'all_enemies',
+            effects: [
+                { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 3 },
+                { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 3 }
+            ],
+            description: '敵全体の防御（両方）-35% 3ターン'
+        },
+        image: {
+            full: 'img/loid_full.png',
+            face: 'img/loid_face.png'
+        },
+        skills: [],
+        excludeSkills: []
     }
 };

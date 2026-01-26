@@ -2808,6 +2808,7 @@ class Game {
             case 'self_debuff':
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
                 await Promise.all(debuffTargets.map(async (t) => {
+                    if (t.currentHp <= 0) return; // 死亡時は無効
                     await this.showEffectIcon(t, skill, 'debuff');
                     // 重複許可：常に新規追加
                     t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
@@ -2827,6 +2828,7 @@ class Game {
             case 'status':
                 // 並列処理だとログ順序が乱れる可能性があるが、エフェクト同期優先
                 await Promise.all(targets.map(async (t) => {
+                    if (t.currentHp <= 0) return; // 死亡時は無効
                     if (!effect.chance || Math.random() * 100 < effect.chance) {
                         await this.showEffectIcon(t, skill, 'status', effect.status);
                         const existingStatus = t.statusEffects.find(e => e.type === effect.status);
@@ -4884,7 +4886,7 @@ class Game {
         const isPhysical = (damageType === 'physical');
 
         // 自身対象のバフ技は画面中央に表示
-        const centerScreenSkills = ['doshatto', 'delorieran', 'gmax', 'big_light'];
+        const centerScreenSkills = ['delorieran'];
         let vfxParent, unitEl;
 
         if (centerScreenSkills.includes(skillId)) {
@@ -4911,8 +4913,6 @@ class Game {
         // === 味方固有技 ===
         if (skillId === 'taunt') { // 唐可可
             const el = document.createElement('div'); el.className = 'vfx-stardust'; vfx.appendChild(el);
-        } else if (skillId === 'iron_wall' || skillId === 'defense_boost' || (skill && skill.type === 'buff')) {
-            const el = document.createElement('div'); el.className = 'shield-aura'; vfx.appendChild(el);
         } else if (skillId === 'cure_status') {
             this.showFlashEffect(target, 'green'); // 浄化は緑のフラッシュ
         } else if (skillId === 'ultra_attack' && actor.id === 'sky') { // キュアスカイ
@@ -4990,11 +4990,37 @@ class Game {
             }
 
             const el = document.createElement('div'); el.className = 'vfx-aura-sphere';
-            // 攻撃側に応じて飛翔方向をセット
-            if (this.state.battle.enemies.includes(actor)) {
-                el.classList.add('vfx-projectile-down');
+            // 弾道計算：ターゲット要素の中心からの相対座標を算出
+            const actorUnitEl = document.querySelector(this.getUnitSelector(actor));
+            const actorImg = actorUnitEl ? actorUnitEl.querySelector('img') : null;
+            const actorRect = (actorImg || actorUnitEl)?.getBoundingClientRect();
+
+            const targetUnitEl = document.querySelector(this.getUnitSelector(target));
+            const targetImg = targetUnitEl ? targetUnitEl.querySelector('img') : null;
+            const targetRect = (targetImg || targetUnitEl)?.getBoundingClientRect();
+
+            if (actorRect && targetRect) {
+                // ターゲットの中心（基準点）
+                const tx = targetRect.left + targetRect.width / 2;
+                const ty = targetRect.top + targetRect.height / 2;
+                // アクターの中心
+                const ax = actorRect.left + actorRect.width / 2;
+                const ay = actorRect.top + actorRect.height / 2;
+
+                // ターゲット中心から見たアクター位置（開始位置）
+                const startX = ax - tx;
+                const startY = ay - ty;
+
+                el.style.setProperty('--start-x', `${startX}px`);
+                el.style.setProperty('--start-y', `${startY}px`);
+                el.classList.add('vfx-projectile-dynamic');
             } else {
-                el.classList.add('vfx-projectile-up');
+                // フォールバック
+                if (this.state.battle.enemies.includes(actor)) {
+                    el.classList.add('vfx-projectile-down');
+                } else {
+                    el.classList.add('vfx-projectile-up');
+                }
             }
             // 波動球本体
             const sphere = document.createElement('div'); sphere.className = 'vfx-aura-sphere-core';
@@ -5402,27 +5428,66 @@ class Game {
             }
 
             // ビーム軌跡（発射元から対象へ）
-            const beamLine = document.createElement('div');
-            beamLine.className = 'vfx-burst-beam-line';
-            screen.appendChild(beamLine);
-            setTimeout(() => beamLine.remove(), 1300);
+            const actorUnitEl = document.querySelector(this.getUnitSelector(actor));
+            const actorImg = actorUnitEl ? actorUnitEl.querySelector('img') : null;
+            const actorRect = (actorImg || actorUnitEl)?.getBoundingClientRect();
 
-            const el = document.createElement('div'); el.className = 'vfx-burst-stream';
-            // 爆発エフェクト
-            const explosion = document.createElement('div'); explosion.className = 'vfx-burst-explosion';
-            el.appendChild(explosion);
-            // 回転する光粒子（20個）
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'vfx-beam-particle';
-                particle.style.setProperty('--delay', `${0.5 + i * 0.02}s`);
-                particle.style.setProperty('--angle', `${i * 18}deg`);
-                el.appendChild(particle);
+            const targetUnitEl = document.querySelector(this.getUnitSelector(target));
+            const targetImg = targetUnitEl ? targetUnitEl.querySelector('img') : null;
+            const targetRect = (targetImg || targetUnitEl)?.getBoundingClientRect();
+
+            if (actorRect && targetRect) {
+                const screenRect = screen.getBoundingClientRect();
+                const x1 = actorRect.left + actorRect.width / 2 - screenRect.left;
+                const y1 = actorRect.top + actorRect.height / 2 - screenRect.top;
+                const x2 = targetRect.left + targetRect.width / 2 - screenRect.left;
+                const y2 = targetRect.top + targetRect.height / 2 - screenRect.top;
+
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                const beamLine = document.createElement('div');
+                beamLine.className = 'vfx-burst-beam-line';
+                beamLine.style.setProperty('--x1', `${x1}px`);
+                beamLine.style.setProperty('--y1', `${y1}px`);
+                beamLine.style.setProperty('--length', `${length}px`);
+                beamLine.style.setProperty('--angle', `${angle}deg`);
+
+                screen.appendChild(beamLine);
+                setTimeout(() => beamLine.remove(), 1300);
+
+                // 爆発エフェクト（ターゲット位置にグローバル配置）
+                const globalVfx = document.createElement('div');
+                globalVfx.className = 'vfx-burst-stream-global';
+                globalVfx.style.setProperty('--x', `${x2}px`);
+                globalVfx.style.setProperty('--y', `${y2}px`);
+                screen.appendChild(globalVfx);
+                setTimeout(() => globalVfx.remove(), 2000);
+
+                // 爆発本体
+                const explosion = document.createElement('div'); explosion.className = 'vfx-burst-explosion';
+                globalVfx.appendChild(explosion);
+                // 回転する光粒子（20個）
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'vfx-beam-particle';
+                    particle.style.setProperty('--delay', `${0.5 + i * 0.02}s`);
+                    particle.style.setProperty('--angle', `${i * 18}deg`);
+                    globalVfx.appendChild(particle);
+                }
+                // 十字の光爆発
+                const cross = document.createElement('div'); cross.className = 'vfx-burst-cross';
+                globalVfx.appendChild(cross);
+            } else {
+                // フォールバック：通常通り `vfx` に追加（座標計算失敗時）
+                const el = document.createElement('div'); el.className = 'vfx-burst-stream';
+                // 爆発エフェクト
+                const explosion = document.createElement('div'); explosion.className = 'vfx-burst-explosion';
+                el.appendChild(explosion);
+                vfx.appendChild(el);
             }
-            // 十字の光爆発
-            const cross = document.createElement('div'); cross.className = 'vfx-burst-cross';
-            el.appendChild(cross);
-            vfx.appendChild(el);
         } else if (skillId === 'pineapple_stake') { // マルコ：鳳梨磔
             const el = document.createElement('div'); el.className = 'vfx-pineapple-stake';
             // 青い炎の羽根（7枚）
