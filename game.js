@@ -4990,6 +4990,12 @@ class Game {
             }
 
             const el = document.createElement('div'); el.className = 'vfx-aura-sphere';
+            // 攻撃側に応じて飛翔方向をセット
+            if (this.state.battle.enemies.includes(actor)) {
+                el.classList.add('vfx-projectile-down');
+            } else {
+                el.classList.add('vfx-projectile-up');
+            }
             // 波動球本体
             const sphere = document.createElement('div'); sphere.className = 'vfx-aura-sphere-core';
             el.appendChild(sphere);
@@ -5617,6 +5623,7 @@ class Game {
 
         // Raikiriは1000ms / 0.5 = 500msの標準タイミングを使用するため削除
         if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
+        if (skillId === 'burst_stream') damageTiming = 1000; // 爆発演出に合わせる
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
         if (skillId === 'star_platinum') damageTiming = 0; // 即時ダメージ表示
 

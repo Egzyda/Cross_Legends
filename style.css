@@ -6279,29 +6279,29 @@ h3 {
 
 .vfx-burst-beam-line {
     position: fixed;
-    top: 50%;
-    left: 25%;
-    width: 50%;
-    height: 80px;
-    background: linear-gradient(to right,
-        rgba(59, 130, 246, 0.9) 0%,
+    top: 0;
+    left: 50%;
+    width: 120px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+        rgba(59, 130, 246, 0.7) 0%,
         rgba(147, 197, 253, 1) 20%,
         rgba(255, 255, 255, 1) 50%,
         rgba(147, 197, 253, 1) 80%,
-        rgba(59, 130, 246, 0.9) 100%);
+        rgba(59, 130, 246, 0.7) 100%);
     filter: drop-shadow(0 0 40px #3b82f6) drop-shadow(0 0 60px #93c5fd) drop-shadow(0 0 80px #fff);
     box-shadow: 0 0 50px #3b82f6, 0 0 80px #93c5fd, inset 0 0 30px rgba(255, 255, 255, 0.9);
     animation: burst-beam-shoot 0.4s 0.5s ease-out forwards;
     opacity: 0;
     z-index: 180;
-    transform: translateY(-50%);
+    transform: translateX(-50%);
 }
 
 @keyframes burst-beam-shoot {
-    0% { transform: translateY(-50%) scaleX(0); opacity: 0; }
-    30% { opacity: 1; transform: translateY(-50%) scaleX(1); }
-    70% { opacity: 1; transform: translateY(-50%) scaleX(1); }
-    100% { transform: translateY(-50%) scaleX(0.8); opacity: 0; }
+    0% { transform: translateX(-50%) scaleY(0); opacity: 0; }
+    30% { opacity: 1; transform: translateX(-50%) scaleY(1); }
+    70% { opacity: 1; transform: translateX(-50%) scaleY(1); }
+    100% { transform: translateX(-50%) scaleY(0.8); opacity: 0; }
 }
 
 .vfx-burst-explosion {
@@ -6658,4 +6658,20 @@ h3 {
         transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1.2);
         opacity: 0;
     }
+}
+
+/* はどうだん等の飛翔体アニメーション */
+.vfx-projectile-up {
+    animation: projectile-up 0.5s ease-out forwards !important;
+}
+.vfx-projectile-down {
+    animation: projectile-down 0.5s ease-out forwards !important;
+}
+@keyframes projectile-up {
+    0% { transform: translate(-50%, 200%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes projectile-down {
+    0% { transform: translate(-50%, -300%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
