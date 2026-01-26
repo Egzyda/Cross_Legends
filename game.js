@@ -3461,9 +3461,15 @@ class Game {
                 const myRoleOptions = allAvailableSkills.filter(s => s.isMyRole);
                 const otherOptions = allAvailableSkills.filter(s => !s.isMyRole);
 
+                // healスキル（単体回復）を自ロール候補に追加（ヒーラー以外で、まだ習得していない場合）
+                const healSkill = allAvailableSkills.find(s => s.id === 'heal' && !s.isMyRole);
+                if (healSkill) {
+                    myRoleOptions.push(healSkill);
+                }
+
                 let selectedIdx = -1;
-                // 70%の確率で自ロールのスキルを優先的に抽選（自ロールの在庫がある場合のみ）
-                if (myRoleOptions.length > 0 && (Math.random() < 0.7 || otherOptions.length === 0)) {
+                // 80%の確率で自ロールのスキルを優先的に抽選（自ロールの在庫がある場合のみ）
+                if (myRoleOptions.length > 0 && (Math.random() < 0.8 || otherOptions.length === 0)) {
                     const targetSkill = myRoleOptions[Math.floor(Math.random() * myRoleOptions.length)];
                     selectedIdx = allAvailableSkills.findIndex(s => s.id === targetSkill.id);
                 } else if (otherOptions.length > 0) {
