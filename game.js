@@ -4919,12 +4919,50 @@ class Game {
                 el.appendChild(shard);
             }
             vfx.appendChild(el);
-        } else if (skillId === 'daten_bind') { // 津島善子
+        } else if (skillId === 'daten_bind') { // 津島善子：堕天龍鳳凰縛
+            const screen = document.getElementById('battle-screen');
+            // 暗転フラッシュ（0.9秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 300);
+            }, 900);
+
             const el = document.createElement('div'); el.className = 'vfx-fallen-bind';
-            el.innerHTML = '<div class="vfx-chain"></div><div class="vfx-chain"></div><div class="vfx-chain"></div>';
+            // 暗黒オーラ
+            const aura = document.createElement('div'); aura.className = 'vfx-dark-aura';
+            el.appendChild(aura);
+            // 8本の鎖を生成
+            for (let i = 0; i < 8; i++) {
+                const chain = document.createElement('div');
+                chain.className = 'vfx-chain';
+                chain.style.setProperty('--angle', `${i * 45}deg`);
+                chain.style.setProperty('--delay', `${i * 0.05}s`);
+                el.appendChild(chain);
+            }
+            // 紫電撃エフェクト
+            const lightning = document.createElement('div'); lightning.className = 'vfx-purple-lightning';
+            el.appendChild(lightning);
             vfx.appendChild(el);
-        } else if (skillId === 'aura_sphere') { // ルカリオ
-            const el = document.createElement('div'); el.className = 'vfx-aura-sphere'; vfx.appendChild(el);
+        } else if (skillId === 'aura_sphere') { // ルカリオ：はどうだん
+            const el = document.createElement('div'); el.className = 'vfx-aura-sphere';
+            // 波動球本体
+            const sphere = document.createElement('div'); sphere.className = 'vfx-aura-sphere-core';
+            el.appendChild(sphere);
+            // 回転するエネルギーリング
+            for (let i = 0; i < 3; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'vfx-aura-ring';
+                ring.style.setProperty('--delay', `${i * 0.15}s`);
+                ring.style.setProperty('--angle', `${i * 60}deg`);
+                el.appendChild(ring);
+            }
+            // 波紋エフェクト
+            const ripple = document.createElement('div'); ripple.className = 'vfx-aura-ripple';
+            el.appendChild(ripple);
+            // 着弾衝撃波
+            const impact = document.createElement('div'); impact.className = 'vfx-aura-impact';
+            el.appendChild(impact);
+            vfx.appendChild(el);
         } else if (skillId === 'scarlet_storm') { // 優木せつ菜：多層爆発演出
             const screen = document.getElementById('battle-screen');
             // 衝撃の瞬間に反転と揺れ（50%タイミング前後）
@@ -4943,15 +4981,99 @@ class Game {
             }
             el.innerHTML = layers;
             vfx.appendChild(el);
-        } else if (skillId === 'fusion_crust') { // セラス
-            const el = document.createElement('div'); el.className = 'vfx-fusion-crust'; vfx.appendChild(el);
-        } else if (skillId === 'doshatto') { // 黒尾鉄朗
-            const el = document.createElement('div'); el.className = 'vfx-doshatto'; vfx.appendChild(el);
-        } else if (skillId === 'delorieran') { // 若菜四季
-            const el = document.createElement('div'); el.className = 'vfx-delorieran'; vfx.appendChild(el);
-        } else if (skillId === 'ice_wall') { // 轟焦凍
+        } else if (skillId === 'fusion_crust') { // セラス：フュージョンクラスト
+            const el = document.createElement('div'); el.className = 'vfx-fusion-crust';
+            // 赤い魔法陣
+            const circle = document.createElement('div'); circle.className = 'vfx-blood-circle';
+            el.appendChild(circle);
+            // 血液のような赤い粒子（16個）
+            for (let i = 0; i < 16; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vfx-blood-particle';
+                const angle = (i / 16) * Math.PI * 2;
+                particle.style.setProperty('--angle', `${angle}rad`);
+                particle.style.setProperty('--delay', `${i * 0.03}s`);
+                el.appendChild(particle);
+            }
+            // 十字の光
+            const cross = document.createElement('div'); cross.className = 'vfx-revival-cross';
+            el.appendChild(cross);
+            // 蘇生の赤い光
+            const glow = document.createElement('div'); glow.className = 'vfx-revival-glow';
+            el.appendChild(glow);
+            vfx.appendChild(el);
+        } else if (skillId === 'doshatto') { // 黒尾鉄朗：ドシャット
+            const el = document.createElement('div'); el.className = 'vfx-doshatto';
+            // 金属の壁
+            const wall = document.createElement('div'); wall.className = 'vfx-metal-wall';
+            el.appendChild(wall);
+            // 六角形バリアパターン（7個）
+            for (let i = 0; i < 7; i++) {
+                const hex = document.createElement('div');
+                hex.className = 'vfx-hex-barrier';
+                hex.style.setProperty('--index', i);
+                hex.style.setProperty('--delay', `${i * 0.08}s`);
+                el.appendChild(hex);
+            }
+            // 反撃オーラ（赤い炎）
+            const counter = document.createElement('div'); counter.className = 'vfx-counter-aura';
+            el.appendChild(counter);
+            vfx.appendChild(el);
+        } else if (skillId === 'delorieran') { // 若菜四季：デロリエラン
+            const el = document.createElement('div'); el.className = 'vfx-delorieran';
+            // 紫の魔力粒子（20個）
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vfx-mp-particle';
+                particle.style.setProperty('--delay', `${i * 0.03}s`);
+                particle.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                el.appendChild(particle);
+            }
+            // 音符型光粒子（8個）
+            for (let i = 0; i < 8; i++) {
+                const note = document.createElement('div');
+                note.className = 'vfx-music-note';
+                note.textContent = '♪';
+                note.style.setProperty('--delay', `${0.3 + i * 0.05}s`);
+                note.style.setProperty('--angle', `${i * 45}deg`);
+                el.appendChild(note);
+            }
+            // 紫の光の柱
+            const pillar = document.createElement('div'); pillar.className = 'vfx-mp-pillar';
+            el.appendChild(pillar);
+            vfx.appendChild(el);
+        } else if (skillId === 'ice_wall') { // 轟焦凍：穿天氷壁
+            const screen = document.getElementById('battle-screen');
+            // 青白フラッシュ（1.0秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 200);
+            }, 1000);
+
             const el = document.createElement('div'); el.className = 'vfx-ice-wall';
-            el.innerHTML = '<div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div><div class="vfx-ice-pillar"></div>';
+            // 氷の成長エフェクト
+            const growth = document.createElement('div'); growth.className = 'vfx-ice-growth';
+            el.appendChild(growth);
+            // 巨大な氷の壁（7本の柱で構成）
+            for (let i = 0; i < 7; i++) {
+                const pillar = document.createElement('div');
+                pillar.className = 'vfx-ice-pillar';
+                pillar.style.setProperty('--index', i);
+                pillar.style.setProperty('--delay', `${i * 0.05}s`);
+                el.appendChild(pillar);
+            }
+            // 氷の破片（12個）
+            for (let i = 0; i < 12; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'vfx-ice-shard';
+                const angle = (i / 12) * Math.PI * 2;
+                shard.style.setProperty('--angle', `${angle}rad`);
+                shard.style.setProperty('--delay', `${0.8 + i * 0.02}s`);
+                el.appendChild(shard);
+            }
+            // 冷気の霧
+            const mist = document.createElement('div'); mist.className = 'vfx-ice-mist';
+            el.appendChild(mist);
             vfx.appendChild(el);
         } else if (skillId === 'raikiri') { // はたけカカシ
             const el = document.createElement('div'); el.className = 'vfx-raikiri-arc';
@@ -4980,13 +5102,55 @@ class Game {
             const screen = document.getElementById('battle-screen');
             setTimeout(() => screen.classList.add('void-invert'), 150);
             setTimeout(() => screen.classList.remove('void-invert'), 350);
-        } else if (skillId === 'erasure') { // 相澤消太
+        } else if (skillId === 'erasure') { // 相澤消太：抹消
+            const screen = document.getElementById('battle-screen');
+            // グレースケール化と暗転（0.9秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 300);
+            }, 900);
+
             const el = document.createElement('div'); el.className = 'vfx-erasure';
-            el.innerHTML = '<div class="vfx-erasure-eye"></div><div class="vfx-erasure-eye"></div><div class="vfx-erasure-band"></div>';
+            // 赤く光る目
+            const eye1 = document.createElement('div'); eye1.className = 'vfx-erasure-eye left';
+            const eye2 = document.createElement('div'); eye2.className = 'vfx-erasure-eye right';
+            el.appendChild(eye1);
+            el.appendChild(eye2);
+            // 赤い視線ビーム
+            const beam = document.createElement('div'); beam.className = 'vfx-erasure-beam';
+            el.appendChild(beam);
+            // 包帯（5本）
+            for (let i = 0; i < 5; i++) {
+                const band = document.createElement('div');
+                band.className = 'vfx-erasure-band';
+                band.style.setProperty('--index', i);
+                band.style.setProperty('--delay', `${0.6 + i * 0.05}s`);
+                el.appendChild(band);
+            }
+            // グレースケールフィルター
+            const gray = document.createElement('div'); gray.className = 'vfx-grayscale-filter';
+            el.appendChild(gray);
             vfx.appendChild(el);
-        } else if (skillId === 'solitude_rain') { // 桜坂しずく
+        } else if (skillId === 'solitude_rain') { // 桜坂しずく：Solitude Rain
             const el = document.createElement('div'); el.className = 'vfx-solitude-rain';
-            el.innerHTML = '<div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div><div class="vfx-raindrop"></div>';
+            // 暗い雨雲
+            const cloud = document.createElement('div'); cloud.className = 'vfx-rain-cloud';
+            el.appendChild(cloud);
+            // 紫の毒雨（25粒）
+            for (let i = 0; i < 25; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'vfx-raindrop';
+                drop.style.setProperty('--delay', `${i * 0.04}s`);
+                drop.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                drop.style.setProperty('--duration', `${0.6 + Math.random() * 0.3}s`);
+                el.appendChild(drop);
+            }
+            // 紫の水たまり
+            const puddle = document.createElement('div'); puddle.className = 'vfx-poison-puddle';
+            el.appendChild(puddle);
+            // 毒の霧
+            const mist = document.createElement('div'); mist.className = 'vfx-poison-mist';
+            el.appendChild(mist);
             vfx.appendChild(el);
         } else if (skillId === 'star_platinum') { // 空条承太郎
             // 高速ラッシュ演出：画面揺れ＋連続衝撃波
@@ -5013,6 +5177,262 @@ class Game {
             rush.appendChild(impact);
 
             vfx.appendChild(rush);
+        } else if (skillId === 'divine_departure') { // シャンクス：神避
+            const screen = document.getElementById('battle-screen');
+            // 暗転（0.4秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 100);
+            }, 400);
+            // 画面揺れ（0.7秒後）
+            setTimeout(() => {
+                screen.classList.add('screen-shake');
+                setTimeout(() => screen.classList.remove('screen-shake'), 300);
+            }, 700);
+
+            const el = document.createElement('div'); el.className = 'vfx-divine-departure';
+            // 黒赤の覇気オーラ
+            const aura = document.createElement('div'); aura.className = 'vfx-haki-aura';
+            el.appendChild(aura);
+            // X字斬撃（2本）
+            const slash1 = document.createElement('div'); slash1.className = 'vfx-haki-slash slash1';
+            const slash2 = document.createElement('div'); slash2.className = 'vfx-haki-slash slash2';
+            el.appendChild(slash1);
+            el.appendChild(slash2);
+            // 雷光エフェクト（6本）
+            for (let i = 0; i < 6; i++) {
+                const bolt = document.createElement('div');
+                bolt.className = 'vfx-haki-bolt';
+                bolt.style.setProperty('--angle', `${i * 60}deg`);
+                bolt.style.setProperty('--delay', `${0.7 + i * 0.02}s`);
+                el.appendChild(bolt);
+            }
+            // 衝撃波リング
+            const shockwave = document.createElement('div'); shockwave.className = 'vfx-haki-shockwave';
+            el.appendChild(shockwave);
+            vfx.appendChild(el);
+        } else if (skillId === 'gmax') { // カメックス：キョダイマックス
+            const screen = document.getElementById('battle-screen');
+            // 画面大揺れ（1.3秒後）
+            setTimeout(() => {
+                screen.classList.add('screen-shake');
+                setTimeout(() => screen.classList.remove('screen-shake'), 300);
+            }, 1300);
+
+            const el = document.createElement('div'); el.className = 'vfx-gmax';
+            // 地面の亀裂（8本）
+            for (let i = 0; i < 8; i++) {
+                const crack = document.createElement('div');
+                crack.className = 'vfx-gmax-crack';
+                crack.style.setProperty('--angle', `${i * 45}deg`);
+                crack.style.setProperty('--delay', `${i * 0.05}s`);
+                el.appendChild(crack);
+            }
+            // 巨大な影シルエット
+            const shadow = document.createElement('div'); shadow.className = 'vfx-gmax-shadow';
+            el.appendChild(shadow);
+            // 赤い衝撃波（3段階）
+            for (let i = 0; i < 3; i++) {
+                const wave = document.createElement('div');
+                wave.className = 'vfx-gmax-wave';
+                wave.style.setProperty('--delay', `${1.0 + i * 0.15}s`);
+                wave.style.setProperty('--scale', 1 + i * 0.3);
+                el.appendChild(wave);
+            }
+            // 稲妻（10本）
+            for (let i = 0; i < 10; i++) {
+                const lightning = document.createElement('div');
+                lightning.className = 'vfx-gmax-lightning';
+                lightning.style.setProperty('--angle', `${i * 36}deg`);
+                lightning.style.setProperty('--delay', `${1.3 + i * 0.02}s`);
+                el.appendChild(lightning);
+            }
+            vfx.appendChild(el);
+        } else if (skillId === 'koikaze') { // 高垣楓：こいかぜ
+            const el = document.createElement('div'); el.className = 'vfx-koikaze';
+            // 薄緑の風の波（5本）
+            for (let i = 0; i < 5; i++) {
+                const wind = document.createElement('div');
+                wind.className = 'vfx-wind-wave';
+                wind.style.setProperty('--delay', `${i * 0.08}s`);
+                wind.style.setProperty('--height', `${20 + i * 15}px`);
+                el.appendChild(wind);
+            }
+            // 桜の花びらのような光粒子（20個）
+            for (let i = 0; i < 20; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'vfx-sakura-petal';
+                petal.style.setProperty('--delay', `${0.4 + i * 0.03}s`);
+                petal.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                petal.style.setProperty('--rotation', `${Math.random() * 360}deg`);
+                el.appendChild(petal);
+            }
+            // 緑の癒しの光
+            const heal = document.createElement('div'); heal.className = 'vfx-heal-glow';
+            el.appendChild(heal);
+            vfx.appendChild(el);
+        } else if (skillId === 'inhale') { // カービィ：吸い込み
+            const el = document.createElement('div'); el.className = 'vfx-inhale';
+            // ピンクの渦巻き（3重）
+            for (let i = 0; i < 3; i++) {
+                const spiral = document.createElement('div');
+                spiral.className = 'vfx-inhale-spiral';
+                spiral.style.setProperty('--delay', `${i * 0.1}s`);
+                spiral.style.setProperty('--size', `${150 - i * 30}px`);
+                el.appendChild(spiral);
+            }
+            // 状態異常粒子（紫/緑/赤、各5個）
+            const colors = ['#a855f7', '#22c55e', '#ef4444'];
+            for (let c = 0; c < 3; c++) {
+                for (let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'vfx-status-particle';
+                    particle.style.setProperty('--color', colors[c]);
+                    particle.style.setProperty('--angle', `${(c * 5 + i) * 24}deg`);
+                    particle.style.setProperty('--delay', `${i * 0.05}s`);
+                    el.appendChild(particle);
+                }
+            }
+            // 浄化の白い光
+            const purify = document.createElement('div'); purify.className = 'vfx-purify-light';
+            el.appendChild(purify);
+            // キラキラ粒子（12個）
+            for (let i = 0; i < 12; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'vfx-sparkle';
+                sparkle.style.setProperty('--angle', `${i * 30}deg`);
+                sparkle.style.setProperty('--delay', `${0.8 + i * 0.02}s`);
+                el.appendChild(sparkle);
+            }
+            vfx.appendChild(el);
+        } else if (skillId === 'shiny_tornado') { // マリ：シャイニートルネード
+            const el = document.createElement('div'); el.className = 'vfx-shiny-tornado';
+            // 金色の光粒子螺旋（30個）
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vfx-tornado-particle';
+                const height = (i / 30) * 180;
+                const angle = (i / 30) * Math.PI * 6; // 3回転
+                particle.style.setProperty('--y', `${-height}px`);
+                particle.style.setProperty('--angle', `${angle}rad`);
+                particle.style.setProperty('--delay', `${i * 0.015}s`);
+                el.appendChild(particle);
+            }
+            // 竜巻本体
+            const tornado = document.createElement('div'); tornado.className = 'vfx-tornado-core';
+            el.appendChild(tornado);
+            // ピーク時のキラキラ爆発（15個）
+            for (let i = 0; i < 15; i++) {
+                const burst = document.createElement('div');
+                burst.className = 'vfx-tornado-burst';
+                burst.style.setProperty('--angle', `${i * 24}deg`);
+                burst.style.setProperty('--delay', `${0.8 + i * 0.02}s`);
+                el.appendChild(burst);
+            }
+            vfx.appendChild(el);
+        } else if (skillId === 'burst_stream') { // 青眼の白龍：滅びの爆裂疾風弾
+            const screen = document.getElementById('battle-screen');
+            // 青白画面反転（0.8秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 300);
+            }, 800);
+
+            const el = document.createElement('div'); el.className = 'vfx-burst-stream';
+            // エネルギー球の収束
+            const charge = document.createElement('div'); charge.className = 'vfx-burst-charge';
+            el.appendChild(charge);
+            // 螺旋状のビーム本体
+            const beam = document.createElement('div'); beam.className = 'vfx-burst-beam';
+            el.appendChild(beam);
+            // 回転する光粒子（20個）
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vfx-beam-particle';
+                particle.style.setProperty('--delay', `${0.5 + i * 0.02}s`);
+                particle.style.setProperty('--angle', `${i * 18}deg`);
+                el.appendChild(particle);
+            }
+            // 十字の光爆発
+            const cross = document.createElement('div'); cross.className = 'vfx-burst-cross';
+            el.appendChild(cross);
+            vfx.appendChild(el);
+        } else if (skillId === 'pineapple_stake') { // マルコ：鳳梨磔
+            const el = document.createElement('div'); el.className = 'vfx-pineapple-stake';
+            // 青い炎の羽根（7枚）
+            for (let i = 0; i < 7; i++) {
+                const feather = document.createElement('div');
+                feather.className = 'vfx-phoenix-feather';
+                feather.style.setProperty('--delay', `${i * 0.07}s`);
+                feather.style.setProperty('--x', `${(i - 3) * 30}px`);
+                el.appendChild(feather);
+            }
+            // 青い炎の粒子（接触時、15個）
+            for (let i = 0; i < 15; i++) {
+                const flame = document.createElement('div');
+                flame.className = 'vfx-blue-flame-particle';
+                flame.style.setProperty('--angle', `${i * 24}deg`);
+                flame.style.setProperty('--delay', `${0.5 + i * 0.02}s`);
+                el.appendChild(flame);
+            }
+            // 癒しの光
+            const heal = document.createElement('div'); heal.className = 'vfx-phoenix-heal';
+            el.appendChild(heal);
+            vfx.appendChild(el);
+        } else if (skillId === 'big_light') { // ドラえもん：ビッグライト
+            const el = document.createElement('div'); el.className = 'vfx-big-light';
+            // 青白い光の輪
+            const ring = document.createElement('div'); ring.className = 'vfx-light-ring';
+            el.appendChild(ring);
+            // 光の粒子（全方位、24個）
+            for (let i = 0; i < 24; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vfx-light-particle';
+                particle.style.setProperty('--angle', `${i * 15}deg`);
+                particle.style.setProperty('--delay', `${0.4 + i * 0.01}s`);
+                el.appendChild(particle);
+            }
+            // 光の波紋
+            const ripple = document.createElement('div'); ripple.className = 'vfx-light-ripple';
+            el.appendChild(ripple);
+            // 金色のオーラ
+            const aura = document.createElement('div'); aura.className = 'vfx-power-aura';
+            el.appendChild(aura);
+            vfx.appendChild(el);
+        } else if (skillId === 'judrajim') { // フリーレン：ジュドラジルム
+            const screen = document.getElementById('battle-screen');
+            // 紫画面反転（0.9秒後）
+            setTimeout(() => {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 300);
+            }, 900);
+
+            const el = document.createElement('div'); el.className = 'vfx-judrajim';
+            // 紫の魔法陣
+            const circle = document.createElement('div'); circle.className = 'vfx-thunder-circle';
+            el.appendChild(circle);
+            // 巨大な紫雷（SVGで3本）
+            for (let i = 0; i < 3; i++) {
+                const bolt = document.createElement('div');
+                bolt.className = 'vfx-thunder-bolt';
+                bolt.innerHTML = `
+                    <svg width="60" height="250" viewBox="0 0 60 250" style="overflow:visible;">
+                        <polygon points="25,0 35,0 20,80 40,80 15,160 28,160 10,250 32,120 20,120 38,40 28,40" class="thunder-shape" />
+                    </svg>
+                `;
+                bolt.style.setProperty('--x', `${(i - 1) * 50}px`);
+                bolt.style.setProperty('--delay', `${0.5 + i * 0.1}s`);
+                el.appendChild(bolt);
+            }
+            // 放射状の紫電撃（12本）
+            for (let i = 0; i < 12; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'vfx-electric-spark';
+                spark.style.setProperty('--angle', `${i * 30}deg`);
+                spark.style.setProperty('--delay', `${0.9 + i * 0.02}s`);
+                el.appendChild(spark);
+            }
+            vfx.appendChild(el);
         }
 
         // === ボス固有技 ===
@@ -5095,14 +5515,28 @@ class Game {
         const vfxDuration =
             (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
                 (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 :
-                    (skillId === 'daten_bind') ? 1500 : // 堕天: 1.5s
-                        (skillId === 'heal' && actor.id === 'josuke') ? 1200 : // ドラララ: 1.2s
-                            (skillId === 'aura_sphere') ? 1300 : // 波動弾: 1.3s
-                                (skillId === 'scarlet_storm') ? 1200 : // 竜巻: 1.2s
-                                    (skillId === 'ice_wall') ? 1000 : // 氷河: 1.0s
-                                        (skillId === 'raikiri') ? 600 : // 雷切（一閃）: 0.6s
-                                            (skillId === 'star_platinum') ? 100 : // スタープラチナ：超高速
-                                                1000;
+                    (skillId === 'daten_bind') ? 1500 : // 堕天龍鳳凰縛: 1.5s
+                        (skillId === 'heal' && actor.id === 'josuke') ? 1200 : // クレイジーD: 1.2s
+                            (skillId === 'aura_sphere') ? 1300 : // はどうだん: 1.3s
+                                (skillId === 'scarlet_storm') ? 1200 : // スカーレットストーム: 1.2s
+                                    (skillId === 'fusion_crust') ? 1400 : // フュージョンクラスト: 1.4s
+                                        (skillId === 'doshatto') ? 1000 : // ドシャット: 1.0s
+                                            (skillId === 'delorieran') ? 1100 : // デロリエラン: 1.1s
+                                                (skillId === 'ice_wall') ? 1200 : // 穿天氷壁: 1.2s
+                                                    (skillId === 'erasure') ? 1200 : // 抹消: 1.2s
+                                                        (skillId === 'solitude_rain') ? 1300 : // Solitude Rain: 1.3s
+                                                            (skillId === 'raikiri') ? 600 : // 雷切: 0.6s
+                                                                (skillId === 'star_platinum') ? 100 : // スタープラチナ: 0.1s
+                                                                    (skillId === 'divine_departure') ? 1200 : // 神避: 1.2s
+                                                                        (skillId === 'gmax') ? 1600 : // キョダイマックス: 1.6s
+                                                                            (skillId === 'koikaze') ? 1100 : // こいかぜ: 1.1s
+                                                                                (skillId === 'inhale') ? 1000 : // 吸い込み: 1.0s
+                                                                                    (skillId === 'shiny_tornado') ? 1200 : // シャイニートルネード: 1.2s
+                                                                                        (skillId === 'burst_stream') ? 1300 : // 滅びの爆裂疾風弾: 1.3s
+                                                                                            (skillId === 'pineapple_stake') ? 1100 : // 鳳梨磔: 1.1s
+                                                                                                (skillId === 'big_light') ? 1000 : // ビッグライト: 1.0s
+                                                                                                    (skillId === 'judrajim') ? 1400 : // ジュドラジルム: 1.4s
+                                                                                                        1000;
 
         // ダメージタイミング：基本50%だが、技によっては微調整
         let damageTiming = vfxDuration * 0.5;
