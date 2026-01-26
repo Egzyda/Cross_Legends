@@ -326,7 +326,7 @@ const CHARACTERS = {
         skills: [],
         excludeSkills: ['heal_all']
     },
-    gojo: {
+    satoru: {
         id: 'satoru',
         name: '五条悟',
         displayName: '五条悟',
@@ -775,7 +775,7 @@ const CHARACTERS = {
         type: 'physical_attacker',
         uniqueSkill: {
             id: 'mentan_ken',
-            displayName: 'メンタンピンドラドラドラゴンショウリュウケン',
+            displayName: 'ﾒﾝﾀﾝﾋﾟﾝﾄﾞﾗﾄﾞﾗﾄﾞﾗｺﾞﾝｼｮｳﾘｭｳｹﾝ',
             basePower: 150,
             mpCost: 30,
             type: 'physical_attack',
@@ -796,7 +796,7 @@ const CHARACTERS = {
     yor: {
         id: 'yor',
         name: 'ヨル・フォージャー',
-        displayName: 'ヨル・フォージャー',
+        displayName: 'ヨル',
         stats: {
             hp: 120,
             mp: 115,
@@ -862,7 +862,7 @@ const CHARACTERS = {
     roy: {
         id: 'roy',
         name: 'ロイ・マスタング',
-        displayName: 'ロイ・マスタング',
+        displayName: 'ロイ',
         stats: {
             hp: 115,
             mp: 175,
@@ -927,7 +927,7 @@ const CHARACTERS = {
         skills: [],
         excludeSkills: ['magic_storm']
     },
-    yosano: {
+    akiko: {
         id: 'akiko',
         name: '与謝野晶子',
         displayName: '与謝野晶子',
@@ -1025,7 +1025,7 @@ const CHARACTERS = {
     anya: {
         id: 'anya',
         name: 'アーニャ・フォージャー',
-        displayName: 'アーニャ・フォージャー',
+        displayName: 'アーニャ',
         stats: {
             hp: 110,
             mp: 210,
@@ -1092,7 +1092,7 @@ const CHARACTERS = {
     loid: {
         id: 'loid',
         name: 'ロイド・フォージャー',
-        displayName: 'ロイド・フォージャー',
+        displayName: 'ロイド',
         stats: {
             hp: 125,
             mp: 180,

@@ -7549,8 +7549,8 @@ h3 {
 /* Kuroo Doshatto VFX */
 .vfx-doshatto {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    width: 200px;
+    height: 200px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -7563,12 +7563,12 @@ h3 {
     top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    height: 150px;
+    width: 140px;
+    height: 100px;
     background: linear-gradient(180deg, rgba(80, 80, 80, 0.9), rgba(30, 30, 30, 0.95));
-    border: 4px solid #a0a0a0;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(255, 255, 255, 0.2);
+    border: 3px solid #a0a0a0;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2);
     animation: metal-wall-rise 0.5s ease-out forwards;
     opacity: 0;
 }
@@ -7600,46 +7600,46 @@ h3 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 80px;
-    height: 92px;
+    width: 32px;
+    height: 37px;
     /* hex aspect ratio */
     background: rgba(200, 200, 200, 0.3);
-    border: 2px solid #fff;
+    border: 1px solid #fff;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    box-shadow: 0 0 10px #fff;
+    box-shadow: 0 0 5px #fff;
     transform: translate(-50%, -50%);
     opacity: 0;
     animation: hex-appear 0.4s ease-out forwards;
     animation-delay: var(--delay);
 }
 
-/* Hexagon positioning pattern */
+/* Hexagon positioning pattern (Scaled down) */
 .vfx-hex-barrier:nth-child(2) {
-    margin-top: -80px;
+    margin-top: -32px;
 }
 
 .vfx-hex-barrier:nth-child(3) {
-    margin-top: 80px;
+    margin-top: 32px;
 }
 
 .vfx-hex-barrier:nth-child(4) {
-    margin-left: -70px;
-    margin-top: -40px;
+    margin-left: -28px;
+    margin-top: -16px;
 }
 
 .vfx-hex-barrier:nth-child(5) {
-    margin-left: 70px;
-    margin-top: -40px;
+    margin-left: 28px;
+    margin-top: -16px;
 }
 
 .vfx-hex-barrier:nth-child(6) {
-    margin-left: -70px;
-    margin-top: 40px;
+    margin-left: -28px;
+    margin-top: 16px;
 }
 
 .vfx-hex-barrier:nth-child(7) {
-    margin-left: 70px;
-    margin-top: 40px;
+    margin-left: 28px;
+    margin-top: 16px;
 }
 
 @keyframes hex-appear {
