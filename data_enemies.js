@@ -635,9 +635,9 @@ const ENEMIES = {
             power: 85,
             mpCost: 90,
             effects: [
-                { type: 'status', status: 'stun', chance: 100, duration: 1 }
+                { type: 'status', status: 'stun', chance: 50, duration: 1 }
             ],
-            description: '全体に強力な物理攻撃（威力85%）+ スタン状態にする'
+            description: '全体に強力な物理攻撃（威力85%）+ スタン50%'
         },
         image: { full: 'img/enemy/dio.png' },
         rank: 'last_boss'

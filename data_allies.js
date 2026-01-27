@@ -293,7 +293,7 @@ const CHARACTERS = {
             target: 'all_allies',
             mpHealPercent: 20,
             effects: [],
-            description: '味方全員のMPを20%回復',
+            description: '自分以外の味方のMPを20%回復',
         },
         image: {
             full: 'img/shiki_full.png',
