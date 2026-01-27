@@ -4574,8 +4574,13 @@ class Game {
         this.enhanceSpBackup = this.state.spPool;
         this.enhanceSelectedCharIdx = 0;
         this.enhanceInvestments = {};
+        this.enhanceHistory = {}; // Track boost history for each stat point
         this.state.party.forEach(p => {
             this.enhanceInvestments[p.id] = { hp: 0, mp: 0, physicalAttack: 0, magicAttack: 0, physicalDefense: 0, magicDefense: 0, speed: 0, luck: 0 };
+            this.enhanceHistory[p.id] = {
+                hp: [], mp: [], physicalAttack: [], magicAttack: [],
+                physicalDefense: [], magicDefense: [], speed: [], luck: []
+            };
         });
 
         this.showModal('ステータス強化', this.buildEnhanceContent(), [
@@ -4639,7 +4644,14 @@ class Game {
         const char = this.state.party[this.enhanceSelectedCharIdx];
         const baseStats = CHARACTERS[char.id].stats;
         const investments = this.enhanceInvestments[char.id];
-        const boostPerPoint = Math.floor(baseStats[stat] * 0.05);
+
+        // Initialize history if not exists
+        if (!this.enhanceHistory[char.id]) {
+            this.enhanceHistory[char.id] = {};
+        }
+        if (!this.enhanceHistory[char.id][stat]) {
+            this.enhanceHistory[char.id][stat] = [];
+        }
 
         let actualDelta = delta;
 
@@ -4655,11 +4667,26 @@ class Game {
 
             this.state.spPool -= actualDelta;
             investments[stat] += actualDelta;
-            char.stats[stat] += boostPerPoint * actualDelta;
 
-            // HP/MP Current Value Adjust (Healing effect on enhance)
-            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp + boostPerPoint * actualDelta);
-            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp + boostPerPoint * actualDelta);
+            // Loop through each SP point for accurate soft cap calculation
+            for (let i = 0; i < actualDelta; i++) {
+                const currentStat = char.stats[stat];
+                const rate = this.getGrowthRate(currentStat);
+                const boost = Math.max(1, Math.floor(baseStats[stat] * rate));
+
+                // Record boost in history for reversible operations
+                this.enhanceHistory[char.id][stat].push(boost);
+
+                char.stats[stat] += boost;
+
+                // HP/MP Current Value Adjust (Healing effect on enhance)
+                if (stat === 'hp') char.currentHp += boost;
+                if (stat === 'mp') char.currentMp += boost;
+            }
+
+            // Clamp current values to max
+            if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp);
+            if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp);
 
         } else if (delta < 0) {
             // Partial Remove: Cap at invested amount
@@ -4671,10 +4698,14 @@ class Game {
 
             this.state.spPool += absD;
             investments[stat] += actualDelta; // negative add
-            char.stats[stat] += boostPerPoint * actualDelta;
 
-            // HP/MP Cap Adjust (If max reduced, current might need clamp, though logic usually keeps current <= max automatically or allowed overflow?
-            // Usually clamp current to new max if it exceeds.
+            // Loop through each SP point in reverse using history
+            for (let i = 0; i < absD; i++) {
+                const boost = this.enhanceHistory[char.id][stat].pop();
+                char.stats[stat] -= boost;
+            }
+
+            // HP/MP Cap Adjust
             if (stat === 'hp') char.currentHp = Math.min(char.stats.hp, char.currentHp);
             if (stat === 'mp') char.currentMp = Math.min(char.stats.mp, char.currentMp);
         }
@@ -4687,11 +4718,26 @@ class Game {
         this.bindEnhanceEvents();
     }
 
+    getGrowthRate(currentStat) {
+        if (currentStat < 200) {
+            return 0.05; // 5% for stats below 200
+        } else if (currentStat < 400) {
+            // Linear decay from 5% to 1% between 200 and 400
+            return 0.05 - (0.04 * (currentStat - 200) / 200);
+        } else {
+            return 0.01; // 1% for stats 400 and above
+        }
+    }
+
     resetEnhance() {
         this.state.party = JSON.parse(JSON.stringify(this.enhanceBackup));
         this.state.spPool = this.enhanceSpBackup;
         this.state.party.forEach(p => {
             this.enhanceInvestments[p.id] = { hp: 0, mp: 0, physicalAttack: 0, magicAttack: 0, physicalDefense: 0, magicDefense: 0, speed: 0, luck: 0 };
+            this.enhanceHistory[p.id] = {
+                hp: [], mp: [], physicalAttack: [], magicAttack: [],
+                physicalDefense: [], magicDefense: [], speed: [], luck: []
+            };
         });
         this.refreshEnhanceUI();
         this.showToast('リセットしました', 'info');
