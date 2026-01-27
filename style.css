@@ -162,8 +162,8 @@ body {
     margin-bottom: 20px;
     line-height: 1.6;
     color: #eee;
-    text-align: center;
-    /* overflow-y: auto; handled by modal-content max-height if needed */
+    text-align: left;
+    word-break: break-word;
 }
 
 /* Character Target Selection (Custom Modal) */

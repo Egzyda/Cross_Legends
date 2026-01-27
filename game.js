@@ -214,7 +214,7 @@ class Game {
         // タイトル画面
         document.getElementById('start-btn').addEventListener('click', () => {
             if (this.hasSaveData()) {
-                this.showModal('確認', '進行中のデータがあります。<br>新しいゲームを始めるとデータは消去されます。<br>よろしいですか？', [
+                this.showModal('確認', '進行中のデータがあります。新しいゲームを始めるとデータは消去されます。<br><br>よろしいですか？', [
                     {
                         text: 'はじめる',
                         onClick: () => {
