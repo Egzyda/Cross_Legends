@@ -3593,13 +3593,13 @@ class Game {
             // Skip
             this.nextReward(charIdx);
         }
-    }
-
-    // スキル入れ替え画面
-    showSkillSwap(charIdx, newSkill) {
+    }    // スキル入れ替え画面 (ショップ対応版)
+    showSkillSwap(charIdx, newSkill, isShop = false, shopPrice = 0) {
         const char = this.state.party[charIdx];
         const options = document.getElementById('reward-options');
-        document.getElementById('reward-character-name').textContent = `${char.displayName}：入れ替えるスキルを選択`;
+        document.getElementById('reward-character-name').textContent = isShop 
+            ? `${char.displayName}：入れ替えるスキルを選択（購入：￥${shopPrice}）` 
+            : `${char.displayName}：入れ替えるスキルを選択`;
         options.innerHTML = '';
 
         // 新しいスキルの情報を表示
@@ -3624,15 +3624,24 @@ class Game {
             option.innerHTML = `
                 <div class="reward-title">【入れ替え】${oldSkill.displayName || skillData.name}</div>
                 <div class="reward-desc">${skillData.description || ''}</div>
-            `;
-            option.addEventListener('click', () => {
+            `;            option.addEventListener('click', () => {
                 this.showModal('確認', `${oldSkill.displayName || skillData.name} を忘れて ${newSkill.name} を覚えますか？`, [
                     {
-                        text: '入れ替える',
+                        text: isShop ? '購入して入れ替える' : '入れ替える',
                         onClick: () => {
                             this.closeModal();
+                            if (isShop) {
+                                this.state.gold -= shopPrice;
+                                this.renderPartyStatusBar();
+                            }
                             char.skills[idx] = { id: newSkill.id, displayName: newSkill.name };
-                            this.nextReward(charIdx);
+                            
+                            if (isShop) {
+                                this.showShopScreen();
+                                this.showToast(`${newSkill.name}を習得しました！`, 'success');
+                            } else {
+                                this.nextReward(charIdx);
+                            }
                         },
                         className: 'btn-danger'
                     },
@@ -3640,18 +3649,22 @@ class Game {
                 ]);
             });
             options.appendChild(option);
-        });
-
-        // 習得を諦めるボタン
+        });        // 習得を諦めるボタン
         const skipOption = document.createElement('div');
         skipOption.className = 'reward-option';
         skipOption.style.marginTop = '20px';
         skipOption.style.borderColor = '#666';
         skipOption.innerHTML = `
-            <div class="reward-title" style="color:#aaa;">習得を諦める</div>
+            <div class="reward-title" style="color:#aaa;">${isShop ? '購入を中止する' : '習得を諦める'}</div>
             <div class="reward-desc">現在のスキルを維持します</div>
         `;
-        skipOption.addEventListener('click', () => this.nextReward(charIdx));
+        skipOption.addEventListener('click', () => {
+            if (isShop) {
+                this.showShopScreen();
+            } else {
+                this.nextReward(charIdx);
+            }
+        });
         options.appendChild(skipOption);
     }
 
@@ -4237,9 +4250,7 @@ class Game {
                 return;
             }
             this.state.items.push(item.id);
-            this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);
-
-        } else if (item.type === 'skill') {
+            this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);        } else if (item.type === 'skill') {
             // スキル購入フロー
             this.showCharacterSelectModal('誰に習得させる？', (targetChar) => {
                 // 習得済みチェック
@@ -4248,19 +4259,18 @@ class Game {
                     return;
                 }
 
-                // スキルスロットがいっぱいの場合（固有スキル含めて4つ = skills配列は最大3）
+                const skillData = SKILLS[item.id];
+                const charIdx = this.state.party.indexOf(targetChar);
+
+                // スキルスロットがいっぱいの場合
                 if (targetChar.skills.length >= 3) {
-                    this.showSkillSwapModal(targetChar, item.id, (swapped) => {
-                        if (swapped) {
-                            this.finalizePurchase(item, el, `${targetChar.displayName}は新スキルを習得した`);
-                        }
-                    });
+                    this.showScreen('reward');
+                    this.showSkillSwap(charIdx, skillData, true, item.price);
                     return;
                 }
 
-                const skillData = SKILLS[item.id];
                 targetChar.skills.push({ id: skillData.id, displayName: skillData.name });
-                this.finalizePurchase(item, el, `${targetChar.displayName}は${skillData.name}を習得した`);
+                this.finalizePurchase(item, el, `${skillData.name}を習得した`);
                 this.closeModal();
             });
 
