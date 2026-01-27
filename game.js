@@ -4559,7 +4559,12 @@ class Game {
             skillList.forEach(skill => {
                 // 文字列IDの場合とオブジェクトの場合に対応
                 const skillId = (typeof skill === 'string') ? skill : skill.id;
-                const skillData = SKILLS[skillId] || skill; // SKILLSになければそのまま(uniqueSkill等)、あるいはID表示
+                const skillData = SKILLS[skillId] || {}; // 汎用スキル定義を取得（フォールバック用）
+
+                // キャラ固有のスキル情報を優先（displayName等）
+                const displayName = (typeof skill === 'object' && skill.displayName) ? skill.displayName : (skillData.displayName || skillData.name || skillId);
+                const mpCost = (typeof skill === 'object' && skill.mpCost !== undefined) ? skill.mpCost : (skillData.mpCost || 0);
+                const description = (typeof skill === 'object' && skill.description) ? skill.description : (skillData.description || '');
 
                 // 敵の場合はMPコスト非表示
                 const showCost = context !== 'enemy_battle';
@@ -4568,10 +4573,10 @@ class Game {
                 skillItem.className = 'skill-item';
                 skillItem.innerHTML = `
                      <div class="skill-item-header">
-                         <span class="skill-item-name">${skillData.displayName || skillData.name || skillId}</span>
-                         ${showCost ? `<span class="skill-item-cost">MP: ${skillData.mpCost || 0}</span>` : ''}
+                         <span class="skill-item-name">${displayName}</span>
+                         ${showCost ? `<span class="skill-item-cost">MP: ${mpCost}</span>` : ''}
                      </div>
-                     <div class="skill-item-desc">${skillData.description || ''}</div>
+                     <div class="skill-item-desc">${description}</div>
                  `;
                 skillsSection.appendChild(skillItem);
             });
