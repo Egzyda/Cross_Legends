@@ -119,7 +119,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.2, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 3 }
         ],
-        description: '挑発＋物防・魔防+20% (3T)（先制）'
+        description: '挑発＋物防/魔防+20% (3T)（先制）'
     },
     iron_wall: {
         id: 'iron_wall',
@@ -132,7 +132,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 3 }
         ],
-        description: '3T自分の物防/魔防+50%（先制）'
+        description: '自分の物防/魔防+50% (3T)（先制）'
     },
 
     counter_stance: {
@@ -146,21 +146,20 @@ const SKILLS = {
             { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 3 },
             { type: 'counter', power: 150, duration: 3 }
         ],
-        description: '物防・魔防+10%、反撃状態（威力150%）3T'
+        description: '物防/魔防+10%、反撃状態（威力150%）(3T)'
     },
     fortitude: {
         id: 'fortitude',
         name: '不屈',
         type: 'buff',
         target: 'self',
-        mpCost: 60,
-        hpThreshold: 30,
+        mpCost: 50,
         effects: [
-            { type: 'heal', value: 0.5 },
-            { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
-            { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
+            { type: 'heal', value: 0.3 },
+            { type: 'buff', stat: 'physicalDefense', value: 0.1, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 3 }
         ],
-        description: 'HP30%以下で発動、HP50%回復+物防/魔防+40% 3T'
+        description: '自身のHP30%回復＋物防/魔防10%アップ（3T）'
     },
 
 

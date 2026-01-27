@@ -32,7 +32,7 @@ const CHARACTERS = {
                 { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 3 },
                 { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 3 }
             ],
-            description: '挑発＋物防・魔防+25% (3T)（先制）',
+            description: '挑発＋物防・魔防+25% (3T) (先制)',
         },
         image: {
             full: 'img/keke_full.png',
@@ -178,9 +178,9 @@ const CHARACTERS = {
             mp: 175,
             physicalAttack: 60,
             magicAttack: 140,
-            physicalDefense: 110,
+            physicalDefense: 90,
             magicDefense: 80,
-            speed: 80,
+            speed: 100,
             luck: 50
         },
         type: 'magic_attacker',
@@ -956,7 +956,7 @@ const CHARACTERS = {
             hits: 2,
             critBonus: 40,
             effects: [],
-            description: '単体物理攻撃（2連続、威力65%）＋クリティカル率+40%（この攻撃のみ）'
+            description: '2連続攻撃(威力65%)＋クリティカル率+40%'
         },
         image: {
             full: 'img/yor_full.png',
@@ -1260,5 +1260,210 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['armor_break_all']
+    },
+    nyammy: {
+        id: 'nyammy',
+        name: 'キュアニャミー',
+        displayName: 'キュアニャミー',
+        stats: {
+            hp: 175,
+            mp: 145,
+            physicalAttack: 90,
+            magicAttack: 30,
+            physicalDefense: 140,
+            magicDefense: 105,
+            speed: 70,
+            luck: 50
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'nyammy_shield',
+            displayName: 'ニャミーシールド',
+            type: 'buff',
+            target: 'self',
+            power: 0,
+            mpCost: 40,
+            priority: 'first',
+            effects: [
+                { type: 'taunt', duration: 3 },
+                { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 3 },
+                { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 3 }
+            ],
+            description: '挑発＋物防・魔防+25% (3T) (先制)',
+        },
+        image: {
+            full: 'img/nyammy_full.png',
+            face: 'img/nyammy_face.png'
+        },
+        skills: [],
+        excludeSkills: ['taunt']
+    },
+    zukyuun: {
+        id: 'zukyuun',
+        name: 'キュアズキューン',
+        displayName: 'キュアズキューン',
+        stats: {
+            hp: 125,
+            mp: 180,
+            physicalAttack: 155,
+            magicAttack: 30,
+            physicalDefense: 65,
+            magicDefense: 60,
+            speed: 115,
+            luck: 85
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'zukyuun_bazooka',
+            displayName: 'ズキューンバズーカー',
+            type: 'physical_attack',
+            target: 'single_enemy',
+            power: 220,
+            mpCost: 60,
+            effects: [],
+            description: '単体に強力な物理攻撃（威力220%）',
+        },
+        image: {
+            full: 'img/zukyuun_full.png',
+            face: 'img/zukyuun_face.png'
+        },
+        skills: [],
+        excludeSkills: ['ultra_attack']
+    },
+    margarete: {
+        id: 'margarete',
+        name: 'ウィーン・マルガレーテ',
+        displayName: 'マルガレーテ',
+        stats: {
+            hp: 120,
+            mp: 195,
+            physicalAttack: 30,
+            magicAttack: 155,
+            physicalDefense: 75,
+            magicDefense: 75,
+            speed: 105,
+            luck: 70
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'edelstein',
+            displayName: 'エーデルシュタイン',
+            type: 'magic_attack',
+            target: 'single_enemy',
+            power: 150,
+            mpCost: 30,
+            effects: [
+                { type: 'buff', stat: 'magicAttack', value: 0.15, duration: 3 }
+            ],
+            description: '単体魔法攻撃（150%）＋自身の魔攻15%上昇（3T)',
+        },
+        image: {
+            full: 'img/margarete_full.png',
+            face: 'img/margarete_face.png'
+        },
+        skills: [],
+        excludeSkills: ['magic_shot']
+    },
+    chiyuki: {
+        id: 'chiyuki',
+        name: '桑山千雪',
+        displayName: '桑山千雪',
+        stats: {
+            hp: 120,
+            mp: 235,
+            physicalAttack: 50,
+            magicAttack: 95,
+            physicalDefense: 85,
+            magicDefense: 100,
+            speed: 90,
+            luck: 60
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'love_bonapetit',
+            displayName: 'ラブ・ボナペティート',
+            type: 'mp_heal',
+            target: 'single_ally',
+            mpHealValue: 50,
+            mpCost: 50,
+            effects: [],
+            description: '味方単体のMP50回復',
+        },
+        image: {
+            full: 'img/chiyuki_full.png',
+            face: 'img/chiyuki_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    hanamaru: {
+        id: 'hanamaru',
+        name: '国木田花丸',
+        displayName: '国木田花丸',
+        stats: {
+            hp: 145,
+            mp: 200,
+            physicalAttack: 70,
+            magicAttack: 85,
+            physicalDefense: 85,
+            magicDefense: 90,
+            speed: 75,
+            luck: 75
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'future_zura',
+            displayName: '未来ずら～！',
+            type: 'buff',
+            target: 'single_ally',
+            power: 0,
+            mpCost: 30,
+            priority: 'first',
+            effects: [
+                { type: 'buff', stat: 'speed', value: 0.60, duration: 3 }
+            ],
+            description: '味方単体の速度+60% (3T) (先制)',
+        },
+        image: {
+            full: 'img/hanamaru_full.png',
+            face: 'img/hanamaru_face.png'
+        },
+        skills: [],
+        excludeSkills: ['speed_boost']
+    },
+    dave: {
+        id: 'dave',
+        name: 'デイブ',
+        displayName: 'デイブ',
+        stats: {
+            hp: 130,
+            mp: 180,
+            physicalAttack: 65,
+            magicAttack: 100,
+            physicalDefense: 90,
+            magicDefense: 95,
+            speed: 100,
+            luck: 65
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'freeze_ray',
+            displayName: '冷凍光線',
+            type: 'debuff',
+            target: 'all_enemies',
+            power: 0,
+            mpCost: 45,
+            effects: [
+                { type: 'debuff', stat: 'physicalAttack', value: 0.35, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: 0.35, duration: 3 }
+            ],
+            description: '全体の物攻/魔攻-35% (3T)',
+        },
+        image: {
+            full: 'img/dave_full.png',
+            face: 'img/dave_face.png'
+        },
+        skills: [],
+        excludeSkills: ['weaken_all']
     }
 };

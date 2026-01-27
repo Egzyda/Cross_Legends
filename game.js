@@ -238,7 +238,37 @@ class Game {
         });
 
         // 難易度選択
-        document.getElementById('difficulty-select').addEventListener('change', (e) => {
+        const difficultySelect = document.getElementById('difficulty-select');
+        const unlocked = this.getUnlockedDifficulty();
+
+        // 選択肢のロック更新
+        Array.from(difficultySelect.options).forEach(opt => {
+            const val = parseInt(opt.value);
+            if (val > unlocked) {
+                opt.disabled = true;
+                opt.textContent = `${val} - ????`; // 未解放は伏せる場合
+            } else {
+                opt.disabled = false;
+                // テキストを戻す（簡易実装）
+                if (opt.textContent.includes('????')) {
+                    opt.textContent = val === 0 ? '0 - 基準' : (val === 10 ? '10 - 極限' : val.toString());
+                }
+            }
+        });
+
+        // 選択中がロックされている場合、解放済みの最大値（または0）に戻す
+        if (parseInt(difficultySelect.value) > unlocked) {
+            difficultySelect.value = unlocked; // 最大解放まで自動選択させるか、0にするか。ここでは解放済み最大へ
+            this.state.difficulty = unlocked;
+        } else {
+            // 初期化時にstateも合わせる
+            this.state.difficulty = parseInt(difficultySelect.value);
+        }
+
+        // 初回表示更新
+        this.updateDifficultyDescription(this.state.difficulty);
+
+        difficultySelect.addEventListener('change', (e) => {
             const difficulty = parseInt(e.target.value);
             this.state.difficulty = difficulty;
             this.updateDifficultyDescription(difficulty);
@@ -308,6 +338,25 @@ class Game {
                 });
             }
         });
+    }
+
+    // --- System Data (Global Progress) ---
+
+    loadSystemData() {
+        const data = localStorage.getItem('cross_legends_system');
+        if (data) {
+            return JSON.parse(data);
+        }
+        return { unlockedDifficulty: 0 };
+    }
+
+    saveSystemData(data) {
+        localStorage.setItem('cross_legends_system', JSON.stringify(data));
+    }
+
+    getUnlockedDifficulty() {
+        const sys = this.loadSystemData();
+        return sys.unlockedDifficulty !== undefined ? sys.unlockedDifficulty : 0;
     }
 
     // --- Save System ---
@@ -391,7 +440,7 @@ class Game {
                 敵HP: ${hpPercent > 0 ? '+' : ''}${hpPercent}% /
                 敵攻撃: ${atkPercent > 0 ? '+' : ''}${atkPercent}%<br>
                 エリート数: ${eliteText} /
-                休憩回復: ${restText} /
+                休憩回復: ${restText} <br>
                 ショップ価格: ${shopText}
             </div>
         `;
@@ -1111,6 +1160,7 @@ class Game {
 
         const homeBtn = document.createElement('button');
         homeBtn.id = 'home-btn';
+        homeBtn.className = 'control-btn';
         homeBtn.textContent = 'ホーム';
         homeBtn.onclick = () => {
             this.saveGame();
@@ -1119,14 +1169,24 @@ class Game {
         };
         controlsRow.appendChild(homeBtn);
 
+        // スキルボタン追加
+        const skillBtn = document.createElement('button');
+        skillBtn.id = 'skill-btn';
+        skillBtn.className = 'control-btn';
+        skillBtn.textContent = 'スキル';
+        skillBtn.onclick = () => this.showMapSkillModal();
+        controlsRow.appendChild(skillBtn);
+
         const itemBtn = document.createElement('button');
         itemBtn.id = 'item-btn';
+        itemBtn.className = 'control-btn';
         itemBtn.textContent = 'アイテム';
         itemBtn.onclick = () => this.showItemModal('map');
         controlsRow.appendChild(itemBtn);
 
         const enhanceBtn = document.createElement('button');
         enhanceBtn.id = 'enhance-btn';
+        enhanceBtn.className = 'control-btn';
         enhanceBtn.textContent = '強化';
         enhanceBtn.onclick = () => this.showEnhanceScreen();
         controlsRow.appendChild(enhanceBtn);
@@ -3287,6 +3347,19 @@ class Game {
         // ラスボス撃破の場合は報酬フェーズをスキップして直接勝利モーダル表示
         const isLastBoss = this.state.battle.enemies.some(e => e.rank === 'last_boss');
 
+        if (isLastBoss) {
+            // 難易度解放チェック
+            const currentDiff = this.state.difficulty;
+            const unlockedDiff = this.getUnlockedDifficulty();
+
+            // クリアした難易度が解放済み以上なら、次を解放 (最大10まで)
+            if (currentDiff >= unlockedDiff && unlockedDiff < 10) {
+                const nextDiff = currentDiff + 1;
+                this.saveSystemData({ unlockedDifficulty: nextDiff });
+                this.showToast(`最高難易度更新！ 難易度 ${nextDiff} が解放されました！`, 'success');
+            }
+        }
+
         setTimeout(() => {
             if (isLastBoss) {
                 this.showVictoryModal();
@@ -4566,8 +4639,245 @@ class Game {
     }
 
     // ========================================
-    // 強化画面
+    // マップ画面スキル使用
     // ========================================
+
+    // スキル発動者選択モーダル
+    // スキル発動者選択モーダル（改善版：タブ切り替え式）
+    showMapSkillModal(keepState = false) {
+        if (!keepState || this.selectedSkillCharIdx === undefined) {
+            this.selectedSkillCharIdx = 0;
+        }
+
+        this.showModal('スキル使用', this.buildMapSkillContent(), [
+            { text: '閉じる', onClick: () => this.closeModal(), className: 'btn-cancel' }
+        ]);
+
+        this.bindMapSkillEvents();
+    }
+
+    // スキル画面コンテンツ生成（詳細カードリスト＋スキルリスト）
+    buildMapSkillContent() {
+        const caster = this.state.party[this.selectedSkillCharIdx];
+
+        let html = '<div class="skill-screen-layout">';
+
+        // キャラ一覧（詳細カード形式）
+        html += '<div class="skill-char-list-container">';
+        this.state.party.forEach((p, idx) => {
+            const activeClass = idx === this.selectedSkillCharIdx ? 'active' : '';
+            const deadClass = p.currentHp <= 0 ? 'dead' : '';
+            const hpPerc = p.currentHp > 0 ? (p.currentHp / p.stats.hp) * 100 : 0;
+            const mpPerc = p.stats.mp > 0 ? (p.currentMp / p.stats.mp) * 100 : 0;
+
+            html += `<div class="skill-char-card ${activeClass} ${deadClass}" data-char-idx="${idx}">
+                <img src="${p.image.face}" alt="${p.displayName}">
+                <div class="skill-char-status-text">HP:${Math.floor(p.currentHp)}<br>MP:${Math.floor(p.currentMp)}</div>
+                <div class="skill-char-bars">
+                    <div class="mini-bar-bg"><div class="hp-fill" style="width:${hpPerc}%"></div></div>
+                    <div class="mini-bar-bg"><div class="mp-fill" style="width:${mpPerc}%"></div></div>
+                </div>
+            </div>`;
+        });
+        html += '</div>';
+
+        // スキルリスト
+        html += '<div class="map-skill-list">';
+
+        // 戦闘不能チェック
+        if (caster.currentHp <= 0) {
+            html += '<div class="skill-msg-empty">戦闘不能のためスキルを使用できません</div>';
+        } else {
+            const healTypes = ['heal', 'revive', 'mp_heal'];
+            const skills = [];
+
+            // 固有スキル
+            if (caster.uniqueSkill && healTypes.includes(caster.uniqueSkill.type)) {
+                // 固有も通常と同じ扱いで追加
+                skills.push({ ...caster.uniqueSkill, isUnique: true });
+            }
+
+            // 習得スキル
+            caster.skills.forEach(skillId => {
+                const skill = SKILLS[skillId];
+                if (skill && healTypes.includes(skill.type)) {
+                    skills.push({ ...skill });
+                }
+            });
+
+            if (skills.length === 0) {
+                html += '<div class="skill-msg-empty">使用できる回復スキルがありません</div>';
+            } else {
+                skills.forEach((skill, idx) => {
+                    const canUse = caster.currentMp >= skill.mpCost;
+                    const disabledClass = canUse ? '' : 'disabled';
+                    // uniqueLabelなし
+
+                    html += `
+                        <div class="map-skill-item ${disabledClass}" data-skill-idx="${idx}">
+                            <div class="skill-header">
+                                <span class="skill-name">${skill.displayName || skill.name}</span>
+                                <span class="skill-cost">MP: ${skill.mpCost}</span>
+                            </div>
+                            <div class="skill-body">
+                                <span class="skill-desc">${skill.description}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                // 一時保存
+                this._currentSkillList = skills;
+            }
+        }
+
+        html += '</div></div>';
+        return html;
+    }
+
+    // イベントバインド
+    bindMapSkillEvents() {
+        const caster = this.state.party[this.selectedSkillCharIdx];
+
+        // キャラ選択（カードクリック）
+        document.querySelectorAll('.skill-char-card').forEach(card => {
+            card.onclick = () => {
+                this.selectedSkillCharIdx = parseInt(card.dataset.charIdx);
+                // モーダル内容更新
+                const content = document.getElementById('modal-body');
+                if (content) {
+                    content.innerHTML = this.buildMapSkillContent();
+                    this.bindMapSkillEvents();
+                }
+            };
+        });
+
+        // スキル選択
+        document.querySelectorAll('.map-skill-item:not(.disabled)').forEach(entry => {
+            entry.onclick = () => {
+                const idx = parseInt(entry.dataset.skillIdx);
+                const skill = this._currentSkillList[idx];
+                this.selectMapSkillTarget(caster, skill);
+            };
+        });
+    }
+
+    // ターゲット選択
+    selectMapSkillTarget(caster, skill) {
+        // 全体対象の場合は確認ダイアログ
+        if (skill.target === 'all_allies') {
+            this.showModal('確認', `<p style="text-align:center;">「${skill.displayName || skill.name}」を使用しますか？<br><span style="font-size:12px;color:#888;">（消費MP: ${skill.mpCost}）</span></p>`, [
+                {
+                    text: '使用する',
+                    onClick: () => {
+                        this.closeModal();
+                        this.executeMapSkill(caster, skill, null);
+                    }
+                },
+                {
+                    text: 'やめる',
+                    onClick: () => this.showMapSkillModal(true), // 状態保持して戻る
+                    className: 'btn-cancel'
+                }
+            ]);
+            return;
+        }
+
+        // 単体対象：ターゲット選択カード表示
+        let html = '<div class="skill-char-list-container">';
+
+        this.state.party.forEach((member, idx) => {
+            // スキルタイプによるフィルタ
+            let isTargetable = true;
+            if (skill.type === 'revive') {
+                if (member.currentHp > 0) isTargetable = false;
+            } else {
+                if (member.currentHp <= 0) isTargetable = false;
+            }
+
+            const hpPerc = member.stats.hp > 0 ? Math.floor((member.currentHp / member.stats.hp) * 100) : 0;
+            const mpPerc = member.stats.mp > 0 ? Math.floor((member.currentMp / member.stats.mp) * 100) : 0;
+            const targetClass = isTargetable ? 'valid-target' : 'invalid-target target-disabled';
+
+            html += `
+                <div class="skill-char-card ${targetClass}" data-idx="${idx}" style="${isTargetable ? '' : 'opacity: 0.3; pointer-events: none;'}">
+                    <img src="${member.image.face}" alt="${member.displayName}">
+                    <div class="skill-char-status-text">HP:${Math.floor(member.currentHp)}<br>MP:${Math.floor(member.currentMp)}</div>
+                    <div class="skill-char-bars">
+                        <div class="mini-bar-bg"><div class="hp-fill" style="width:${hpPerc}%"></div></div>
+                        <div class="mini-bar-bg"><div class="mp-fill" style="width:${mpPerc}%"></div></div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        // 有効なターゲットがいない場合
+        if (!html.includes('valid-target')) {
+            this.showToast(skill.type === 'revive' ? '蘇生対象がいません' : '対象がいません', 'info');
+            return;
+        }
+
+        this.showModal(`対象を選択（${skill.displayName || skill.name}）`, html, [
+            { text: '戻る', onClick: () => this.showMapSkillModal(true), className: 'btn-cancel' }
+        ]);
+
+        // クリックバインド
+        setTimeout(() => {
+            document.querySelectorAll('.skill-char-card.valid-target').forEach(card => {
+                card.onclick = () => {
+                    const idx = parseInt(card.dataset.idx);
+                    this.closeModal();
+                    this.executeMapSkill(caster, skill, this.state.party[idx]);
+                };
+            });
+        }, 50);
+    }
+
+    // スキル発動（マップ画面用）
+    executeMapSkill(caster, skill, target) {
+        // MP消費
+        caster.currentMp -= skill.mpCost;
+
+        // 対象リスト作成
+        const targets = target ? [target] : this.state.party.filter(m => m.currentHp > 0);
+
+        switch (skill.type) {
+            case 'heal':
+                targets.forEach(t => {
+                    const healPercent = skill.healPercent || 0;
+                    const healValue = skill.healValue || 0;
+                    const healAmount = Math.floor(t.stats.hp * (healPercent / 100)) + healValue;
+                    t.currentHp = Math.min(t.stats.hp, t.currentHp + healAmount);
+                });
+                this.showToast(`HP回復！`, 'success');
+                break;
+
+            case 'mp_heal':
+                targets.forEach(t => {
+                    const mpHealPercent = skill.mpHealPercent || 0;
+                    const mpHealValue = skill.mpHealValue || 0;
+                    const healAmount = Math.floor(t.stats.mp * (mpHealPercent / 100)) + mpHealValue;
+                    t.currentMp = Math.min(t.stats.mp, t.currentMp + healAmount);
+                });
+                this.showToast(`MP回復！`, 'success');
+                break;
+
+            case 'revive':
+                if (target && target.currentHp <= 0) {
+                    const revivePercent = skill.healPercent || 30;
+                    target.currentHp = Math.floor(target.stats.hp * (revivePercent / 100));
+                    this.showToast(`${target.displayName}を蘇生！`, 'success');
+                }
+                break;
+        }
+
+        // パーティステータスバー更新
+        this.renderPartyStatusBar();
+
+        // セーブ
+        this.saveGame();
+    }
+
 
     showEnhanceScreen() {
         this.enhanceBackup = JSON.parse(JSON.stringify(this.state.party));
