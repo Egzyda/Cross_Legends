@@ -187,7 +187,7 @@ const SKILLS = {
         name: '蘇生',
         type: 'revive',
         target: 'single_ally_dead',
-        mpCost: 80,
+        mpCost: 70,
         healPercent: 30,
         description: '戦闘不能の味方をHP30%で復活'
     },
