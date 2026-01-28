@@ -2228,6 +2228,18 @@ class Game {
             });
             return;
         }
+
+        if (targetType === 'all_allies_except_self') {
+            this.setCommand({
+                type: 'skill',
+                skillId: skillId,
+                actionName: skill.displayName || skill.name,
+                target: 'all',
+                targetType: 'ally',
+                priority: skill.priority === 'first' ? 999 : 0
+            });
+            return;
+        }
     }
 
     // スキル選択表示
