@@ -365,8 +365,8 @@ class Game {
 
             <div class="howto-section">
                 <h4>クリティカル</h4>
-                <div class="howto-formula">クリティカル率 = 5% + (運 ÷ 3)%</div>
-                <p>クリティカル発生時、ダメージが1.5倍になります。上限は45%です。</p>
+                <div class="howto-formula">クリティカル率 = 5% + (運 ÷ 3)% + バフ効果</div>
+                <p>クリティカル発生時、ダメージが1.5倍になります。上限はありません。</p>
             </div>
 
             <div class="howto-section">
