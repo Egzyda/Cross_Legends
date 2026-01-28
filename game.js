@@ -175,6 +175,68 @@ class Game {
         document.getElementById('character-select-modal').classList.add('hidden');
     }
 
+    // イベントでアイテムを入手する際のアイテム交換モーダル
+    showEventItemSwapModal(newItemId) {
+        const modal = document.getElementById('character-select-modal');
+        const titleEl = document.getElementById('select-modal-title');
+        const grid = document.getElementById('character-select-grid');
+        const cancelBtn = document.getElementById('character-select-cancel-btn');
+
+        titleEl.textContent = `${ITEMS[newItemId].name}を入手！どのアイテムと交換しますか？`;
+        grid.innerHTML = '';
+        grid.className = 'item-swap-grid';
+        grid.style.display = 'flex';
+        grid.style.justifyContent = 'center';
+        grid.style.gap = '10px';
+        grid.style.flexWrap = 'wrap';
+
+        // 既存のアイテムを表示
+        this.state.items.forEach((itemId, index) => {
+            const item = ITEMS[itemId];
+            const card = document.createElement('div');
+            card.className = 'item-swap-card';
+            card.style.cursor = 'pointer';
+            card.style.padding = '10px';
+            card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            card.style.borderRadius = '8px';
+            card.style.background = 'rgba(0, 0, 0, 0.3)';
+            card.style.textAlign = 'center';
+            card.innerHTML = `<strong>${item.name}</strong><br><span style="font-size:11px;color:#aaa;">${item.description}</span>`;
+
+            card.onclick = () => {
+                // 既存のアイテムを削除して新しいアイテムを追加
+                this.state.items[index] = newItemId;
+                this.closeCharacterSelectModal();
+                this.showToast(`${item.name}を捨てて${ITEMS[newItemId].name}を入手した！`, 'success');
+
+                // イベント画面を閉じてマップ画面に戻る
+                this.showMapScreen();
+                this.saveGame();
+            };
+            grid.appendChild(card);
+        });
+
+        // 新しいアイテムを諦める選択肢
+        const skipCard = document.createElement('div');
+        skipCard.className = 'item-swap-card';
+        skipCard.style.cursor = 'pointer';
+        skipCard.style.padding = '10px';
+        skipCard.style.border = '1px solid rgba(255, 100, 100, 0.5)';
+        skipCard.style.borderRadius = '8px';
+        skipCard.style.background = 'rgba(255, 0, 0, 0.1)';
+        skipCard.style.textAlign = 'center';
+        skipCard.innerHTML = `<strong>諦める</strong><br><span style="font-size:11px;color:#aaa;">新しいアイテムを入手しない</span>`;
+        skipCard.onclick = () => {
+            this.closeCharacterSelectModal();
+            this.showToast('アイテムを諦めた...', 'info');
+            this.showMapScreen();
+        };
+        grid.appendChild(skipCard);
+
+        cancelBtn.style.display = 'none';
+        modal.classList.remove('hidden');
+    }
+
     showDamagePopup(targetUnit, value, type = 'damage') {
         // Find the unit element in DOM
         let unitEl;
@@ -351,7 +413,10 @@ class Game {
     }
 
     saveSystemData(data) {
-        localStorage.setItem('cross_legends_system', JSON.stringify(data));
+        // 既存のシステムデータを読み込んでマージ
+        const existingData = this.loadSystemData();
+        const mergedData = { ...existingData, ...data };
+        localStorage.setItem('cross_legends_system', JSON.stringify(mergedData));
     }
 
     getUnlockedDifficulty() {
@@ -2163,6 +2228,18 @@ class Game {
             });
             return;
         }
+
+        if (targetType === 'all_allies_except_self') {
+            this.setCommand({
+                type: 'skill',
+                skillId: skillId,
+                actionName: skill.displayName || skill.name,
+                target: 'all',
+                targetType: 'ally',
+                priority: skill.priority === 'first' ? 999 : 0
+            });
+            return;
+        }
     }
 
     // スキル選択表示
@@ -2179,7 +2256,12 @@ class Game {
         allSkills.forEach(skill => {
             if (!skill) return;
             const skillData = this.getSkillData(skill.id, currentChar);
-            const canUse = currentChar.currentMp >= skillData.mpCost;
+            let canUse = currentChar.currentMp >= skillData.mpCost;
+
+            // キョダイマックス中はキョダイマックスを使用不可
+            if (skillData.id === 'gmax' && currentChar.statusEffects.some(e => e.type === 'gmax')) {
+                canUse = false;
+            }
 
             const btn = document.createElement('button');
             btn.className = 'skill-btn';
@@ -2736,6 +2818,8 @@ class Game {
             targets = cmd.isEnemy ? this.state.party.filter(p => p.currentHp > 0) : this.state.battle.enemies.filter(e => e.currentHp > 0);
         } else if (skill.target === 'all_allies') {
             targets = cmd.isEnemy ? this.state.battle.enemies.filter(e => e.currentHp > 0) : this.state.party.filter(p => p.currentHp > 0);
+        } else if (skill.target === 'all_allies_except_self') {
+            targets = cmd.isEnemy ? this.state.battle.enemies.filter(e => e.currentHp > 0 && e !== actor) : this.state.party.filter(p => p.currentHp > 0 && p !== actor);
         } else if (cmd.targetType === 'enemy') {
             let target = this.state.battle.enemies[cmd.target];
             if (target && target.currentHp <= 0) {
@@ -3888,7 +3972,9 @@ class Game {
                     this.state.items.push(itemId);
                     message = effect.message || `${ITEMS[itemId].name}を入手した！`;
                 } else {
-                    message = '持ち物がいっぱいでアイテムを諦めた...';
+                    // インベントリがいっぱいの場合、交換モーダルを表示
+                    this.showEventItemSwapModal(itemId);
+                    return; // メッセージ表示をスキップ
                 }
                 break;
             case 'gain_sp':
@@ -4369,6 +4455,7 @@ class Game {
             difficulty: 1
         };
         this.showScreen('title');
+        this.initTitleScreen(); // 難易度セレクトを再構築
     }
 
     // 遅延
@@ -4713,10 +4800,10 @@ class Game {
             }
 
             // 習得スキル
-            caster.skills.forEach(skillId => {
-                const skill = SKILLS[skillId];
+            caster.skills.forEach(skillObj => {
+                const skill = SKILLS[skillObj.id];
                 if (skill && healTypes.includes(skill.type)) {
-                    skills.push({ ...skill });
+                    skills.push({ ...skill, displayName: skillObj.displayName || skill.name });
                 }
             });
 
@@ -4724,7 +4811,13 @@ class Game {
                 html += '<div class="skill-msg-empty">使用できる回復スキルがありません</div>';
             } else {
                 skills.forEach((skill, idx) => {
-                    const canUse = caster.currentMp >= skill.mpCost;
+                    let canUse = caster.currentMp >= skill.mpCost;
+
+                    // キョダイマックス中はキョダイマックスを使用不可
+                    if (skill.id === 'gmax' && caster.statusEffects && caster.statusEffects.some(e => e.type === 'gmax')) {
+                        canUse = false;
+                    }
+
                     const disabledClass = canUse ? '' : 'disabled';
                     // uniqueLabelなし
 
@@ -4779,7 +4872,7 @@ class Game {
     // ターゲット選択
     selectMapSkillTarget(caster, skill) {
         // 全体対象の場合は確認ダイアログ
-        if (skill.target === 'all_allies') {
+        if (skill.target === 'all_allies' || skill.target === 'all_allies_except_self') {
             this.showModal('確認', `<p style="text-align:center;">「${skill.displayName || skill.name}」を使用しますか？<br><span style="font-size:12px;color:#888;">（消費MP: ${skill.mpCost}）</span></p>`, [
                 {
                     text: '使用する',
@@ -4854,7 +4947,14 @@ class Game {
         caster.currentMp -= skill.mpCost;
 
         // 対象リスト作成
-        const targets = target ? [target] : this.state.party.filter(m => m.currentHp > 0);
+        let targets;
+        if (target) {
+            targets = [target];
+        } else if (skill.target === 'all_allies_except_self') {
+            targets = this.state.party.filter(m => m.currentHp > 0 && m !== caster);
+        } else {
+            targets = this.state.party.filter(m => m.currentHp > 0);
+        }
 
         switch (skill.type) {
             case 'heal':

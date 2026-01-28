@@ -290,7 +290,7 @@ const CHARACTERS = {
             displayName: 'デロリエラン',
             mpCost: 50,
             type: 'mp_heal',
-            target: 'all_allies',
+            target: 'all_allies_except_self',
             mpHealPercent: 20,
             effects: [],
             description: '自分以外の味方のMPを20%回復',
@@ -1353,7 +1353,7 @@ const CHARACTERS = {
             power: 150,
             mpCost: 30,
             effects: [
-                { type: 'buff', stat: 'magicAttack', value: 0.15, duration: 3 }
+                { type: 'self_buff', stat: 'magicAttack', value: 0.15, duration: 3 }
             ],
             description: '単体魔法攻撃（150%）＋自身の魔攻15%上昇（3T)',
         },

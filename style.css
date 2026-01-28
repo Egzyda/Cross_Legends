@@ -6091,10 +6091,10 @@ h3 {
 
 .victory-title {
     font-family: serif;
-    font-size: 56px;
+    font-size: 40px;
     font-weight: 700;
     color: #ffd700;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.15em;
     text-shadow:
         0 0 10px rgba(255, 215, 0, 0.8),
         0 0 20px rgba(255, 215, 0, 0.6),
@@ -7739,15 +7739,12 @@ h3 {
     gap: 8px;
     padding: 4px;
     padding-bottom: 12px;
-    /* 下部余白 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 12px;
-    overflow-x: auto;
+    overflow-x: visible;
     flex-shrink: 0;
     justify-content: flex-start;
-    /* 左寄せ */
     flex-wrap: nowrap;
-    /* 折り返さない */
 }
 
 /* キャラカード */
