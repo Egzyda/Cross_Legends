@@ -55,7 +55,10 @@
 
         <!-- パーティ編成画面 -->
         <div id="party-screen" class="screen">
-            <h2>パーティ編成</h2>
+            <div class="party-header">
+                <button id="back-to-home-btn" class="back-btn" onclick="game.backToHome()">←</button>
+                <h2>パーティ編成</h2>
+            </div>
             <p class="description-text">長押し: 詳細ステータス / タップ: 編成・解除</p>
             <div id="party-tabs" class="tab-container"></div>
             <div id="character-list"></div>
