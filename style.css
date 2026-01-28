@@ -7838,7 +7838,8 @@ h3 {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 0;
+    padding: 8px;
+    box-sizing: border-box;
 }
 
 .skill-msg-empty {
@@ -7856,15 +7857,20 @@ h3 {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
     margin-bottom: 8px;
     border-radius: 6px;
-    transition: 0.2s;
+    transition: background 0.2s, border-color 0.2s;
     cursor: pointer;
     text-align: left;
+    box-sizing: border-box;
+}
+
+.map-skill-item:last-child {
+    margin-bottom: 0;
 }
 
 .map-skill-item:hover:not(.disabled) {
     background: rgba(79, 172, 254, 0.15);
     border-color: var(--primary);
-    transform: translateX(2px);
+    /* transform削除 - 右にずれる問題を防止 */
 }
 
 .map-skill-item.disabled {
@@ -8026,4 +8032,75 @@ h3 {
 .mp-fill {
     background: #4facfe;
     height: 100%;
+}
+
+/* ========================================
+   遊び方モーダル
+   ======================================== */
+.howto-modal-content {
+    max-width: 90%;
+    width: 360px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.howto-content {
+    flex: 1;
+    overflow-y: auto;
+    text-align: left;
+    padding: 16px 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.howto-section {
+    margin-bottom: 20px;
+}
+
+.howto-section h4 {
+    color: var(--primary);
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(79, 172, 254, 0.3);
+}
+
+.howto-section p {
+    color: var(--text-sub);
+    margin-bottom: 8px;
+}
+
+.howto-section ul {
+    margin-left: 16px;
+    color: var(--text-sub);
+}
+
+.howto-section li {
+    margin-bottom: 4px;
+}
+
+.howto-formula {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #ccc;
+    margin: 8px 0;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 12px 32px;
+    border-radius: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-secondary:hover {
+    background: rgba(79, 172, 254, 0.1);
 }
