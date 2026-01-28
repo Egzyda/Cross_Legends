@@ -237,6 +237,164 @@ class Game {
         modal.classList.remove('hidden');
     }
 
+    // ショップでアイテム購入時のアイテム交換モーダル（コールバック版）
+    showItemSwapModal(callback, newItemId) {
+        const modal = document.getElementById('character-select-modal');
+        const titleEl = document.getElementById('select-modal-title');
+        const grid = document.getElementById('character-select-grid');
+        const cancelBtn = document.getElementById('character-select-cancel-btn');
+
+        const newItem = ITEMS[newItemId];
+        titleEl.textContent = `アイテムがいっぱいです。${newItem.name}と交換するアイテムを選択`;
+        grid.innerHTML = '';
+        grid.className = 'item-swap-grid';
+        grid.style.display = 'flex';
+        grid.style.justifyContent = 'center';
+        grid.style.gap = '10px';
+        grid.style.flexWrap = 'wrap';
+
+        // 新規アイテム情報を表示
+        const newItemInfo = document.createElement('div');
+        newItemInfo.style.cssText = 'width:100%;padding:10px;margin-bottom:10px;background:rgba(79,172,254,0.1);border:1px solid var(--primary);border-radius:8px;text-align:center;';
+        newItemInfo.innerHTML = `<div style="color:var(--primary);font-weight:bold;font-size:12px;">購入アイテム：</div><strong>${newItem.name}</strong><br><span style="font-size:11px;color:#aaa;">${newItem.description}</span>`;
+        grid.appendChild(newItemInfo);
+
+        // 既存のアイテムを表示
+        this.state.items.forEach((itemId, index) => {
+            const item = ITEMS[itemId];
+            const card = document.createElement('div');
+            card.className = 'item-swap-card';
+            card.style.cursor = 'pointer';
+            card.style.padding = '10px';
+            card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            card.style.borderRadius = '8px';
+            card.style.background = 'rgba(0, 0, 0, 0.3)';
+            card.style.textAlign = 'center';
+            card.innerHTML = `<strong>${item.name}</strong><br><span style="font-size:11px;color:#aaa;">${item.description}</span>`;
+
+            card.onclick = () => {
+                // 既存のアイテムを削除
+                this.state.items.splice(index, 1);
+                this.closeCharacterSelectModal();
+                this.showToast(`${item.name}を捨てました`, 'info');
+                if (callback) callback(true);
+            };
+            grid.appendChild(card);
+        });
+
+        // キャンセル選択肢
+        const skipCard = document.createElement('div');
+        skipCard.className = 'item-swap-card';
+        skipCard.style.cursor = 'pointer';
+        skipCard.style.padding = '10px';
+        skipCard.style.border = '1px solid rgba(255, 100, 100, 0.5)';
+        skipCard.style.borderRadius = '8px';
+        skipCard.style.background = 'rgba(255, 0, 0, 0.1)';
+        skipCard.style.textAlign = 'center';
+        skipCard.innerHTML = `<strong>購入をキャンセル</strong><br><span style="font-size:11px;color:#aaa;">アイテムを購入しない</span>`;
+        skipCard.onclick = () => {
+            this.closeCharacterSelectModal();
+            if (callback) callback(false);
+        };
+        grid.appendChild(skipCard);
+
+        cancelBtn.style.display = 'none';
+        modal.classList.remove('hidden');
+    }
+
+    // 遊び方モーダル表示
+    showHowtoModal() {
+        const modal = document.getElementById('howto-modal');
+        const content = document.getElementById('howto-content');
+
+        content.innerHTML = `
+            <div class="howto-section">
+                <h4>基本的な進め方</h4>
+                <p>Cross Legendsは、3人パーティでノードマップを進み、ボスを倒すことを目指すローグライトRPGです。</p>
+                <ul>
+                    <li><strong>パーティ編成</strong>: 好きなキャラを3人選んで出発</li>
+                    <li><strong>ノード選択</strong>: マップ上のノードを選んで進む</li>
+                    <li><strong>戦闘</strong>: 敵と戦い、勝利すると報酬を獲得</li>
+                    <li><strong>強化</strong>: 報酬でステータスやスキルを強化</li>
+                    <li><strong>ボス撃破</strong>: 第1幕・第2幕のボスを倒してクリア</li>
+                </ul>
+            </div>
+
+            <div class="howto-section">
+                <h4>ノードの種類</h4>
+                <ul>
+                    <li><strong>戦闘</strong>: 通常の敵と戦闘、勝利で報酬獲得</li>
+                    <li><strong>エリート</strong>: 強敵との戦闘、報酬が豪華</li>
+                    <li><strong>休憩</strong>: HP/MP回復を選択</li>
+                    <li><strong>イベント</strong>: ランダムイベント発生</li>
+                    <li><strong>宝箱</strong>: アイテムを獲得</li>
+                    <li><strong>ショップ</strong>: ゴールドでアイテム/スキル購入</li>
+                    <li><strong>ボス</strong>: 強力なボスとの戦闘</li>
+                </ul>
+            </div>
+
+            <div class="howto-section">
+                <h4>戦闘システム</h4>
+                <p>ターン制バトルです。毎ターン、3人全員のコマンドを選択してから行動が実行されます。</p>
+                <ul>
+                    <li><strong>攻撃</strong>: 通常攻撃（対象選択）</li>
+                    <li><strong>スキル</strong>: MP消費して強力な技を使用</li>
+                    <li><strong>防御</strong>: ダメージ半減 + MP10%回復（先制発動）</li>
+                    <li><strong>アイテム</strong>: 所持アイテムを使用</li>
+                </ul>
+                <p>行動順は速度が高い順です（防御は最優先）。</p>
+            </div>
+
+            <div class="howto-section">
+                <h4>配置と狙われやすさ</h4>
+                <p>パーティ編成時の配置で狙われる確率が変わります。</p>
+                <ul>
+                    <li><strong>左（前衛）</strong>: 狙われやすさ 130%</li>
+                    <li><strong>中央</strong>: 狙われやすさ 100%</li>
+                    <li><strong>右（後衛）</strong>: 狙われやすさ 70%</li>
+                </ul>
+                <p>タンクは左、アタッカー/ヒーラーは右がおすすめです。</p>
+            </div>
+
+            <div class="howto-section">
+                <h4>ダメージ計算</h4>
+                <div class="howto-formula">基本ダメージ = 攻撃力 × スキル威力倍率</div>
+                <div class="howto-formula">最終ダメージ = 基本ダメージ ÷ (1 + 防御力÷100)</div>
+                <p>防御力100で被ダメージが約半分になります。乱数で±10%変動します。</p>
+            </div>
+
+            <div class="howto-section">
+                <h4>クリティカル</h4>
+                <div class="howto-formula">クリティカル率 = 5% + (運 ÷ 3)%</div>
+                <p>クリティカル発生時、ダメージが1.5倍になります。上限は45%です。</p>
+            </div>
+
+            <div class="howto-section">
+                <h4>難易度</h4>
+                <p>タイトル画面で難易度を選択できます。高難易度をクリアすると次の難易度が解放されます。</p>
+                <p>難易度が上がると敵のステータスが上昇します。</p>
+            </div>
+
+            <div class="howto-section">
+                <h4>ヒント</h4>
+                <ul>
+                    <li>防御でMP回復できるので、MPが足りない時は防御も有効</li>
+                    <li>エリート戦は強敵だが報酬も良い</li>
+                    <li>スキルは最大3つまで、入れ替えも可能</li>
+                    <li>アイテムは最大3つまで所持可能</li>
+                    <li>戦闘不能でも蘇生アイテムやスキルで復活可能</li>
+                </ul>
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+    }
+
+    // 遊び方モーダルを閉じる
+    closeHowtoModal() {
+        document.getElementById('howto-modal').classList.add('hidden');
+    }
+
     showDamagePopup(targetUnit, value, type = 'damage') {
         // Find the unit element in DOM
         let unitEl;
@@ -297,6 +455,11 @@ class Game {
             if (this.hasSaveData()) {
                 this.loadGame();
             }
+        });
+
+        // 遊び方ボタン
+        document.getElementById('howto-btn').addEventListener('click', () => {
+            this.showHowtoModal();
         });
 
         // 難易度選択
@@ -732,11 +895,18 @@ class Game {
 
     // スロットクリック処理
     handleSlotClick(position) {
+        // Check if position already filled - if so, remove the member
+        const existingIndex = this.state.party.findIndex(p => p.position === position);
+        if (existingIndex >= 0) {
+            this.state.party.splice(existingIndex, 1);
+            this.state.selectedChar = null;
+            this.updatePartySlots();
+            this.renderCharacterList();
+            return;
+        }
+
         if (!this.state.selectedChar) return;
         if (this.state.party.length >= 3) return;
-
-        // Check if position already filled
-        if (this.state.party.find(p => p.position === position)) return;
 
         // Add to party
         const charData = JSON.parse(JSON.stringify(CHARACTERS[this.state.selectedChar]));
@@ -3422,14 +3592,18 @@ class Game {
         // 最低保証（念のため）
         if (spGain === 0) spGain = 1;
         if (goldGain === 0) goldGain = 50;
-        if (spGain > 0) {
-            this.state.spPool += spGain;
-            this.state.gold += goldGain;
-            this.addLog(`戦闘に勝利！ ${spGain} SP, ￥${goldGain} 獲得`);
-        }
 
         // ラスボス撃破の場合は報酬フェーズをスキップして直接勝利モーダル表示
         const isLastBoss = this.state.battle.enemies.some(e => e.rank === 'last_boss');
+
+        if (spGain > 0) {
+            this.state.spPool += spGain;
+            this.state.gold += goldGain;
+            // ラスボス撃破時はログを表示しない
+            if (!isLastBoss) {
+                this.addLog(`戦闘に勝利！ ${spGain} SP, ￥${goldGain} 獲得`);
+            }
+        }
 
         if (isLastBoss) {
             // 難易度解放チェック
@@ -3695,7 +3869,10 @@ class Game {
         info.style.border = '1px solid var(--primary)';
         info.innerHTML = `
             <div style="color:var(--primary);font-weight:bold;font-size:12px;">新規習得候補：</div>
-            <div style="font-weight:bold;">${newSkill.name}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:bold;">${newSkill.name}</span>
+                <span style="color:var(--primary);font-size:12px;">MP: ${newSkill.mpCost}</span>
+            </div>
             <div style="font-size:11px;color:var(--text-sub);">${newSkill.description}</div>
         `;
         options.appendChild(info);
@@ -3706,7 +3883,10 @@ class Game {
             const option = document.createElement('div');
             option.className = 'reward-option';
             option.innerHTML = `
-                <div class="reward-title">【入れ替え】${oldSkill.displayName || skillData.name}</div>
+                <div class="reward-title" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>【入れ替え】${oldSkill.displayName || skillData.name}</span>
+                    <span style="color:var(--primary);font-size:12px;font-weight:normal;">MP: ${skillData.mpCost || 0}</span>
+                </div>
                 <div class="reward-desc">${skillData.description || ''}</div>
             `;            option.addEventListener('click', () => {
                 this.showModal('確認', `${oldSkill.displayName || skillData.name} を忘れて ${newSkill.name} を覚えますか？`, [

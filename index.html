@@ -50,6 +50,7 @@
 
             <button id="start-btn" class="btn-primary">GAME START</button>
             <button id="continue-btn" class="btn-primary" style="margin-top: 16px; display: none;">CONTINUE</button>
+            <button id="howto-btn" class="btn-secondary" style="margin-top: 24px;">遊び方</button>
         </div>
 
         <!-- パーティ編成画面 -->
@@ -214,6 +215,15 @@
                 <h3 id="select-modal-title">キャラクター選択</h3>
                 <div id="character-select-grid" class="item-swap-grid"></div>
                 <button class="btn-primary" id="character-select-cancel-btn">キャンセル</button>
+            </div>
+        </div>
+
+        <!-- How to Play Modal -->
+        <div id="howto-modal" class="modal-overlay hidden">
+            <div class="modal-content howto-modal-content">
+                <h3>遊び方</h3>
+                <div id="howto-content" class="howto-content"></div>
+                <button class="btn-primary" onclick="game.closeHowtoModal()">閉じる</button>
             </div>
         </div>
 
