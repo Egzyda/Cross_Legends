@@ -159,7 +159,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.1, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.1, duration: 3 }
         ],
-        description: '自身のHP30%回復＋物防/魔防10%アップ（3T）'
+        description: '自身のHP30%回復＋物防/魔防10%アップ (3T)'
     },
 
 
@@ -211,7 +211,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalAttack', value: 0.35, duration: 3 },
             { type: 'buff', stat: 'magicAttack', value: 0.35, duration: 3 }
         ],
-        description: '単体の物攻/魔攻+35% 3T'
+        description: '単体の物攻/魔攻+35% (3T)'
     },
     attack_boost_all: {
         id: 'attack_boost_all',
@@ -223,7 +223,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalAttack', value: 0.2, duration: 3 },
             { type: 'buff', stat: 'magicAttack', value: 0.2, duration: 3 }
         ],
-        description: '全体の物攻/魔攻+20% 3T'
+        description: '全体の物攻/魔攻+20% (3T)'
     },
     defense_boost: {
         id: 'defense_boost',
@@ -235,7 +235,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.4, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.4, duration: 3 }
         ],
-        description: '単体の物防/魔防+40% 3T'
+        description: '単体の物防/魔防+40% (3T)'
     },
     defense_boost_all: {
         id: 'defense_boost_all',
@@ -247,7 +247,7 @@ const SKILLS = {
             { type: 'buff', stat: 'physicalDefense', value: 0.25, duration: 3 },
             { type: 'buff', stat: 'magicDefense', value: 0.25, duration: 3 }
         ],
-        description: '全体の物防/魔防+25% 3T'
+        description: '全体の物防/魔防+25% (3T)'
     },
     speed_boost: {
         id: 'speed_boost',
@@ -258,7 +258,7 @@ const SKILLS = {
         effects: [
             { type: 'buff', stat: 'speed', value: 0.6, duration: 3 }
         ],
-        description: '単体の速度+60% 3T'
+        description: '単体の速度+60% (3T)'
     },
     speed_boost_all: {
         id: 'speed_boost_all',
@@ -269,7 +269,7 @@ const SKILLS = {
         effects: [
             { type: 'buff', stat: 'speed', value: 0.35, duration: 3 }
         ],
-        description: '全体の速度+35% 3T'
+        description: '全体の速度+35% (3T)'
     },
     luck_boost: {
         id: 'luck_boost',
@@ -280,7 +280,7 @@ const SKILLS = {
         effects: [
             { type: 'critBoost', value: 50, duration: 3 }
         ],
-        description: '単体のクリ率+50% 3T'
+        description: '単体のクリ率+50% (3T)'
     },
     luck_boost_all: {
         id: 'luck_boost_all',
@@ -291,7 +291,7 @@ const SKILLS = {
         effects: [
             { type: 'critBoost', value: 30, duration: 3 }
         ],
-        description: '全体のクリ率+30% 3T'
+        description: '全体のクリ率+30% (3T)'
     },
 
     // --- デバッファー系（デバフ） ---
@@ -305,7 +305,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalAttack', value: -0.3, duration: 3 },
             { type: 'debuff', stat: 'magicAttack', value: -0.3, duration: 3 }
         ],
-        description: '単体の物攻/魔攻-30% 3T'
+        description: '単体の物攻/魔攻-30% (3T)'
     },
     weaken_all: {
         id: 'weaken_all',
@@ -317,7 +317,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalAttack', value: -0.2, duration: 3 },
             { type: 'debuff', stat: 'magicAttack', value: -0.2, duration: 3 }
         ],
-        description: '全体の物攻/魔攻-20% 3T'
+        description: '全体の物攻/魔攻-20% (3T)'
     },
     armor_break: {
         id: 'armor_break',
@@ -329,7 +329,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalDefense', value: -0.35, duration: 3 },
             { type: 'debuff', stat: 'magicDefense', value: -0.35, duration: 3 }
         ],
-        description: '単体の物防/魔防-35% 3T'
+        description: '単体の物防/魔防-35% (3T)'
     },
     armor_break_all: {
         id: 'armor_break_all',
@@ -341,7 +341,7 @@ const SKILLS = {
             { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
             { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 3 }
         ],
-        description: '全体の物防/魔防-20% 3T'
+        description: '全体の物防/魔防-20% (3T)'
     },
     speed_down: {
         id: 'speed_down',
@@ -352,7 +352,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
         ],
-        description: '単体の速度-30% 3T'
+        description: '単体の速度-30% (3T)'
     },
     speed_down_all: {
         id: 'speed_down_all',
@@ -363,7 +363,7 @@ const SKILLS = {
         effects: [
             { type: 'debuff', stat: 'speed', value: -0.2, duration: 3 }
         ],
-        description: '全体の速度-20% 3T'
+        description: '全体の速度-20% (3T)'
     },
     luck_down: {
         id: 'luck_down',
@@ -374,7 +374,7 @@ const SKILLS = {
         effects: [
             { type: 'critBoost', value: -30, duration: 3 }
         ],
-        description: '単体のクリ率-30% 3T'
+        description: '単体のクリ率-30% (3T)'
     },
     luck_down_all: {
         id: 'luck_down_all',
@@ -385,7 +385,7 @@ const SKILLS = {
         effects: [
             { type: 'critBoost', value: -20, duration: 3 }
         ],
-        description: '全体のクリ率-20% 3T'
+        description: '全体のクリ率-20% (3T)'
     },
 
 
@@ -404,7 +404,7 @@ const SKILLS = {
             { type: 'buff', stat: 'magicDefense', value: 0.2, duration: 3 },
             { type: 'buff', stat: 'speed', value: 0.2, duration: 3 }
         ],
-        description: '全体の全ステータス+20% 3T'
+        description: '全体の全ステータス+20% (3T)'
     },
 
     // --- 敵専用スキル ---
@@ -417,7 +417,7 @@ const SKILLS = {
         effects: [
             { type: 'status', status: 'poison', chance: 100, duration: 3 }
         ],
-        description: '単体を毒状態にする（3T）'
+        description: '単体を毒状態にする (3T)'
     },
     paralyze_single: {
         id: 'paralyze_single',
@@ -428,7 +428,7 @@ const SKILLS = {
         effects: [
             { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
         ],
-        description: '単体を麻痺状態にする（3T）'
+        description: '単体を麻痺状態にする (3T)'
     }
 };
 
@@ -739,7 +739,7 @@ const ITEMS = {
     power_crystal: {
         id: 'power_crystal',
         name: '力の結晶',
-        description: '単体の物攻/魔攻+50%（3T）',
+        description: '単体の物攻/魔攻+50% (3T)',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
@@ -754,7 +754,7 @@ const ITEMS = {
     guard_crystal: {
         id: 'guard_crystal',
         name: '守護の結晶',
-        description: '単体の物防/魔防+50%（3T）',
+        description: '単体の物防/魔防+50% (3T)',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
@@ -769,7 +769,7 @@ const ITEMS = {
     swift_crystal: {
         id: 'swift_crystal',
         name: '迅速の結晶',
-        description: '単体の速度+50%（3T）',
+        description: '単体の速度+50% (3T)',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
@@ -783,7 +783,7 @@ const ITEMS = {
     crit_crystal: {
         id: 'crit_crystal',
         name: '会心の結晶',
-        description: '単体の会心率+50%（3T）',
+        description: '単体の会心率+50% (3T)',
         type: 'buff_item',
         price: 100,
         target: 'single_ally',
@@ -798,7 +798,7 @@ const ITEMS = {
     power_spread_crystal: {
         id: 'power_spread_crystal',
         name: '力の拡散結晶',
-        description: '全体の物攻/魔攻+30%（3T）',
+        description: '全体の物攻/魔攻+30% (3T)',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
@@ -813,7 +813,7 @@ const ITEMS = {
     guard_spread_crystal: {
         id: 'guard_spread_crystal',
         name: '守護の拡散結晶',
-        description: '全体の物防/魔防+30%（3T）',
+        description: '全体の物防/魔防+30% (3T)',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
@@ -828,7 +828,7 @@ const ITEMS = {
     swift_spread_crystal: {
         id: 'swift_spread_crystal',
         name: '迅速の拡散結晶',
-        description: '全体の速度+30%（3T）',
+        description: '全体の速度+30% (3T)',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
@@ -842,7 +842,7 @@ const ITEMS = {
     crit_spread_crystal: {
         id: 'crit_spread_crystal',
         name: '会心の拡散結晶',
-        description: '全体の会心率+30%（3T）',
+        description: '全体の会心率+30% (3T)',
         type: 'buff_item',
         price: 150,
         target: 'all_allies',
@@ -857,7 +857,7 @@ const ITEMS = {
     weaken_crystal: {
         id: 'weaken_crystal',
         name: '力弱体の結晶',
-        description: '単体の物攻/魔攻-50%（3T）',
+        description: '単体の物攻/魔攻-50% (3T)',
         type: 'debuff_item',
         price: 100,
         target: 'single_enemy',
@@ -872,7 +872,7 @@ const ITEMS = {
     guard_break_crystal: {
         id: 'guard_break_crystal',
         name: '守護弱体の結晶',
-        description: '単体の物防/魔防-50%（3T）',
+        description: '単体の物防/魔防-50% (3T)',
         type: 'debuff_item',
         price: 100,
         target: 'single_enemy',
@@ -887,7 +887,7 @@ const ITEMS = {
     weaken_spread_crystal: {
         id: 'weaken_spread_crystal',
         name: '力弱体の拡散結晶',
-        description: '全体の物攻/魔攻-30%（3T）',
+        description: '全体の物攻/魔攻-30% (3T)',
         type: 'debuff_item',
         price: 150,
         target: 'all_enemies',
@@ -902,7 +902,7 @@ const ITEMS = {
     guard_break_spread_crystal: {
         id: 'guard_break_spread_crystal',
         name: '守護弱体の拡散結晶',
-        description: '全体の物防/魔防-30%（3T）',
+        description: '全体の物防/魔防-30% (3T)',
         type: 'debuff_item',
         price: 150,
         target: 'all_enemies',
@@ -1006,8 +1006,8 @@ const MAP_CONFIG = {
             boss: 1
         },
         enemies: ['slime', 'kuribo', 'abo', 'wadorudo', 'kamec'],
-        elites: ['arboc', 'buggy', 'shadow', 'kabaton'],
-        bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru'],
+        elites: ['arboc', 'buggy', 'shadow', 'kabaton', 'avdol'],
+        bosses: ['baikinman', 'giginebura', 'geto', 'bangiras', 'orochimaru', 'sarah_kazuno'],
         multiplier: { start: 0.9, mid: 1.1, elite: 1.25, boss: 1.4 }
     },
     act2: {
@@ -1021,8 +1021,8 @@ const MAP_CONFIG = {
             boss: 1
         },
         enemies: ['bullfango', 'metroid', 'redead', 'bombhei', 'toxtricity'],
-        elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure'],
-        bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa'],
+        elites: ['koopajr', 'metaknight', 'hisoka', 'darkprecure', 'teostra'],
+        bosses: ['freeza', 'dio', 'aizen', 'necrozma', 'masterhand', 'shigaraki', 'koopa', 'zabuza'],
         multiplier: { start: 1.0, mid: 1.0, elite: 1.0, boss: 1.0 }  // 難易度システムで調整
     }
 };

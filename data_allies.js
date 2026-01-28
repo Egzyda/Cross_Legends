@@ -58,7 +58,7 @@ const CHARACTERS = {
         type: 'physical_attacker',
         uniqueSkill: {
             id: 'ultra_attack',
-            displayName: 'スカイパンチ',
+            displayName: 'ヒーローガールスカイパンチ',
             type: 'physical_attack',
             target: 'single_enemy',
             power: 220,
@@ -432,7 +432,7 @@ const CHARACTERS = {
         skills: [],
         excludeSkills: ['poison_single']
     },
-    gojo: {
+    satoru: {
         id: 'satoru',
         name: '五条悟',
         displayName: '五条悟',

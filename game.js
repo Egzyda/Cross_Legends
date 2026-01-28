@@ -132,6 +132,7 @@ class Game {
 
         // Reuse style from horizontal party status
         grid.className = 'party-status-bar reward-layout-fix';
+        grid.style.flexDirection = 'row'; // Force horizontal layout for mobile
         grid.style.display = 'flex';
         grid.style.justifyContent = 'center';
         grid.style.gap = '10px';
@@ -182,26 +183,24 @@ class Game {
         const grid = document.getElementById('character-select-grid');
         const cancelBtn = document.getElementById('character-select-cancel-btn');
 
-        titleEl.textContent = `${ITEMS[newItemId].name}を入手！どのアイテムと交換しますか？`;
+        titleEl.innerHTML = `<span style="color:var(--warning)">${ITEMS[newItemId].name}</span>を入手！<br><span style="font-size:14px;color:#ccc;">どのアイテムと交換しますか？</span>`;
         grid.innerHTML = '';
-        grid.className = 'item-swap-grid';
         grid.style.display = 'flex';
-        grid.style.justifyContent = 'center';
+        grid.style.flexDirection = 'column'; // Vertical flex
         grid.style.gap = '10px';
-        grid.style.flexWrap = 'wrap';
+        grid.style.width = '100%';
 
         // 既存のアイテムを表示
         this.state.items.forEach((itemId, index) => {
             const item = ITEMS[itemId];
             const card = document.createElement('div');
-            card.className = 'item-swap-card';
-            card.style.cursor = 'pointer';
-            card.style.padding = '10px';
-            card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            card.style.borderRadius = '8px';
-            card.style.background = 'rgba(0, 0, 0, 0.3)';
-            card.style.textAlign = 'center';
-            card.innerHTML = `<strong>${item.name}</strong><br><span style="font-size:11px;color:#aaa;">${item.description}</span>`;
+            card.className = 'vertical-list-item';
+            card.innerHTML = `
+                <div class="vertical-item-header">
+                    <span class="vertical-item-name">${item.name}</span>
+                </div>
+                <div class="vertical-item-desc">${item.description}</div>
+            `;
 
             card.onclick = () => {
                 // 既存のアイテムを削除して新しいアイテムを追加
@@ -218,14 +217,13 @@ class Game {
 
         // 新しいアイテムを諦める選択肢
         const skipCard = document.createElement('div');
-        skipCard.className = 'item-swap-card';
-        skipCard.style.cursor = 'pointer';
-        skipCard.style.padding = '10px';
-        skipCard.style.border = '1px solid rgba(255, 100, 100, 0.5)';
-        skipCard.style.borderRadius = '8px';
-        skipCard.style.background = 'rgba(255, 0, 0, 0.1)';
-        skipCard.style.textAlign = 'center';
-        skipCard.innerHTML = `<strong>諦める</strong><br><span style="font-size:11px;color:#aaa;">新しいアイテムを入手しない</span>`;
+        skipCard.className = 'vertical-list-item cancel-item';
+        skipCard.innerHTML = `
+            <div class="vertical-item-header" style="justify-content:center;">
+                <span class="vertical-item-name" style="color:#aaa;">諦める</span>
+            </div>
+            <div class="vertical-item-desc" style="text-align:center;">新しいアイテムを入手しない</div>
+        `;
         skipCard.onclick = () => {
             this.closeCharacterSelectModal();
             this.showToast('アイテムを諦めた...', 'info');
@@ -245,32 +243,49 @@ class Game {
         const cancelBtn = document.getElementById('character-select-cancel-btn');
 
         const newItem = ITEMS[newItemId];
-        titleEl.textContent = `アイテムがいっぱいです。${newItem.name}と交換するアイテムを選択`;
+        // Title simplified per user request
+        titleEl.textContent = 'アイテム所持数上限';
         grid.innerHTML = '';
-        grid.className = 'item-swap-grid';
         grid.style.display = 'flex';
-        grid.style.justifyContent = 'center';
+        grid.style.flexDirection = 'column';
         grid.style.gap = '10px';
-        grid.style.flexWrap = 'wrap';
+        grid.style.width = '100%';
 
-        // 新規アイテム情報を表示
+        // Notice message
+        const notice = document.createElement('div');
+        notice.style.cssText = 'font-size:12px;color:var(--text-sub);text-align:center;margin-bottom:8px;';
+        notice.innerHTML = 'アイテムがいっぱいです。<br>交換するアイテムを選択するか、購入をキャンセルしてください。';
+        grid.appendChild(notice);
+
+        // 新規アイテム情報を表示 (Highlighted)
         const newItemInfo = document.createElement('div');
-        newItemInfo.style.cssText = 'width:100%;padding:10px;margin-bottom:10px;background:rgba(79,172,254,0.1);border:1px solid var(--primary);border-radius:8px;text-align:center;';
-        newItemInfo.innerHTML = `<div style="color:var(--primary);font-weight:bold;font-size:12px;">購入アイテム：</div><strong>${newItem.name}</strong><br><span style="font-size:11px;color:#aaa;">${newItem.description}</span>`;
+        newItemInfo.className = 'vertical-list-item special-item';
+        newItemInfo.style.cursor = 'default';
+        newItemInfo.innerHTML = `
+            <div class="vertical-item-header">
+                <span class="vertical-item-name" style="color:var(--warning)">購入予定: ${newItem.name}</span>
+            </div>
+            <div class="vertical-item-desc">${newItem.description}</div>
+        `;
         grid.appendChild(newItemInfo);
+
+        // Divider
+        const divider = document.createElement('div');
+        divider.style.cssText = 'text-align:center;margin:4px 0;font-size:14px;color:#aaa;';
+        divider.textContent = '▼ 以下から捨てるアイテムを選択 ▼';
+        grid.appendChild(divider);
 
         // 既存のアイテムを表示
         this.state.items.forEach((itemId, index) => {
             const item = ITEMS[itemId];
             const card = document.createElement('div');
-            card.className = 'item-swap-card';
-            card.style.cursor = 'pointer';
-            card.style.padding = '10px';
-            card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            card.style.borderRadius = '8px';
-            card.style.background = 'rgba(0, 0, 0, 0.3)';
-            card.style.textAlign = 'center';
-            card.innerHTML = `<strong>${item.name}</strong><br><span style="font-size:11px;color:#aaa;">${item.description}</span>`;
+            card.className = 'vertical-list-item';
+            card.innerHTML = `
+                <div class="vertical-item-header">
+                    <span class="vertical-item-name">${item.name}</span>
+                </div>
+                <div class="vertical-item-desc">${item.description}</div>
+            `;
 
             card.onclick = () => {
                 // 既存のアイテムを削除
@@ -284,14 +299,16 @@ class Game {
 
         // キャンセル選択肢
         const skipCard = document.createElement('div');
-        skipCard.className = 'item-swap-card';
-        skipCard.style.cursor = 'pointer';
-        skipCard.style.padding = '10px';
-        skipCard.style.border = '1px solid rgba(255, 100, 100, 0.5)';
-        skipCard.style.borderRadius = '8px';
-        skipCard.style.background = 'rgba(255, 0, 0, 0.1)';
+        skipCard.className = 'vertical-list-item';
         skipCard.style.textAlign = 'center';
-        skipCard.innerHTML = `<strong>購入をキャンセル</strong><br><span style="font-size:11px;color:#aaa;">アイテムを購入しない</span>`;
+        skipCard.style.marginTop = '8px';
+        skipCard.style.borderColor = '#666';
+        skipCard.innerHTML = `
+            <div class="vertical-item-header" style="justify-content:center;">
+                <span class="vertical-item-name" style="color:#aaa;">購入をキャンセル</span>
+            </div>
+            <div class="vertical-item-desc" style="text-align:center;">アイテムを購入しない</div>
+        `;
         skipCard.onclick = () => {
             this.closeCharacterSelectModal();
             if (callback) callback(false);
@@ -464,22 +481,13 @@ class Game {
 
         // 難易度選択
         const difficultySelect = document.getElementById('difficulty-select');
+
+        // 初回更新
+        this.updateDifficultySelector();
         const unlocked = this.getUnlockedDifficulty();
 
-        // 選択肢のロック更新
-        Array.from(difficultySelect.options).forEach(opt => {
-            const val = parseInt(opt.value);
-            if (val > unlocked) {
-                opt.disabled = true;
-                opt.textContent = `${val} - ????`; // 未解放は伏せる場合
-            } else {
-                opt.disabled = false;
-                // テキストを戻す（簡易実装）
-                if (opt.textContent.includes('????')) {
-                    opt.textContent = val === 0 ? '0 - 基準' : (val === 10 ? '10 - 極限' : val.toString());
-                }
-            }
-        });
+        // 選択肢のロック更新（重複するため削除、updateDifficultySelectorに委譲）
+        // Array.from(difficultySelect.options).forEach(opt => { ... });
 
         // 選択中がロックされている場合、解放済みの最大値（または0）に戻す
         if (parseInt(difficultySelect.value) > unlocked) {
@@ -599,6 +607,7 @@ class Game {
             items: this.state.items,
             spPool: this.state.spPool,
             gold: this.state.gold, // 所持金を保存
+            difficulty: this.state.difficulty, // 難易度を保存
             screen: this.state.screen
             // Battle state is complex to save mid-battle, usually save at start of battle or node
             // For now, save mostly map state
@@ -619,6 +628,7 @@ class Game {
         this.state.items = data.items;
         this.state.spPool = data.spPool || 0;
         this.state.gold = data.gold || 0; // 所持金を復元
+        this.state.difficulty = data.difficulty !== undefined ? data.difficulty : 0; // 難易度を復元
 
         // Restore screen
         if (data.screen === 'map') {
@@ -648,6 +658,29 @@ class Game {
 
         // 難易度説明を初期化
         this.updateDifficultyDescription(this.state.difficulty);
+        this.updateDifficultySelector(); // Update selector state on init
+    }
+
+    // 難易度セレクタの更新（解放状況反映）
+    updateDifficultySelector() {
+        const difficultySelect = document.getElementById('difficulty-select');
+        const unlocked = this.getUnlockedDifficulty();
+
+        // 選択肢のロック更新
+        Array.from(difficultySelect.options).forEach(opt => {
+            const val = parseInt(opt.value);
+            if (val > unlocked) {
+                opt.disabled = true;
+                opt.textContent = `${val} - ????`; // 未解放は伏せる
+            } else {
+                opt.disabled = false;
+                // テキストを戻す（簡易実装）
+                if (opt.textContent.includes('????')) {
+                    opt.textContent = val === 0 ? '基準' : (val === 10 ? '10 - 極限' : val.toString());
+                    // Note: HTML内の初期値に依存するため、厳密には全テキスト再設定が良いが簡易的に実施
+                }
+            }
+        });
     }
 
     // 難易度説明の更新
@@ -1506,7 +1539,7 @@ class Game {
         if (this.state.mapBoss) {
             const bossData = ENEMIES[this.state.mapBoss];
             if (bossData) {
-                bossName = bossData.displayName;
+                bossName = bossData.groupName || bossData.displayName; // グループ名があれば優先
                 bossImg = bossData.image.face || bossData.image.full;
             }
         }
@@ -1759,6 +1792,14 @@ class Game {
             const boss = this.createEnemy(enemyId, multiplier);
             boss.rank = rank; // ボスランクを明示的に上書き
             enemies.push(boss);
+
+            // ペア敵チェック：pairWithプロパティがあれば相方も生成
+            const template = ENEMIES[enemyId];
+            if (template && template.pairWith) {
+                const pairEnemy = this.createEnemy(template.pairWith, multiplier);
+                pairEnemy.rank = rank;
+                enemies.push(pairEnemy);
+            }
         }
 
         // エリート配置調整：3体の場合、エリートを中央（2番目）にする
@@ -2726,6 +2767,11 @@ class Game {
             let targetUnit = this.state.party[targetIdx];
             let action = null;
 
+            // 敵のHP割合を計算
+            const enemyHpPercent = enemy.currentHp / enemy.stats.hp;
+            // HP30%以下なら攻撃優先フラグ
+            const isDesperateMode = enemyHpPercent <= 0.3;
+
             if (enemy.templateId === 'bombhei') {
                 action = { type: 'skill', skillId: enemy.uniqueSkill.id };
             } else {
@@ -2735,7 +2781,8 @@ class Game {
                 if (stunned || silenced) {
                     action = { type: 'attack' };
                 } else {
-                    if (enemy.skills.length > 0 && Math.random() < 0.2) {
+                    // HP30%以下でない場合のみバフ/デバフを検討
+                    if (!isDesperateMode && enemy.skills.length > 0 && Math.random() < 0.2) {
                         const subSkillId = enemy.skills[0];
                         const subSkill = SKILLS[subSkillId];
                         if (subSkill) {
@@ -2748,13 +2795,33 @@ class Game {
                                 if (debuffEffect) canUse = !targetUnit.debuffs.some(d => d.stat === debuffEffect.stat);
                                 const statusEffect = subSkill.effects.find(e => e.type === 'status');
                                 if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
+                            } else if (subSkill.type === 'heal') {
+                                // 回復スキル: HP50%以下の味方がいる時のみ使用
+                                const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
+                                const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
+                                if (!woundedAlly) canUse = false;
                             }
                             if (canUse) action = { type: 'skill', skillId: subSkillId };
                         }
                     }
 
+                    // 固有スキルの判定
                     if (!action && enemy.uniqueSkill && Math.random() < 0.7) {
                         let canUse = true;
+                        const uniqueSkillType = enemy.uniqueSkill.type;
+
+                        // HP30%以下の場合、バフ/デバフは使わず攻撃系のみ
+                        if (isDesperateMode && (uniqueSkillType === 'buff' || uniqueSkillType === 'debuff')) {
+                            canUse = false;
+                        }
+
+                        // 回復スキル: HP50%以下の味方がいる時のみ使用
+                        if (uniqueSkillType === 'heal') {
+                            const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
+                            const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
+                            if (!woundedAlly) canUse = false;
+                        }
+
                         if (enemy.uniqueSkill.effects) {
                             const statusEffect = enemy.uniqueSkill.effects.find(e => e.type === 'status');
                             if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
@@ -2774,9 +2841,29 @@ class Game {
                 if (skillData.type === 'buff' || skillData.type === 'heal' || skillData.type === 'mp_heal') {
                     const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
                     if (aliveAllies.length > 0) {
-                        const allyTarget = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
-                        finalTargetIdx = this.state.battle.enemies.indexOf(allyTarget);
-                        finalTargetType = 'enemy';
+                        let allyTarget;
+                        if (skillData.type === 'heal') {
+                            // 回復スキル: HP%が最も低い味方を優先（自分除外の場合は自分以外）
+                            let candidates = aliveAllies;
+                            if (skillData.excludeSelf) {
+                                candidates = aliveAllies.filter(e => e.id !== enemy.id);
+                            }
+                            if (candidates.length > 0) {
+                                candidates.sort((a, b) => (a.currentHp / a.stats.hp) - (b.currentHp / b.stats.hp));
+                                allyTarget = candidates[0];
+                            } else {
+                                // 自分しかいない場合は回復しない（攻撃に変更）
+                                action = { type: 'attack' };
+                                allyTarget = null;
+                            }
+                        } else {
+                            // バフ: ランダム
+                            allyTarget = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
+                        }
+                        if (allyTarget) {
+                            finalTargetIdx = this.state.battle.enemies.indexOf(allyTarget);
+                            finalTargetType = 'enemy';
+                        }
                     }
                 }
             }
@@ -3207,6 +3294,7 @@ class Game {
                 for (const t of targets) {
                     t.statusEffects.push({ type: 'critBoost', value: effect.value, duration: effect.duration });
                 }
+                this.renderBattle(); // UI即時同期
                 break;
         }
     }
@@ -3295,18 +3383,15 @@ class Game {
                         });
                         this.addLog(`${target.displayName}のステータスが強化された！`);
                     }
+                    this.renderBattle(); // UI即時同期
                     break;
                 case 'status_cure':
                     // 悪い状態異常のみを解除（有益なステータスは維持）
-                    const badStatuses = ['poison', 'paralysis', 'silence', 'stun', 'burn'];
-                    const beforeCount = target.statusEffects.length;
-                    target.statusEffects = target.statusEffects.filter(e => !badStatuses.includes(e.type));
-                    if (target.statusEffects.length < beforeCount) {
-                        this.addLog(`${target.displayName}の状態異常が全て回復した！`);
-                        this.showDamagePopup(target, '全快', 'heal');
-                    } else {
-                        this.addLog(`${target.displayName}は健康そのものだ！`);
-                    }
+                    const badStatus = ['poison', 'paralysis', 'silence', 'stun', 'curse', 'burn', 'weak'];
+                    target.statusEffects = target.statusEffects.filter(e => !badStatus.includes(e.type));
+                    target.debuffs = []; // デバフも解除
+                    this.addLog(`${target.displayName}の状態異常が回復した！`);
+                    this.renderBattle(); // UI即時同期
                     break;
             }
             // UI更新
@@ -3723,38 +3808,59 @@ class Game {
         document.getElementById('reward-character-name').textContent = 'アイテム入れ替え';
         options.innerHTML = '';
 
-        const info = document.createElement('div');
-        info.className = 'item-swap-card new-item';
-        info.innerHTML = `<strong>新規獲得：${newItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${newItem.description}</div>`;
-        options.appendChild(info);
-
+        // Header/Notice
         const label = document.createElement('div');
-        label.style.cssText = 'margin:16px 0 8px;font-size:12px;color:var(--text-sub);';
-        label.textContent = '捨てるアイテムを選択（またはキャンセル）：';
+        label.style.cssText = 'margin-bottom:12px;font-size:12px;color:var(--text-sub);text-align:center;';
+        label.innerHTML = 'アイテムがいっぱいです。<br>交換するアイテムを選択するか、新アイテムを諦めてください。';
         options.appendChild(label);
 
-        const grid = document.createElement('div');
-        grid.className = 'item-swap-grid';
+        // 1. New Item Info (Highlighted)
+        const newItemDiv = document.createElement('div');
+        newItemDiv.className = 'vertical-list-item special-item';
+        newItemDiv.style.cursor = 'default';
+        newItemDiv.innerHTML = `
+            <div class="vertical-item-header">
+                <span class="vertical-item-name" style="color:var(--warning)">新規獲得: ${newItem.name}</span>
+            </div>
+            <div class="vertical-item-desc">${newItem.description}</div>
+        `;
+        options.appendChild(newItemDiv);
 
+        // Divider
+        const divider = document.createElement('div');
+        divider.style.cssText = 'text-align:center;margin:8px 0;font-size:14px;color:#aaa;font-weight:bold;';
+        divider.textContent = '▼ 入れ替え対象を選択 ▼';
+        options.appendChild(divider);
+
+        // 2. Existing Items List
         this.state.items.forEach((existingItemId, idx) => {
             const existingItem = ITEMS[existingItemId];
             const card = document.createElement('div');
-            card.className = 'item-swap-card';
-            card.innerHTML = `<strong>${existingItem.name}</strong><div style="font-size:11px;color:var(--text-sub);">${existingItem.description}</div>`;
+            card.className = 'vertical-list-item';
+            card.innerHTML = `
+                <div class="vertical-item-header">
+                    <span class="vertical-item-name">${existingItem.name}</span>
+                </div>
+                <div class="vertical-item-desc">${existingItem.description}</div>
+            `;
             card.onclick = () => {
                 this.state.items.splice(idx, 1);
                 this.state.items.push(newItemId);
                 this.showToast(`${existingItem.name}を捨てて${newItem.name}を獲得`, 'success');
                 this.nextReward(charIdx);
             };
-            grid.appendChild(card);
+            options.appendChild(card);
         });
-        options.appendChild(grid);
 
+        // 3. Cancel Option (Discard New Item)
         const cancelBtn = document.createElement('div');
-        cancelBtn.className = 'reward-option';
-        cancelBtn.style.cssText = 'margin-top:16px;border-color:#666;';
-        cancelBtn.innerHTML = `<div class="reward-title" style="color:#aaa;">獲得をキャンセル</div><div class="reward-desc">新アイテムを捨てる</div>`;
+        cancelBtn.className = 'vertical-list-item cancel-item';
+        cancelBtn.innerHTML = `
+            <div class="vertical-item-header" style="justify-content:center;">
+                <span class="vertical-item-name" style="color:#aaa;">獲得をキャンセル</span>
+            </div>
+            <div class="vertical-item-desc" style="text-align:center;">新しいアイテムを諦める</div>
+        `;
         cancelBtn.onclick = () => {
             this.showToast(`${newItem.name}を見送った`, 'info');
             this.nextReward(charIdx);
@@ -3859,11 +3965,11 @@ class Game {
             this.nextReward(charIdx);
         }
     }    // スキル入れ替え画面 (ショップ対応版)
-    showSkillSwap(charIdx, newSkill, isShop = false, shopPrice = 0) {
+    showSkillSwap(charIdx, newSkill, isShop = false, shopPrice = 0, shopItem = null) {
         const char = this.state.party[charIdx];
         const options = document.getElementById('reward-options');
-        document.getElementById('reward-character-name').textContent = isShop 
-            ? `${char.displayName}：入れ替えるスキルを選択（購入：￥${shopPrice}）` 
+        document.getElementById('reward-character-name').textContent = isShop
+            ? `${char.displayName}：入れ替えるスキルを選択（購入：￥${shopPrice}）`
             : `${char.displayName}：入れ替えるスキルを選択`;
         options.innerHTML = '';
 
@@ -3895,7 +4001,7 @@ class Game {
                     <span style="color:var(--primary);font-size:12px;font-weight:normal;">MP: ${skillData.mpCost || 0}</span>
                 </div>
                 <div class="reward-desc">${skillData.description || ''}</div>
-            `;            option.addEventListener('click', () => {
+            `; option.addEventListener('click', () => {
                 this.showModal('確認', `${oldSkill.displayName || skillData.name} を忘れて ${newSkill.name} を覚えますか？`, [
                     {
                         text: isShop ? '購入して入れ替える' : '入れ替える',
@@ -3906,8 +4012,10 @@ class Game {
                                 this.renderPartyStatusBar();
                             }
                             char.skills[idx] = { id: newSkill.id, displayName: newSkill.name };
-                            
+
                             if (isShop) {
+                                // Mark shop item as purchased
+                                if (shopItem) shopItem.purchased = true;
                                 this.showShopScreen();
                                 this.showToast(`${newSkill.name}を習得しました！`, 'success');
                             } else {
@@ -4369,12 +4477,42 @@ class Game {
 
         if (!this.state.currentNode.shopData) {
             this.state.currentNode.shopData = this.generateShopStock();
+            // Save game to persist shop data so it doesn't reset on reload
+            this.saveGame();
         }
         const stock = this.state.currentNode.shopData;
 
         this.renderShopSection(container, 'スキル書', stock.skills);
         this.renderShopSection(container, 'アイテム', stock.items);
         this.renderShopSection(container, 'スペシャル', stock.special);
+
+        // Party Status (Insert above Leave Button)
+        if (leaveBtn && leaveBtn.parentNode) {
+            // Remove any existing shop status bar to prevent duplicates
+            const existing = document.getElementById('shop-party-status');
+            if (existing) existing.remove();
+
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'shop-party-status';
+            statusDiv.style.marginBottom = '10px';
+            statusDiv.style.display = 'flex';
+            statusDiv.style.justifyContent = 'center';
+            statusDiv.className = 'party-status-bar'; // Use existing class for style
+            statusDiv.style.background = 'transparent'; // Override
+            statusDiv.style.border = 'none';
+            statusDiv.style.boxShadow = 'none';
+            statusDiv.style.padding = '0';
+
+            this.renderPartyIcons(statusDiv);
+
+            // Scale down slightly
+            statusDiv.querySelectorAll('.party-member-status').forEach(el => {
+                el.style.transform = 'scale(0.9)';
+                el.style.margin = '0 4px';
+            });
+
+            leaveBtn.parentNode.insertBefore(statusDiv, leaveBtn);
+        }
 
         this.updateShopUI();
     }
@@ -4433,11 +4571,12 @@ class Game {
         const healPrice = Math.floor((200 + Math.floor(Math.random() * 101)) * priceMultiplier);
         stock.special.push({ type: 'heal_all_mp', percent: 50, price: healPrice, name: '休憩セット', desc: '全員のHP・MP50%回復', purchased: false });
 
-        // 蘇生薬（レア枠 15%）
+        // 蘇生薬（レア枠 15%） - アイテムカテゴリに移動
         if (Math.random() < 0.15) {
             const revPot = ITEMS['revive_potion'];
             const revPrice = Math.max(400, Math.floor((revPot.price + Math.floor(Math.random() * 101) - 50) * priceMultiplier));
-            stock.special.push({ type: 'item', id: 'revive_potion', price: revPrice, purchased: false });
+            // Type: 'item' として追加することでアイテムセクションに表示される
+            stock.items.push({ type: 'item', id: 'revive_potion', price: revPrice, purchased: false });
         }
 
         return stock;
@@ -4450,39 +4589,58 @@ class Game {
         section.className = 'shop-section';
         section.innerHTML = `<div class="shop-section-title">${title}</div>`;
 
-        const grid = document.createElement('div');
-        grid.className = 'shop-grid';
+        // Use vertical list container instead of grid
+        const listContainer = document.createElement('div');
+        listContainer.className = 'vertical-list-container';
 
         items.forEach(item => {
             const el = document.createElement('div');
-            el.className = `shop-item ${item.purchased ? 'purchased' : ''}`;
-            el.shopItemData = item; // データ紐付け
-            // 初期状態の判定（updateShopUIでもやるが一応）
+            // Add vertical-list-item class
+            el.className = `vertical-list-item ${item.purchased ? 'purchased' : ''}`;
+            el.shopItemData = item;
             if (this.state.gold < item.price && !item.purchased) el.classList.add('too-expensive');
 
-            let content = '';
+            let nameHtml = '';
+            let priceHtml = `<span style="font-weight:bold;color:var(--warning);">￥${item.price}</span>`;
+            let desc = '';
+
             if (item.type === 'item') {
                 const data = ITEMS[item.id];
-                content = `<h4>${data.name}</h4><p>${data.description}</p>`;
+                nameHtml = `<span class="vertical-item-name">${data.name}</span>`;
+                desc = data.description;
             } else if (item.type === 'skill') {
                 const data = SKILLS[item.id];
                 const char = this.state.party.find(c => c.id === item.targetCharId);
-                content = `<h4>${data.name}</h4><p>${data.description}</p>`;
+                // Skill name + MP cost
+                nameHtml = `
+                    <span class="vertical-item-name" style="margin-right:8px;">${data.name}</span>
+                    <span style="font-size:12px;color:var(--primary);font-weight:normal;">(MP: ${data.mpCost || 0})</span>
+                `;
+                desc = data.description;
             } else if (item.type === 'sp' || item.type === 'heal_all_mp') {
-                content = `<h4>${item.name}</h4><p>${item.desc}</p>`;
+                nameHtml = `<span class="vertical-item-name">${item.name}</span>`;
+                desc = item.desc;
             }
 
-            el.innerHTML = `${content}<div class="shop-price">${item.price}円</div>`;
+            el.innerHTML = `
+                <div class="vertical-item-header">
+                    <div style="display:flex;align-items:center;">
+                        ${nameHtml}
+                    </div>
+                    ${priceHtml}
+                </div>
+                <div class="vertical-item-desc">${desc}</div>
+            `;
 
             el.onclick = () => {
                 if (item.purchased) return;
                 this.handlePurchaseClick(item, el);
             };
 
-            grid.appendChild(el);
+            listContainer.appendChild(el);
         });
 
-        section.appendChild(grid);
+        section.appendChild(listContainer);
         container.appendChild(section);
     }
 
@@ -4523,7 +4681,8 @@ class Game {
                 return;
             }
             this.state.items.push(item.id);
-            this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);        } else if (item.type === 'skill') {
+            this.finalizePurchase(item, el, `${ITEMS[item.id].name}を購入した`);
+        } else if (item.type === 'skill') {
             // スキル購入フロー
             this.showCharacterSelectModal('誰に習得させる？', (targetChar) => {
                 // 習得済みチェック
@@ -4538,7 +4697,8 @@ class Game {
                 // スキルスロットがいっぱいの場合
                 if (targetChar.skills.length >= 3) {
                     this.showScreen('reward');
-                    this.showSkillSwap(charIdx, skillData, true, item.price);
+                    // Pass shop item reference to mark as purchased after swap
+                    this.showSkillSwap(charIdx, skillData, true, item.price, item);
                     return;
                 }
 
@@ -4578,7 +4738,8 @@ class Game {
         }
 
         // 全アイテムの状態更新
-        const items = document.querySelectorAll('.shop-item');
+        // Fix: Updated selector to match vertical list items
+        const items = document.querySelectorAll('.vertical-list-item');
         items.forEach(el => {
             const item = el.shopItemData;
             if (!item) return;
@@ -5112,7 +5273,7 @@ class Game {
             return;
         }
 
-        this.showModal(`対象を選択（${skill.displayName || skill.name}）`, html, [
+        this.showModal(`対象を選択<br>（${skill.displayName || skill.name}）`, html, [
             { text: '戻る', onClick: () => this.showMapSkillModal(true), className: 'btn-cancel' }
         ]);
 

@@ -14,8 +14,8 @@ const ENEMIES = {
         displayName: 'スライム',
         type: 'physical_attacker',
         baseStats: {
-            hp: 120, mp: 60, physicalAttack: 60, magicAttack: 30,
-            physicalDefense: 75, magicDefense: 70, speed: 60, luck: 45
+            hp: 120, mp: 60, physicalAttack: 60, magicAttack: 0,
+            physicalDefense: 75, magicDefense: 100, speed: 30, luck: 45
         },
         skills: [],
         uniqueSkill: {
@@ -23,9 +23,9 @@ const ENEMIES = {
             displayName: '体当たり',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 150,
             mpCost: 30,
-            description: '単体に物理攻撃（威力160%）'
+            description: '単体に物理攻撃（威力150%）'
         },
         image: { full: 'img/enemy/slime.png' },
         rank: 'normal'
@@ -37,8 +37,8 @@ const ENEMIES = {
         displayName: 'クリボー',
         type: 'physical_attacker',
         baseStats: {
-            hp: 115, mp: 55, physicalAttack: 62, magicAttack: 28,
-            physicalDefense: 70, magicDefense: 65, speed: 58, luck: 43
+            hp: 115, mp: 55, physicalAttack: 60, magicAttack: 0,
+            physicalDefense: 100, magicDefense: 55, speed: 35, luck: 40
         },
         skills: [],
         uniqueSkill: {
@@ -46,9 +46,9 @@ const ENEMIES = {
             displayName: '頭突き',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 150,
             mpCost: 30,
-            description: '単体に物理攻撃（威力160%）'
+            description: '単体に物理攻撃（威力150%）'
         },
         image: { full: 'img/enemy/kuribo.png' },
         rank: 'normal'
@@ -60,8 +60,8 @@ const ENEMIES = {
         displayName: 'アーボ',
         type: 'debuffer',
         baseStats: {
-            hp: 110, mp: 70, physicalAttack: 55, magicAttack: 35,
-            physicalDefense: 65, magicDefense: 75, speed: 70, luck: 50
+            hp: 110, mp: 70, physicalAttack: 60, magicAttack: 0,
+            physicalDefense: 65, magicDefense: 75, speed: 90, luck: 50
         },
         skills: [],
         uniqueSkill: {
@@ -86,8 +86,8 @@ const ENEMIES = {
         displayName: 'ワドルドゥ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 125, mp: 75, physicalAttack: 45, magicAttack: 58,
-            physicalDefense: 70, magicDefense: 80, speed: 62, luck: 48
+            hp: 125, mp: 75, physicalAttack: 45, magicAttack: 60,
+            physicalDefense: 60, magicDefense: 90, speed: 65, luck: 50
         },
         skills: [],
         uniqueSkill: {
@@ -95,9 +95,9 @@ const ENEMIES = {
             displayName: 'ビームショット',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 150,
             mpCost: 30,
-            description: '単体に魔法攻撃（威力160%）'
+            description: '単体に魔法攻撃（威力150%）'
         },
         image: { full: 'img/enemy/wadorudo.png' },
         rank: 'normal'
@@ -110,7 +110,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 120, mp: 80, physicalAttack: 40, magicAttack: 60,
-            physicalDefense: 65, magicDefense: 85, speed: 58, luck: 46
+            physicalDefense: 65, magicDefense: 85, speed: 70, luck: 45
         },
         skills: [],
         uniqueSkill: {
@@ -118,9 +118,9 @@ const ENEMIES = {
             displayName: '魔法の杖',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 150,
             mpCost: 30,
-            description: '単体に魔法攻撃（威力160%）'
+            description: '単体に魔法攻撃（威力150%）'
         },
         image: { full: 'img/enemy/kamec.png' },
         rank: 'normal'
@@ -136,8 +136,8 @@ const ENEMIES = {
         displayName: 'アーボック',
         type: 'physical_attacker',
         baseStats: {
-            hp: 336, mp: 100, physicalAttack: 83, magicAttack: 50,
-            physicalDefense: 110, magicDefense: 105, speed: 82, luck: 60
+            hp: 340, mp: 100, physicalAttack: 75, magicAttack: 0,
+            physicalDefense: 130, magicDefense: 135, speed: 100, luck: 60
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -145,12 +145,12 @@ const ENEMIES = {
             displayName: 'どくどくのキバ',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 140,
+            power: 120,
             mpCost: 35,
             effects: [
                 { type: 'status', status: 'poison', chance: 100, duration: 3 }
             ],
-            description: '単体に物理攻撃（威力140%）+ 毒状態にする'
+            description: '単体に物理攻撃（威力120%）+ 毒状態にする'
         },
         image: { full: 'img/enemy/arboc.png' },
         rank: 'elite'
@@ -162,8 +162,8 @@ const ENEMIES = {
         displayName: 'バギー',
         type: 'physical_attacker',
         baseStats: {
-            hp: 372, mp: 95, physicalAttack: 77, magicAttack: 44,
-            physicalDefense: 120, magicDefense: 100, speed: 75, luck: 58
+            hp: 370, mp: 95, physicalAttack: 90, magicAttack: 0,
+            physicalDefense: 120, magicDefense: 100, speed: 75, luck: 50
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -185,8 +185,8 @@ const ENEMIES = {
         displayName: 'シャドウ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 312, mp: 120, physicalAttack: 61, magicAttack: 88,
-            physicalDefense: 100, magicDefense: 125, speed: 105, luck: 70
+            hp: 320, mp: 120, physicalAttack: 0, magicAttack: 90,
+            physicalDefense: 100, magicDefense: 125, speed: 115, luck: 70
         },
         skills: ['speed_boost_all'],
         uniqueSkill: {
@@ -194,12 +194,12 @@ const ENEMIES = {
             displayName: 'カオスランス',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
-            mpCost: 48,
+            power: 120,
+            mpCost: 50,
             effects: [
-                { type: 'debuff', stat: 'speed', value: -0.25, duration: 3 }
+                { type: 'debuff', stat: 'speed', value: -0.5, duration: 3 }
             ],
-            description: '単体に魔法攻撃（威力160%）+ 速度-25% 3ターン'
+            description: '単体に魔法攻撃（威力120%）+ 速度-50% 3ターン'
         },
         image: { full: 'img/enemy/shadow.png' },
         rank: 'elite'
@@ -211,20 +211,46 @@ const ENEMIES = {
         displayName: 'カバトン',
         type: 'physical_attacker',
         baseStats: {
-            hp: 384, mp: 90, physicalAttack: 83, magicAttack: 42,
-            physicalDefense: 130, magicDefense: 95, speed: 70, luck: 55
+            hp: 380, mp: 90, physicalAttack: 90, magicAttack: 0,
+            physicalDefense: 130, magicDefense: 95, speed: 50, luck: 55
         },
         skills: ['paralyze_single'],
         uniqueSkill: {
-            id: 'tackle',
-            displayName: 'タックル',
+            id: 'fart_gas',
+            displayName: 'ひろがるオナラガス',
             type: 'physical_attack',
-            target: 'single_enemy',
-            power: 150,
+            target: 'all_enemies',
+            power: 70,
             mpCost: 35,
-            description: '単体に物理攻撃（威力150%）'
+            description: '全体に物理攻撃（威力70%）'
         },
         image: { full: 'img/enemy/kabaton.png' },
+        rank: 'elite'
+    },
+
+    avdol: {
+        id: 'avdol',
+        name: 'モハメド・アヴドゥル',
+        displayName: 'アヴドゥル',
+        type: 'magic_attacker',
+        baseStats: {
+            hp: 370, mp: 100, physicalAttack: 0, magicAttack: 100,
+            physicalDefense: 100, magicDefense: 120, speed: 85, luck: 60
+        },
+        skills: [],
+        uniqueSkill: {
+            id: 'magicians_red',
+            displayName: 'マジシャンズ・レッド',
+            type: 'magic_attack',
+            target: 'single_enemy',
+            power: 120,
+            mpCost: 40,
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '単体に魔法攻撃（威力120%）+ 火傷状態にする'
+        },
+        image: { full: 'img/enemy/avdol.png' },
         rank: 'elite'
     },
 
@@ -238,8 +264,8 @@ const ENEMIES = {
         displayName: 'ばいきんまん',
         type: 'physical_attacker',
         baseStats: {
-            hp: 742, mp: 140, physicalAttack: 86, magicAttack: 69,
-            physicalDefense: 160, magicDefense: 140, speed: 88, luck: 70
+            hp: 740, mp: 140, physicalAttack: 110, magicAttack: 0,
+            physicalDefense: 160, magicDefense: 120, speed: 90, luck: 70
         },
         skills: ['poison_single'],
         uniqueSkill: {
@@ -247,10 +273,10 @@ const ENEMIES = {
             displayName: 'バイキンパンチ',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 140,
+            power: 120,
             mpCost: 65,
             effects: [],
-            description: '単体に強力な物理攻撃（威力140%）'
+            description: '単体に強力な物理攻撃（威力120%）'
         },
         image: { full: 'img/enemy/baikinman.png' },
         rank: 'boss'
@@ -355,6 +381,64 @@ const ENEMIES = {
         rank: 'boss'
     },
 
+    // Saint Snow（ペアボス）- 鹿角聖良
+    sarah_kazuno: {
+        id: 'sarah_kazuno',
+        name: '鹿角聖良',
+        displayName: '鹿角聖良',
+        type: 'physical_attacker',
+        baseStats: {
+            // ボスベース: HP740, 攻撃110程度 → 8割/5割調整済
+            hp: 592, mp: 120, physicalAttack: 55, magicAttack: 0,
+            physicalDefense: 128, magicDefense: 100, speed: 80, luck: 65
+        },
+        skills: ['speed_boost_all'],
+        uniqueSkill: {
+            id: 'crash_mind',
+            displayName: 'CRASH MIND',
+            type: 'physical_attack',
+            target: 'single_enemy',
+            power: 120,
+            mpCost: 45,
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '単体に物理攻撃（威力120%）+ 麻痺状態にする'
+        },
+        image: { full: 'img/enemy/sarah.png' },
+        rank: 'boss',
+        pairWith: 'leah_kazuno',
+        groupName: 'Saint Snow'
+    },
+
+    // Saint Snow（ペアボス）- 鹿角理亞
+    leah_kazuno: {
+        id: 'leah_kazuno',
+        name: '鹿角理亞',
+        displayName: '鹿角理亞',
+        type: 'magic_attacker',
+        baseStats: {
+            // ボスベース: HP740, 攻撃110程度 → 8割/5割調整済
+            hp: 592, mp: 140, physicalAttack: 0, magicAttack: 55,
+            physicalDefense: 100, magicDefense: 128, speed: 75, luck: 65
+        },
+        skills: ['attack_boost_all'],
+        uniqueSkill: {
+            id: 'believe_again',
+            displayName: 'Believe again',
+            type: 'heal',
+            target: 'single_ally',
+            mpCost: 50,
+            healPercent: 30,
+            excludeSelf: true,
+            description: '味方1体のHPを30%回復（自分以外）'
+        },
+        image: { full: 'img/enemy/leah.png' },
+        rank: 'boss',
+        pairWith: 'sarah_kazuno',
+        groupName: 'Saint Snow'
+    },
+
     // ========================================
     // 2幕 通常敵（5種類）
     // ========================================
@@ -365,8 +449,8 @@ const ENEMIES = {
         displayName: 'ブルファンゴ',
         type: 'physical_attacker',
         baseStats: {
-            hp: 234, mp: 70, physicalAttack: 124, magicAttack: 52,
-            physicalDefense: 100, magicDefense: 85, speed: 75, luck: 52
+            hp: 235, mp: 70, physicalAttack: 125, magicAttack: 0,
+            physicalDefense: 100, magicDefense: 85, speed: 75, luck: 50
         },
         skills: [],
         uniqueSkill: {
@@ -388,8 +472,8 @@ const ENEMIES = {
         displayName: 'メトロイド',
         type: 'magic_attacker',
         baseStats: {
-            hp: 208, mp: 100, physicalAttack: 65, magicAttack: 120,
-            physicalDefense: 90, magicDefense: 110, speed: 75, luck: 58
+            hp: 210, mp: 100, physicalAttack: 0, magicAttack: 120,
+            physicalDefense: 90, magicDefense: 110, speed: 75, luck: 60
         },
         skills: [],
         uniqueSkill: {
@@ -414,7 +498,7 @@ const ENEMIES = {
         displayName: 'リーデッド',
         type: 'physical_attacker',
         baseStats: {
-            hp: 221, mp: 75, physicalAttack: 114, magicAttack: 59,
+            hp: 220, mp: 75, physicalAttack: 115, magicAttack: 0,
             physicalDefense: 95, magicDefense: 95, speed: 65, luck: 50
         },
         skills: [],
@@ -441,7 +525,7 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 120, mp: 60, physicalAttack: 85, magicAttack: 30,
-            physicalDefense: 85, magicDefense: 80, speed: 1, luck: 45
+            physicalDefense: 85, magicDefense: 80, speed: 5, luck: 45
         },
         skills: [],
         uniqueSkill: {
@@ -466,7 +550,7 @@ const ENEMIES = {
         displayName: 'ストリンダー',
         type: 'magic_attacker',
         baseStats: {
-            hp: 132, mp: 95, physicalAttack: 47, magicAttack: 77,
+            hp: 130, mp: 95, physicalAttack: 0, magicAttack: 75,
             physicalDefense: 90, magicDefense: 105, speed: 82, luck: 60
         },
         skills: [],
@@ -496,7 +580,7 @@ const ENEMIES = {
         displayName: 'クッパJr.',
         type: 'magic_attacker',
         baseStats: {
-            hp: 306, mp: 160, physicalAttack: 68, magicAttack: 68,
+            hp: 305, mp: 160, physicalAttack: 0, magicAttack: 70,
             physicalDefense: 126, magicDefense: 144, speed: 85, luck: 68
         },
         skills: ['defense_boost'],
@@ -522,7 +606,7 @@ const ENEMIES = {
         displayName: 'メタナイト',
         type: 'physical_attacker',
         baseStats: {
-            hp: 291, mp: 130, physicalAttack: 63, magicAttack: 45,
+            hp: 290, mp: 130, physicalAttack: 65, magicAttack: 0,
             physicalDefense: 117, magicDefense: 112, speed: 115, luck: 75
         },
         skills: ['speed_boost'],
@@ -546,7 +630,7 @@ const ENEMIES = {
         displayName: 'ヒソカ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 298, mp: 150, physicalAttack: 63, magicAttack: 72,
+            hp: 300, mp: 150, physicalAttack: 0, magicAttack: 75,
             physicalDefense: 108, magicDefense: 130, speed: 100, luck: 75
         },
         skills: ['attack_boost'],
@@ -572,8 +656,8 @@ const ENEMIES = {
         displayName: 'ダークプリキュア',
         type: 'physical_attacker',
         baseStats: {
-            hp: 321, mp: 140, physicalAttack: 72, magicAttack: 54,
-            physicalDefense: 130, magicDefense: 121, speed: 95, luck: 70
+            hp: 320, mp: 140, physicalAttack: 75, magicAttack: 0,
+            physicalDefense: 130, magicDefense: 120, speed: 95, luck: 70
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -590,6 +674,33 @@ const ENEMIES = {
         rank: 'elite'
     },
 
+    // テオ・テスカトル（魔法エリート）
+    teostra: {
+        id: 'teostra',
+        name: 'テオ・テスカトル',
+        displayName: 'テオ・テスカトル',
+        type: 'magic_attacker',
+        baseStats: {
+            hp: 255, mp: 120, physicalAttack: 0, magicAttack: 120,
+            physicalDefense: 100, magicDefense: 130, speed: 80, luck: 65
+        },
+        skills: [],
+        uniqueSkill: {
+            id: 'supernova',
+            displayName: 'スーパーノヴァ',
+            type: 'magic_attack',
+            target: 'all_enemies',
+            power: 60,
+            mpCost: 55,
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '全体に魔法攻撃（威力60%）+ 火傷状態にする'
+        },
+        image: { full: 'img/enemy/teo.png' },
+        rank: 'elite'
+    },
+
     // ========================================
     // 2幕 ラスボス（7種類）
     // ========================================
@@ -600,8 +711,8 @@ const ENEMIES = {
         displayName: 'フリーザ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 250, physicalAttack: 130, magicAttack: 104,
-            physicalDefense: 112, magicDefense: 120, speed: 110, luck: 75
+            hp: 1275, mp: 250, physicalAttack: 130, magicAttack: 105,
+            physicalDefense: 110, magicDefense: 120, speed: 110, luck: 75
         },
         skills: ['magic_storm'],
         uniqueSkill: {
@@ -623,8 +734,8 @@ const ENEMIES = {
         displayName: 'ディオ',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1403, mp: 220, physicalAttack: 111, magicAttack: 117,
-            physicalDefense: 192, magicDefense: 168, speed: 125, luck: 75
+            hp: 1400, mp: 220, physicalAttack: 110, magicAttack: 0,
+            physicalDefense: 190, magicDefense: 170, speed: 125, luck: 75
         },
         skills: ['attack_boost'],
         uniqueSkill: {
@@ -649,8 +760,8 @@ const ENEMIES = {
         displayName: '愛染惣右介',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 260, physicalAttack: 124, magicAttack: 111,
-            physicalDefense: 184, magicDefense: 216, speed: 115, luck: 75
+            hp: 1275, mp: 260, physicalAttack: 0, magicAttack: 110,
+            physicalDefense: 185, magicDefense: 215, speed: 115, luck: 75
         },
         skills: ['weaken_all'],
         uniqueSkill: {
@@ -679,8 +790,8 @@ const ENEMIES = {
         displayName: 'ウルトラネクロズマ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 280, physicalAttack: 137, magicAttack: 117,
-            physicalDefense: 168, magicDefense: 192, speed: 130, luck: 75
+            hp: 1275, mp: 280, physicalAttack: 0, magicAttack: 115,
+            physicalDefense: 170, magicDefense: 190, speed: 130, luck: 75
         },
         skills: ['speed_boost'],
         uniqueSkill: {
@@ -702,8 +813,8 @@ const ENEMIES = {
         displayName: 'マスターハンド',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1530, mp: 200, physicalAttack: 124, magicAttack: 111,
-            physicalDefense: 208, magicDefense: 184, speed: 105, luck: 75
+            hp: 1530, mp: 200, physicalAttack: 125, magicAttack: 0,
+            physicalDefense: 210, magicDefense: 185, speed: 105, luck: 75
         },
         skills: ['iron_wall'],
         uniqueSkill: {
@@ -728,8 +839,8 @@ const ENEMIES = {
         displayName: '死柄木弔',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 240, physicalAttack: 143, magicAttack: 111,
-            physicalDefense: 160, magicDefense: 184, speed: 100, luck: 75
+            hp: 1275, mp: 240, physicalAttack: 0, magicAttack: 110,
+            physicalDefense: 160, magicDefense: 185, speed: 100, luck: 75
         },
         skills: ['armor_break_all'],
         uniqueSkill: {
@@ -755,8 +866,8 @@ const ENEMIES = {
         displayName: 'クッパ',
         type: 'tank',
         baseStats: {
-            hp: 1658, mp: 210, physicalAttack: 117, magicAttack: 130,
-            physicalDefense: 224, magicDefense: 176, speed: 85, luck: 75
+            hp: 1660, mp: 210, physicalAttack: 0, magicAttack: 130,
+            physicalDefense: 225, magicDefense: 175, speed: 85, luck: 75
         },
         skills: ['defense_boost'],
         uniqueSkill: {
@@ -773,6 +884,66 @@ const ENEMIES = {
         },
         image: { full: 'img/enemy/koopa.png' },
         rank: 'last_boss'
+    },
+
+    // 再不斬＆白（ペアボス）- 桃地再不斬
+    zabuza: {
+        id: 'zabuza',
+        name: '桃地再不斬',
+        displayName: '桃地再不斬',
+        type: 'physical_attacker',
+        baseStats: {
+            // ラスボスベース: HP1275, 攻撃130程度 → 8割/5割調整済
+            hp: 1020, mp: 180, physicalAttack: 65, magicAttack: 0,
+            physicalDefense: 150, magicDefense: 120, speed: 95, luck: 70
+        },
+        skills: ['attack_boost_all'],
+        uniqueSkill: {
+            id: 'silent_killing',
+            displayName: '無音殺人術 - サイレントキリング',
+            type: 'physical_attack',
+            target: 'single_enemy',
+            power: 120,
+            mpCost: 50,
+            effects: [
+                { type: 'status', status: 'silence', chance: 100, duration: 3 }
+            ],
+            description: '単体に物理攻撃（威力120%）+ 沈黙状態にする'
+        },
+        image: { full: 'img/enemy/zabuza.png' },
+        rank: 'last_boss',
+        pairWith: 'haku',
+        groupName: '再不斬＆白'
+    },
+
+    // 再不斬＆白（ペアボス）- 白
+    haku: {
+        id: 'haku',
+        name: '白',
+        displayName: '白',
+        type: 'magic_attacker',
+        baseStats: {
+            // ラスボスベース: HP1275, 攻撃130程度 → 8割/5割調整済
+            hp: 1020, mp: 200, physicalAttack: 0, magicAttack: 65,
+            physicalDefense: 120, magicDefense: 150, speed: 100, luck: 70
+        },
+        skills: ['defense_boost_all'],
+        uniqueSkill: {
+            id: 'crystal_ice_mirrors',
+            displayName: '秘術・魔鏡氷晶',
+            type: 'magic_attack',
+            target: 'all_enemies',
+            power: 60,
+            mpCost: 60,
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '全体に魔法攻撃（威力60%）+ 麻痺状態にする'
+        },
+        image: { full: 'img/enemy/haku.png' },
+        rank: 'last_boss',
+        pairWith: 'zabuza',
+        groupName: '再不斬＆白'
     }
 
 };
