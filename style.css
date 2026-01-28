@@ -6091,10 +6091,10 @@ h3 {
 
 .victory-title {
     font-family: serif;
-    font-size: 56px;
+    font-size: 40px;
     font-weight: 700;
     color: #ffd700;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.15em;
     text-shadow:
         0 0 10px rgba(255, 215, 0, 0.8),
         0 0 20px rgba(255, 215, 0, 0.6),
