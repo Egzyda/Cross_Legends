@@ -7739,15 +7739,12 @@ h3 {
     gap: 8px;
     padding: 4px;
     padding-bottom: 12px;
-    /* 下部余白 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 12px;
-    overflow-x: auto;
+    overflow-x: visible;
     flex-shrink: 0;
-    justify-content: flex-start;
-    /* 左寄せ */
+    justify-content: center;
     flex-wrap: nowrap;
-    /* 折り返さない */
 }
 
 /* キャラカード */

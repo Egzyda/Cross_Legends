@@ -4443,6 +4443,7 @@ class Game {
             difficulty: 1
         };
         this.showScreen('title');
+        this.initTitleScreen(); // 難易度セレクトを再構築
     }
 
     // 遅延
@@ -4877,8 +4878,8 @@ class Game {
             return;
         }
 
-        // 単体対象：ターゲット選択カード表示（縦並び）
-        let html = '<div class="skill-char-list-container" style="flex-direction: column; border-bottom: none; margin-bottom: 0;">';
+        // 単体対象：ターゲット選択カード表示
+        let html = '<div class="skill-char-list-container">';
 
         this.state.party.forEach((member, idx) => {
             // スキルタイプによるフィルタ
@@ -4894,7 +4895,7 @@ class Game {
             const targetClass = isTargetable ? 'valid-target' : 'invalid-target target-disabled';
 
             html += `
-                <div class="skill-char-card ${targetClass}" data-idx="${idx}" style="width: 100%; max-width: 280px; margin: 0 auto 8px auto; ${isTargetable ? '' : 'opacity: 0.3; pointer-events: none;'}">
+                <div class="skill-char-card ${targetClass}" data-idx="${idx}" style="${isTargetable ? '' : 'opacity: 0.3; pointer-events: none;'}">
                     <img src="${member.image.face}" alt="${member.displayName}">
                     <div class="skill-char-status-text">HP:${Math.floor(member.currentHp)}<br>MP:${Math.floor(member.currentMp)}</div>
                     <div class="skill-char-bars">
