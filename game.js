@@ -686,6 +686,13 @@ class Game {
         this.updatePartySlots();
     }
 
+    // パーティー編成画面からホームに戻る
+    backToHome() {
+        this.state.party = [];
+        this.state.selectedChar = null;
+        this.showScreen('title');
+    }
+
     // フィルター（プルダウン）描画
     renderPartyFilter() {
         const tabsContainer = document.getElementById('party-tabs');
