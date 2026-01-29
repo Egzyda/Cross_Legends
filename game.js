@@ -2699,18 +2699,17 @@ class Game {
 
         await this.delay(1000);
 
-        // 敵の行動を追加
-        this.generateEnemyCommands();
-
-        // 全行動を速度順にソート（防御は最優先）
+        // 味方のコマンドを収集
         // filter(c => c) で死亡キャラ等の undefined なコマンドを除外してエラーを防ぐ
         const allCommands = this.state.battle.commands.filter(c => c);
+
+        // 敵はプレースホルダーとして追加（コマンドは行動直前に生成）
         this.state.battle.enemies.forEach((enemy, idx) => {
-            if (enemy.currentHp > 0 && enemy.command) {
+            if (enemy.currentHp > 0) {
                 allCommands.push({
-                    ...enemy.command,
                     isEnemy: true,
-                    enemyIndex: idx
+                    enemyIndex: idx,
+                    pendingGeneration: true // 行動直前にコマンド生成するフラグ
                 });
             }
         });
@@ -2731,8 +2730,19 @@ class Game {
                 return speedB - speedA;
             });
 
-            // 先頭のコマンドを実行
-            const cmd = pendingCommands.shift();
+            // 先頭のコマンドを取得
+            let cmd = pendingCommands.shift();
+
+            // 敵の場合、行動直前にコマンドを生成（リアルタイム化）
+            if (cmd.isEnemy && cmd.pendingGeneration) {
+                const enemy = this.state.battle.enemies[cmd.enemyIndex];
+                if (enemy && enemy.currentHp > 0) {
+                    cmd = this.generateEnemyCommand(enemy, cmd.enemyIndex);
+                } else {
+                    continue; // 敵が死亡していたらスキップ
+                }
+            }
+
             await this.executeCommand(cmd);
 
             // キャラが完全に動作を終えて、HPバーが減るのを待つ余韻（最後のアクションは600msに短縮）
@@ -2758,55 +2768,61 @@ class Game {
         return this.getEffectiveStat(unit, 'speed');
     }
 
-    // 敵の行動生成
-    generateEnemyCommands() {
-        this.state.battle.enemies.forEach(enemy => {
-            if (enemy.currentHp <= 0) return;
+    // 敵の行動生成（単一の敵のコマンドを行動直前に生成）
+    generateEnemyCommand(enemy, enemyIndex) {
+        let targetIdx = this.selectTarget();
+        let targetUnit = this.state.party[targetIdx];
+        let action = null;
 
-            let targetIdx = this.selectTarget();
-            let targetUnit = this.state.party[targetIdx];
-            let action = null;
+        // 敵のHP割合を計算
+        const enemyHpPercent = enemy.currentHp / enemy.stats.hp;
+        // HP30%以下なら攻撃優先フラグ
+        const isDesperateMode = enemyHpPercent <= 0.3;
 
-            // 敵のHP割合を計算
-            const enemyHpPercent = enemy.currentHp / enemy.stats.hp;
-            // HP30%以下なら攻撃優先フラグ
-            const isDesperateMode = enemyHpPercent <= 0.3;
+        if (enemy.templateId === 'bombhei') {
+            action = { type: 'skill', skillId: enemy.uniqueSkill.id };
+        } else {
+            const stunned = enemy.statusEffects.find(e => e.type === 'stun');
+            const silenced = enemy.statusEffects.find(e => e.type === 'silence');
 
-            if (enemy.templateId === 'bombhei') {
-                action = { type: 'skill', skillId: enemy.uniqueSkill.id };
+            if (stunned || silenced) {
+                action = { type: 'attack' };
             } else {
-                const stunned = enemy.statusEffects.find(e => e.type === 'stun');
-                const silenced = enemy.statusEffects.find(e => e.type === 'silence');
-
-                if (stunned || silenced) {
-                    action = { type: 'attack' };
-                } else {
-                    // HP30%以下でない場合のみバフ/デバフを検討
-                    if (!isDesperateMode && enemy.skills.length > 0 && Math.random() < 0.2) {
-                        const subSkillId = enemy.skills[0];
-                        const subSkill = SKILLS[subSkillId];
-                        if (subSkill) {
-                            let canUse = true;
-                            if (subSkill.type === 'buff' && subSkill.effects) {
-                                const buffEffect = subSkill.effects.find(e => e.type === 'buff' || e.type === 'self_buff');
-                                if (buffEffect) canUse = !enemy.buffs.some(b => b.stat === buffEffect.stat);
-                            } else if (subSkill.type === 'debuff' && subSkill.effects) {
-                                const debuffEffect = subSkill.effects.find(e => e.type === 'debuff');
-                                if (debuffEffect) canUse = !targetUnit.debuffs.some(d => d.stat === debuffEffect.stat);
-                                const statusEffect = subSkill.effects.find(e => e.type === 'status');
-                                if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
-                            } else if (subSkill.type === 'heal') {
-                                // 回復スキル: HP50%以下の味方がいる時のみ使用
-                                const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
-                                const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
-                                if (!woundedAlly) canUse = false;
-                            }
-                            if (canUse) action = { type: 'skill', skillId: subSkillId };
+                // HP30%以下でない場合のみバフ/デバフを検討
+                if (!isDesperateMode && enemy.skills.length > 0 && Math.random() < 0.2) {
+                    const subSkillId = enemy.skills[0];
+                    const subSkill = SKILLS[subSkillId];
+                    if (subSkill) {
+                        let canUse = true;
+                        if (subSkill.type === 'buff' && subSkill.effects) {
+                            const buffEffect = subSkill.effects.find(e => e.type === 'buff' || e.type === 'self_buff');
+                            if (buffEffect) canUse = !enemy.buffs.some(b => b.stat === buffEffect.stat);
+                        } else if (subSkill.type === 'debuff' && subSkill.effects) {
+                            const debuffEffect = subSkill.effects.find(e => e.type === 'debuff');
+                            if (debuffEffect) canUse = !targetUnit.debuffs.some(d => d.stat === debuffEffect.stat);
+                            const statusEffect = subSkill.effects.find(e => e.type === 'status');
+                            if (statusEffect) canUse = !targetUnit.statusEffects.some(s => s.type === statusEffect.status);
+                        } else if (subSkill.type === 'heal') {
+                            // 回復スキル: HP50%以下の味方がいる時のみ使用
+                            const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
+                            const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
+                            if (!woundedAlly) canUse = false;
                         }
+                        if (canUse) action = { type: 'skill', skillId: subSkillId };
+                    }
+                }
+
+                // 固有スキルの判定（全体技のクールタイム制を考慮）
+                if (!action && enemy.uniqueSkill) {
+                    let skillChance = 0.7; // 基本70%
+
+                    // 全体技クールタイム制: 前回全体技を使った場合は10%に減衰
+                    const skillData = this.getSkillData(enemy.uniqueSkill.id, enemy);
+                    if (skillData.target === 'all_enemies' && enemy.aoeUsedLastTurn) {
+                        skillChance = 0.1; // 10%に減衰
                     }
 
-                    // 固有スキルの判定
-                    if (!action && enemy.uniqueSkill && Math.random() < 0.7) {
+                    if (Math.random() < skillChance) {
                         let canUse = true;
                         const uniqueSkillType = enemy.uniqueSkill.type;
 
@@ -2828,53 +2844,56 @@ class Game {
                         }
                         if (canUse) action = { type: 'skill', skillId: enemy.uniqueSkill.id };
                     }
-
-                    if (!action) action = { type: 'attack' };
                 }
+
+                if (!action) action = { type: 'attack' };
             }
+        }
 
-            let finalTargetIdx = targetIdx;
-            let finalTargetType = 'ally';
+        let finalTargetIdx = targetIdx;
+        let finalTargetType = 'ally';
 
-            if (action.type === 'skill' && action.skillId) {
-                const skillData = this.getSkillData(action.skillId, enemy);
-                if (skillData.type === 'buff' || skillData.type === 'heal' || skillData.type === 'mp_heal') {
-                    const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
-                    if (aliveAllies.length > 0) {
-                        let allyTarget;
-                        if (skillData.type === 'heal') {
-                            // 回復スキル: HP%が最も低い味方を優先（自分除外の場合は自分以外）
-                            let candidates = aliveAllies;
-                            if (skillData.excludeSelf) {
-                                candidates = aliveAllies.filter(e => e.id !== enemy.id);
-                            }
-                            if (candidates.length > 0) {
-                                candidates.sort((a, b) => (a.currentHp / a.stats.hp) - (b.currentHp / b.stats.hp));
-                                allyTarget = candidates[0];
-                            } else {
-                                // 自分しかいない場合は回復しない（攻撃に変更）
-                                action = { type: 'attack' };
-                                allyTarget = null;
-                            }
+        if (action.type === 'skill' && action.skillId) {
+            const skillData = this.getSkillData(action.skillId, enemy);
+            if (skillData.type === 'buff' || skillData.type === 'heal' || skillData.type === 'mp_heal') {
+                const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
+                if (aliveAllies.length > 0) {
+                    let allyTarget;
+                    if (skillData.type === 'heal') {
+                        // 回復スキル: HP%が最も低い味方を優先（自分除外の場合は自分以外）
+                        let candidates = aliveAllies;
+                        if (skillData.excludeSelf) {
+                            candidates = aliveAllies.filter(e => e.id !== enemy.id);
+                        }
+                        if (candidates.length > 0) {
+                            candidates.sort((a, b) => (a.currentHp / a.stats.hp) - (b.currentHp / b.stats.hp));
+                            allyTarget = candidates[0];
                         } else {
-                            // バフ: ランダム
-                            allyTarget = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
+                            // 自分しかいない場合は回復しない（攻撃に変更）
+                            action = { type: 'attack' };
+                            allyTarget = null;
                         }
-                        if (allyTarget) {
-                            finalTargetIdx = this.state.battle.enemies.indexOf(allyTarget);
-                            finalTargetType = 'enemy';
-                        }
+                    } else {
+                        // バフ: ランダム
+                        allyTarget = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
+                    }
+                    if (allyTarget) {
+                        finalTargetIdx = this.state.battle.enemies.indexOf(allyTarget);
+                        finalTargetType = 'enemy';
                     }
                 }
             }
+        }
 
-            enemy.command = {
-                ...action,
-                target: finalTargetIdx,
-                targetType: finalTargetType,
-                speed: enemy.stats.speed
-            };
-        });
+        // コマンドオブジェクトを返す
+        return {
+            ...action,
+            target: finalTargetIdx,
+            targetType: finalTargetType,
+            speed: enemy.stats.speed,
+            isEnemy: true,
+            enemyIndex: enemyIndex
+        };
     }
 
     // ターゲット選択（配置補正考慮）
@@ -3027,6 +3046,11 @@ class Game {
             // 反撃チェック（属性不問・生存確認）
             await this.processCounter(target, actor);
         }));
+
+        // 全体技クールタイム制：敵が通常攻撃した場合はフラグをリセット
+        if (cmd.isEnemy) {
+            actor.aoeUsedLastTurn = false;
+        }
     }
 
     // 生存ターゲットを取得
@@ -3297,6 +3321,15 @@ class Game {
                 this.renderBattle(); // UI即時同期
                 break;
         }
+
+        // 全体技クールタイム制：敵が全体技を使用した場合は次回発動率を10%に減衰
+        if (isEnemy) {
+            if (skill.target === 'all_enemies') {
+                actor.aoeUsedLastTurn = true; // 全体技使用フラグをON
+            } else {
+                actor.aoeUsedLastTurn = false; // 全体技以外ならリセット
+            }
+        }
     }
 
 
@@ -3431,9 +3464,10 @@ class Game {
         // クリティカル判定
         const luck = this.getEffectiveStat(attacker, 'luck');
         let critRate = 5 + (luck / 3) + critBonus;
-        // critBoost状態異常を反映
-        const critStatus = attacker.statusEffects.find(e => e.type === 'critBoost');
-        if (critStatus) critRate += critStatus.value;
+        // critBoost状態異常を反映（複数のcritBoostを合算）
+        const critBoosts = attacker.statusEffects.filter(e => e.type === 'critBoost');
+        const totalCritBoost = critBoosts.reduce((sum, effect) => sum + effect.value, 0);
+        critRate += totalCritBoost;
 
         const isCritical = Math.random() * 100 < critRate;
         if (isCritical) {
@@ -4954,11 +4988,11 @@ class Game {
             const effectiveLuck = (context === 'battle' || context === 'enemy_battle') ? this.getEffectiveStat(char, 'luck') : char.stats.luck;
             let baseCrit = 5 + Math.floor(effectiveLuck / 3) + (char.critBonus || 0); // 基本 + 運補正 + 装備補正(仮)
 
-            // バフ補正 (戦闘中のみ)
+            // バフ補正 (戦闘中のみ) - 複数のcritBoostを合算
             let buffVal = 0;
             if (context === 'battle' || context === 'enemy_battle') {
-                const critStatus = char.statusEffects.find(e => e.type === 'critBoost');
-                if (critStatus) buffVal = critStatus.value;
+                const critBoosts = char.statusEffects.filter(e => e.type === 'critBoost');
+                buffVal = critBoosts.reduce((sum, effect) => sum + effect.value, 0);
             }
 
             let finalCrit = baseCrit + buffVal;
