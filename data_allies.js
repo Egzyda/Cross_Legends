@@ -9,7 +9,7 @@ const CHARACTERS = {
         name: '唐可可',
         displayName: '唐可可',
         stats: {
-            hp: 190,
+            hp: 220,
             mp: 90,
             physicalAttack: 70,
             magicAttack: 35,
@@ -40,20 +40,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['taunt'] // 上位互換のため除外
-    },
-    sky: {
+    }, sky: {
         id: 'sky',
         name: 'キュアスカイ',
         displayName: 'キュアスカイ',
         stats: {
-            hp: 135,
-            mp: 140,
-            physicalAttack: 160,
+            hp: 130,
+            mp: 110,
+            physicalAttack: 150,
             magicAttack: 35,
             physicalDefense: 60,
-            magicDefense: 55,
+            magicDefense: 60,
             speed: 110,
-            luck: 95
+            luck: 80
         },
         type: 'physical_attacker',
         uniqueSkill: {
@@ -72,19 +71,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['ultra_attack'] // 上位互換のため除外
-    },
-    josuke: {
+    }, josuke: {
         id: 'josuke',
         name: '東方仗助',
         displayName: '東方仗助',
         stats: {
-            hp: 140,
-            mp: 100,
-            physicalAttack: 110,
+            hp: 250,
+            mp: 130,
+            physicalAttack: 90,
             magicAttack: 50,
             physicalDefense: 85,
             magicDefense: 85,
-            speed: 95,
+            speed: 80,
             luck: 60
         },
         type: 'healer',
@@ -103,18 +101,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['heal'] // 上位互換のため除外
-    },
-    yoshiko: {
+    }, yoshiko: {
         id: 'yoshiko',
         name: '津島善子',
         displayName: '津島善子',
         stats: {
-            hp: 145,
-            mp: 110,
+            hp: 160,
+            mp: 130,
             physicalAttack: 40,
-            magicAttack: 120,
-            physicalDefense: 70,
-            magicDefense: 90,
+            magicAttack: 125,
+            physicalDefense: 80,
+            magicDefense: 85,
             speed: 100,
             luck: 0
         },
@@ -136,20 +133,19 @@ const CHARACTERS = {
             face: 'img/yoshiko_face.png'
         },
         skills: []
-    },
-    lucario: {
+    }, lucario: {
         id: 'lucario',
         name: 'ルカリオ',
         displayName: 'ルカリオ',
         stats: {
-            hp: 130,
+            hp: 180,
             mp: 110,
             physicalAttack: 115,
-            magicAttack: 120,
-            physicalDefense: 70,
-            magicDefense: 70,
-            speed: 90,
-            luck: 60
+            magicAttack: 125,
+            physicalDefense: 85,
+            magicDefense: 85,
+            speed: 80,
+            luck: 75
         },
         type: 'support',
         uniqueSkill: {
@@ -168,20 +164,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_shot'] // 上位互換のため除外
-    },
-    setsuna: {
+    }, setsuna: {
         id: 'setsuna',
         name: '優木せつ菜',
         displayName: '優木せつ菜',
         stats: {
-            hp: 120,
-            mp: 100,
+            hp: 130,
+            mp: 120,
             physicalAttack: 60,
-            magicAttack: 140,
-            physicalDefense: 80,
+            magicAttack: 150,
+            physicalDefense: 65,
             magicDefense: 70,
             speed: 100,
-            luck: 50
+            luck: 60
         },
         type: 'magic_attacker',
         uniqueSkill: {
@@ -202,20 +197,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['wide_attack'] // 上位互換のため除外
-    },
-    ceras: {
+    }, ceras: {
         id: 'ceras',
         name: 'セラス・柳田・リリエンフェルト',
         displayName: 'セラス',
         stats: {
-            hp: 150,
-            mp: 110,
+            hp: 230,
+            mp: 140,
             physicalAttack: 40,
-            magicAttack: 90,
+            magicAttack: 95,
             physicalDefense: 90,
             magicDefense: 100,
             speed: 60,
-            luck: 60
+            luck: 65
         },
         type: 'healer',
         uniqueSkill: {
@@ -234,14 +228,13 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['revive'] // 上位互換のため除外
-    },
-    kuroo: {
+    }, kuroo: {
         id: 'kuroo',
         name: '黒尾鉄朗',
         displayName: '黒尾鉄朗',
         stats: {
-            hp: 200,
-            mp: 105,
+            hp: 240,
+            mp: 100,
             physicalAttack: 80,
             magicAttack: 30,
             physicalDefense: 130,
@@ -269,20 +262,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['counter_stance'] // 上位互換のため除外
-    },
-    shiki: {
+    }, shiki: {
         id: 'shiki',
         name: '若菜四季',
         displayName: '若菜四季',
         stats: {
-            hp: 140,
-            mp: 110,
+            hp: 210,
+            mp: 120,
             physicalAttack: 50,
-            magicAttack: 80,
-            physicalDefense: 70,
+            magicAttack: 95,
+            physicalDefense: 85,
             magicDefense: 110,
             speed: 80,
-            luck: 60
+            luck: 65
         },
         type: 'support',
         uniqueSkill: {
@@ -300,20 +292,19 @@ const CHARACTERS = {
             face: 'img/shiki_face.png'
         },
         skills: []
-    },
-    shoto: {
+    }, shoto: {
         id: 'shoto',
         name: '轟焦凍',
         displayName: '轟焦凍',
         stats: {
-            hp: 130,
+            hp: 135,
             mp: 150,
             physicalAttack: 70,
             magicAttack: 145,
-            physicalDefense: 75,
-            magicDefense: 65,
+            physicalDefense: 55,
+            magicDefense: 60,
             speed: 95,
-            luck: 70
+            luck: 75
         },
         type: 'magic_attacker',
         uniqueSkill: {
@@ -332,19 +323,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_storm'] // 上位互換のため除外
-    },
-    kakasi: {
+    }, kakasi: {
         id: 'kakasi',
         name: 'はたけカカシ',
         displayName: 'はたけカカシ',
         stats: {
-            hp: 120,
+            hp: 125,
             mp: 120,
-            physicalAttack: 140,
+            physicalAttack: 145,
             magicAttack: 60,
-            physicalDefense: 70,
-            magicDefense: 60,
-            speed: 130,
+            physicalDefense: 55,
+            magicDefense: 55,
+            speed: 125,
             luck: 80
         },
         type: 'physical_attacker',
@@ -365,19 +355,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['critical_attack'] // 上位互換のため除外
-    },
-    shota: {
+    }, shota: {
         id: 'shota',
         name: '相澤消太',
         displayName: '相澤消太',
         stats: {
-            hp: 130,
-            mp: 240,
-            physicalAttack: 95,
+            hp: 185,
+            mp: 120,
+            physicalAttack: 105,
             magicAttack: 95,
-            physicalDefense: 85,
-            magicDefense: 85,
-            speed: 90,
+            physicalDefense: 95,
+            magicDefense: 95,
+            speed: 80,
             luck: 70
         },
         type: 'debuffer',
@@ -397,19 +386,18 @@ const CHARACTERS = {
             face: 'img/shota_face.png'
         },
         skills: []
-    },
-    shizuku: {
+    }, shizuku: {
         id: 'shizuku',
         name: '桜坂しずく',
         displayName: '桜坂しずく',
         stats: {
-            hp: 120,
-            mp: 255,
+            hp: 180,
+            mp: 135,
             physicalAttack: 80,
-            magicAttack: 80,
+            magicAttack: 100,
             physicalDefense: 90,
-            magicDefense: 90,
-            speed: 90,
+            magicDefense: 95,
+            speed: 80,
             luck: 70
         },
         type: 'debuffer',
@@ -431,20 +419,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['poison_single']
-    },
-    satoru: {
+    }, satoru: {
         id: 'satoru',
         name: '五条悟',
         displayName: '五条悟',
         stats: {
-            hp: 115,
-            mp: 175,
+            hp: 120,
+            mp: 145,
             physicalAttack: 45,
-            magicAttack: 155,
-            physicalDefense: 65,
-            magicDefense: 95,
+            magicAttack: 160,
+            physicalDefense: 55,
+            magicDefense: 55,
             speed: 95,
-            luck: 55
+            luck: 60
         },
         type: 'magic_attacker',
         uniqueSkill: {
@@ -463,20 +450,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_magic_shot'] // 上位互換のため除外
-    },
-    shanks: {
+    }, shanks: {
         id: 'shanks',
         name: 'シャンクス',
         displayName: 'シャンクス',
         stats: {
             hp: 140,
-            mp: 170,
+            mp: 120,
             physicalAttack: 150,
             magicAttack: 30,
-            physicalDefense: 70,
-            magicDefense: 60,
-            speed: 110,
-            luck: 110
+            physicalDefense: 55,
+            magicDefense: 55,
+            speed: 105,
+            luck: 95
         },
         type: 'physical_attacker',
         uniqueSkill: {
@@ -495,18 +481,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['wide_attack']
-    },
-    blastoise: {
+    }, blastoise: {
         id: 'blastoise',
         name: 'カメックス',
         displayName: 'カメックス',
         stats: {
-            hp: 200,
-            mp: 145,
+            hp: 220,
+            mp: 90,
             physicalAttack: 50,
             magicAttack: 90,
-            physicalDefense: 130,
-            magicDefense: 130,
+            physicalDefense: 135,
+            magicDefense: 135,
             speed: 40,
             luck: 50
         },
@@ -534,19 +519,18 @@ const CHARACTERS = {
             face: 'img/blastoise_face.png'
         },
         skills: []
-    },
-    kaede: {
+    }, kaede: {
         id: 'kaede',
         name: '高垣楓',
         displayName: '高垣楓',
         stats: {
-            hp: 130,
-            mp: 190,
+            hp: 210,
+            mp: 180,
             physicalAttack: 40,
             magicAttack: 110,
-            physicalDefense: 70,
-            magicDefense: 120,
-            speed: 90,
+            physicalDefense: 60,
+            magicDefense: 80,
+            speed: 60,
             luck: 70
         },
         type: 'healer',
@@ -565,19 +549,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['heal_all']
-    },
-    kirby: {
+    }, kirby: {
         id: 'kirby',
         name: 'カービィ',
         displayName: 'カービィ',
         stats: {
-            hp: 130,
-            mp: 240,
-            physicalAttack: 90,
+            hp: 200,
+            mp: 120,
+            physicalAttack: 100,
             magicAttack: 90,
-            physicalDefense: 80,
-            magicDefense: 80,
-            speed: 100,
+            physicalDefense: 90,
+            magicDefense: 90,
+            speed: 80,
             luck: 100
         },
         type: 'support',
@@ -595,19 +578,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['cure_status']
-    },
-    mari: {
+    }, mari: {
         id: 'mari',
         name: 'マリ',
         displayName: 'マリ',
         stats: {
-            hp: 185,
-            mp: 80,
+            hp: 215,
+            mp: 90,
             physicalAttack: 60,
             magicAttack: 120,
-            physicalDefense: 135,
-            magicDefense: 125,
-            speed: 65,
+            physicalDefense: 110,
+            magicDefense: 110,
+            speed: 50,
             luck: 40
         },
         type: 'tank',
@@ -629,20 +611,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    jyotaro: {
+    }, jyotaro: {
         id: 'jyotaro',
         name: '空条承太郎',
         displayName: '空条承太郎',
         stats: {
-            hp: 140,
-            mp: 135,
-            physicalAttack: 135,
+            hp: 145,
+            mp: 100,
+            physicalAttack: 155,
             magicAttack: 35,
-            physicalDefense: 95,
-            magicDefense: 75,
-            speed: 120,
-            luck: 65
+            physicalDefense: 55,
+            magicDefense: 65,
+            speed: 110,
+            luck: 70
         },
         type: 'physical_attacker',
         uniqueSkill: {
@@ -662,20 +643,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['ultra_attack']
-    },
-    blueeyes: {
+    }, blueeyes: {
         id: 'blueeyes',
         name: '青眼の白龍',
         displayName: '青眼の白龍',
         stats: {
-            hp: 120,
-            mp: 185,
+            hp: 130,
+            mp: 130,
             physicalAttack: 55,
-            magicAttack: 150,
-            physicalDefense: 70,
-            magicDefense: 90,
+            magicAttack: 160,
+            physicalDefense: 55,
+            magicDefense: 65,
             speed: 90,
-            luck: 60
+            luck: 65
         },
         type: 'magic_attacker',
         uniqueSkill: {
@@ -695,19 +675,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    marco: {
+    }, marco: {
         id: 'marco',
         name: 'マルコ',
         displayName: 'マルコ',
         stats: {
-            hp: 130,
-            mp: 190,
+            hp: 220,
+            mp: 150,
             physicalAttack: 115,
             magicAttack: 65,
-            physicalDefense: 80,
-            magicDefense: 90,
-            speed: 105,
+            physicalDefense: 60,
+            magicDefense: 95,
+            speed: 60,
             luck: 70
         },
         type: 'healer',
@@ -726,20 +705,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['heal_all']
-    },
-    doraemon: {
+    }, doraemon: {
         id: 'doraemon',
         name: 'ドラえもん',
         displayName: 'ドラえもん',
         stats: {
-            hp: 125,
-            mp: 230,
+            hp: 190,
+            mp: 125,
             physicalAttack: 80,
-            magicAttack: 95,
-            physicalDefense: 85,
-            magicDefense: 85,
-            speed: 100,
-            luck: 65
+            magicAttack: 100,
+            physicalDefense: 95,
+            magicDefense: 95,
+            speed: 80,
+            luck: 70
         },
         type: 'support',
         uniqueSkill: {
@@ -760,20 +738,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['attack_boost_all']
-    },
-    frieren: {
+    }, frieren: {
         id: 'frieren',
         name: 'フリーレン',
         displayName: 'フリーレン',
         stats: {
-            hp: 115,
-            mp: 170,
+            hp: 150,
+            mp: 100,
             physicalAttack: 45,
-            magicAttack: 145,
-            physicalDefense: 75,
+            magicAttack: 130,
+            physicalDefense: 80,
             magicDefense: 110,
-            speed: 85,
-            luck: 55
+            speed: 80,
+            luck: 65
         },
         type: 'debuffer',
         uniqueSkill: {
@@ -794,18 +771,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_impact']
-    },
-    hajime: {
+    }, hajime: {
         id: 'hajime',
         name: '梅宮一',
         displayName: '梅宮一',
         stats: {
-            hp: 200,
-            mp: 140,
-            physicalAttack: 85,
+            hp: 250,
+            mp: 100,
+            physicalAttack: 90,
             magicAttack: 25,
             physicalDefense: 140,
-            magicDefense: 100,
+            magicDefense: 90,
             speed: 50,
             luck: 60
         },
@@ -826,19 +802,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['ultra_attack']
-    },
-    gaara: {
+    }, gaara: {
         id: 'gaara',
         name: '我愛羅',
         displayName: '我愛羅',
         stats: {
-            hp: 150,
-            mp: 140,
-            physicalAttack: 110,
+            hp: 230,
+            mp: 115,
+            physicalAttack: 80,
             magicAttack: 50,
             physicalDefense: 150,
-            magicDefense: 120,
-            speed: 55,
+            magicDefense: 110,
+            speed: 40,
             luck: 40
         },
         type: 'tank',
@@ -860,20 +835,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    yami: {
+    }, yami: {
         id: 'yami',
         name: 'ヤミ・スケヒロ',
         displayName: 'ヤミ・スケヒロ',
         stats: {
             hp: 140,
-            mp: 205,
+            mp: 120,
             physicalAttack: 155,
             magicAttack: 30,
-            physicalDefense: 75,
-            magicDefense: 50,
+            physicalDefense: 55,
+            magicDefense: 65,
             speed: 95,
-            luck: 70
+            luck: 80
         },
         type: 'physical_attacker',
         uniqueSkill: {
@@ -895,20 +869,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_attack']
-    },
-    gintoki: {
+    }, gintoki: {
         id: 'gintoki',
         name: '坂田銀時',
         displayName: '坂田銀時',
         stats: {
-            hp: 130,
-            mp: 170,
-            physicalAttack: 140,
+            hp: 135,
+            mp: 120,
+            physicalAttack: 145,
             magicAttack: 25,
-            physicalDefense: 85,
+            physicalDefense: 55,
             magicDefense: 70,
             speed: 105,
-            luck: 85
+            luck: 90
         },
         type: 'physical_attacker',
         uniqueSkill: {
@@ -930,17 +903,16 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_attack']
-    },
-    yor: {
+    }, yor: {
         id: 'yor',
         name: 'ヨル・フォージャー',
         displayName: 'ヨル',
         stats: {
             hp: 120,
-            mp: 190,
-            physicalAttack: 150,
+            mp: 95,
+            physicalAttack: 160,
             magicAttack: 20,
-            physicalDefense: 60,
+            physicalDefense: 55,
             magicDefense: 55,
             speed: 125,
             luck: 90
@@ -964,19 +936,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['double_attack']
-    },
-    naruto: {
+    }, naruto: {
         id: 'naruto',
         name: 'うずまきナルト',
         displayName: 'うずまきナルト',
         stats: {
-            hp: 145,
-            mp: 200,
+            hp: 150,
+            mp: 140,
             physicalAttack: 120,
             magicAttack: 135,
-            physicalDefense: 75,
-            magicDefense: 65,
-            speed: 100,
+            physicalDefense: 55,
+            magicDefense: 60,
+            speed: 105,
             luck: 75
         },
         type: 'magic_attacker',
@@ -996,18 +967,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_magic_shot']
-    },
-    roy: {
+    }, roy: {
         id: 'roy',
         name: 'ロイ・マスタング',
         displayName: 'ロイ',
         stats: {
-            hp: 115,
-            mp: 175,
+            hp: 125,
+            mp: 145,
             physicalAttack: 35,
-            magicAttack: 145,
-            physicalDefense: 65,
-            magicDefense: 90,
+            magicAttack: 155,
+            physicalDefense: 55,
+            magicDefense: 55,
             speed: 95,
             luck: 70
         },
@@ -1030,18 +1000,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_magic_shot']
-    },
-    gamma: {
+    }, gamma: {
         id: 'gamma',
         name: 'ガンマ',
         displayName: 'ガンマ',
         stats: {
-            hp: 120,
-            mp: 175,
+            hp: 130,
+            mp: 150,
             physicalAttack: 30,
             magicAttack: 150,
-            physicalDefense: 60,
-            magicDefense: 105,
+            physicalDefense: 55,
+            magicDefense: 65,
             speed: 90,
             luck: 60
         },
@@ -1064,20 +1033,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_storm']
-    },
-    akiko: {
+    }, akiko: {
         id: 'akiko',
         name: '与謝野晶子',
         displayName: '与謝野晶子',
         stats: {
-            hp: 130,
-            mp: 245,
+            hp: 235,
+            mp: 160,
             physicalAttack: 45,
-            magicAttack: 80,
-            physicalDefense: 90,
+            magicAttack: 90,
+            physicalDefense: 65,
             magicDefense: 110,
-            speed: 75,
-            luck: 55
+            speed: 60,
+            luck: 60
         },
         type: 'healer',
         uniqueSkill: {
@@ -1095,19 +1063,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    kaho: {
+    }, kaho: {
         id: 'kaho',
         name: '日野下花帆',
         displayName: '日野下花帆',
         stats: {
-            hp: 135,
-            mp: 225,
+            hp: 245,
+            mp: 170,
             physicalAttack: 40,
-            magicAttack: 75,
-            physicalDefense: 95,
-            magicDefense: 115,
-            speed: 80,
+            magicAttack: 85,
+            physicalDefense: 60,
+            magicDefense: 110,
+            speed: 60,
             luck: 65
         },
         type: 'healer',
@@ -1126,20 +1093,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    minato: {
+    }, minato: {
         id: 'minato',
         name: '波風ミナト',
         displayName: '波風ミナト',
         stats: {
-            hp: 125,
-            mp: 215,
-            physicalAttack: 100,
+            hp: 175,
+            mp: 135,
+            physicalAttack: 120,
             magicAttack: 70,
-            physicalDefense: 70,
-            magicDefense: 75,
-            speed: 130,
-            luck: 60
+            physicalDefense: 80,
+            magicDefense: 80,
+            speed: 80,
+            luck: 70
         },
         type: 'support',
         uniqueSkill: {
@@ -1159,19 +1125,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['speed_boost_all']
-    },
-    anya: {
+    }, anya: {
         id: 'anya',
         name: 'アーニャ・フォージャー',
         displayName: 'アーニャ',
         stats: {
-            hp: 110,
-            mp: 260,
+            hp: 160,
+            mp: 155,
             physicalAttack: 30,
-            magicAttack: 85,
-            physicalDefense: 70,
+            magicAttack: 90,
+            physicalDefense: 80,
             magicDefense: 100,
-            speed: 85,
+            speed: 80,
             luck: 120
         },
         type: 'support',
@@ -1192,20 +1157,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['luck_boost_all']
-    },
-    shikamaru: {
+    }, shikamaru: {
         id: 'shikamaru',
         name: '奈良シカマル',
         displayName: '奈良シカマル',
         stats: {
-            hp: 120,
-            mp: 260,
-            physicalAttack: 70,
+            hp: 185,
+            mp: 120,
+            physicalAttack: 100,
             magicAttack: 95,
-            physicalDefense: 80,
-            magicDefense: 95,
-            speed: 70,
-            luck: 90
+            physicalDefense: 90,
+            magicDefense: 100,
+            speed: 80,
+            luck: 95
         },
         type: 'debuffer',
         uniqueSkill: {
@@ -1226,20 +1190,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['strong_attack']
-    },
-    loid: {
+    }, loid: {
         id: 'loid',
         name: 'ロイド・フォージャー',
         displayName: 'ロイド',
         stats: {
-            hp: 125,
-            mp: 180,
-            physicalAttack: 105,
+            hp: 180,
+            mp: 105,
+            physicalAttack: 120,
             magicAttack: 50,
-            physicalDefense: 85,
-            magicDefense: 80,
-            speed: 110,
-            luck: 80
+            physicalDefense: 90,
+            magicDefense: 90,
+            speed: 80,
+            luck: 85
         },
         type: 'debuffer',
         uniqueSkill: {
@@ -1260,19 +1223,18 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['armor_break_all']
-    },
-    nyammy: {
+    }, nyammy: {
         id: 'nyammy',
         name: 'キュアニャミー',
         displayName: 'キュアニャミー',
         stats: {
-            hp: 175,
-            mp: 145,
-            physicalAttack: 90,
+            hp: 200,
+            mp: 100,
+            physicalAttack: 95,
             magicAttack: 30,
-            physicalDefense: 140,
-            magicDefense: 105,
-            speed: 70,
+            physicalDefense: 135,
+            magicDefense: 100,
+            speed: 65,
             luck: 50
         },
         type: 'tank',
@@ -1297,18 +1259,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['taunt']
-    },
-    zukyuun: {
+    }, zukyuun: {
         id: 'zukyuun',
         name: 'キュアズキューン',
         displayName: 'キュアズキューン',
         stats: {
-            hp: 125,
-            mp: 180,
+            hp: 130,
+            mp: 110,
             physicalAttack: 155,
             magicAttack: 30,
-            physicalDefense: 65,
-            magicDefense: 60,
+            physicalDefense: 55,
+            magicDefense: 55,
             speed: 115,
             luck: 85
         },
@@ -1329,18 +1290,17 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['ultra_attack']
-    },
-    margarete: {
+    }, margarete: {
         id: 'margarete',
         name: 'ウィーン・マルガレーテ',
         displayName: 'マルガレーテ',
         stats: {
-            hp: 120,
-            mp: 195,
+            hp: 125,
+            mp: 125,
             physicalAttack: 30,
-            magicAttack: 155,
-            physicalDefense: 75,
-            magicDefense: 75,
+            magicAttack: 160,
+            physicalDefense: 55,
+            magicDefense: 55,
             speed: 105,
             luck: 70
         },
@@ -1363,20 +1323,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['magic_shot']
-    },
-    chiyuki: {
+    }, chiyuki: {
         id: 'chiyuki',
         name: '桑山千雪',
         displayName: '桑山千雪',
         stats: {
-            hp: 120,
-            mp: 235,
+            hp: 220,
+            mp: 180,
             physicalAttack: 50,
-            magicAttack: 95,
-            physicalDefense: 85,
-            magicDefense: 100,
-            speed: 90,
-            luck: 60
+            magicAttack: 100,
+            physicalDefense: 60,
+            magicDefense: 90,
+            speed: 60,
+            luck: 65
         },
         type: 'healer',
         uniqueSkill: {
@@ -1395,20 +1354,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
-    },
-    hanamaru: {
+    }, hanamaru: {
         id: 'hanamaru',
         name: '国木田花丸',
         displayName: '国木田花丸',
         stats: {
-            hp: 145,
-            mp: 200,
+            hp: 200,
+            mp: 110,
             physicalAttack: 70,
-            magicAttack: 85,
-            physicalDefense: 85,
-            magicDefense: 90,
-            speed: 75,
-            luck: 75
+            magicAttack: 100,
+            physicalDefense: 95,
+            magicDefense: 100,
+            speed: 80,
+            luck: 80
         },
         type: 'support',
         uniqueSkill: {
@@ -1430,20 +1388,19 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['speed_boost']
-    },
-    dave: {
+    }, dave: {
         id: 'dave',
         name: 'デイブ',
         displayName: 'デイブ',
         stats: {
-            hp: 130,
-            mp: 180,
+            hp: 190,
+            mp: 100,
             physicalAttack: 65,
-            magicAttack: 100,
+            magicAttack: 115,
             physicalDefense: 90,
-            magicDefense: 95,
-            speed: 100,
-            luck: 65
+            magicDefense: 100,
+            speed: 80,
+            luck: 70
         },
         type: 'debuffer',
         uniqueSkill: {
@@ -1466,7 +1423,7 @@ const CHARACTERS = {
         skills: [],
         excludeSkills: ['weaken_all']
     }
-    //     nana: {
+    // nana: {
     //     id: 'nana',
     //     name: '中川菜々',
     //     displayName: '中川菜々',

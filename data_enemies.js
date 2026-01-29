@@ -5,7 +5,7 @@
 // 敵キャラクター
 const ENEMIES = {
     // ========================================
-    // 1幕 通常敵（5種類）
+    // 1幕 通常敵（5種類）- 固有スキルのみ
     // ========================================
 
     slime: {
@@ -38,7 +38,7 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 115, mp: 55, physicalAttack: 60, magicAttack: 0,
-            physicalDefense: 100, magicDefense: 55, speed: 35, luck: 40
+            physicalDefense: 100, magicDefense: 75, speed: 40, luck: 40
         },
         skills: [],
         uniqueSkill: {
@@ -61,7 +61,7 @@ const ENEMIES = {
         type: 'debuffer',
         baseStats: {
             hp: 110, mp: 70, physicalAttack: 60, magicAttack: 0,
-            physicalDefense: 65, magicDefense: 75, speed: 90, luck: 50
+            physicalDefense: 85, magicDefense: 85, speed: 90, luck: 50
         },
         skills: [],
         uniqueSkill: {
@@ -86,8 +86,8 @@ const ENEMIES = {
         displayName: 'ワドルドゥ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 125, mp: 75, physicalAttack: 45, magicAttack: 60,
-            physicalDefense: 60, magicDefense: 90, speed: 65, luck: 50
+            hp: 130, mp: 75, physicalAttack: 45, magicAttack: 60,
+            physicalDefense: 75, magicDefense: 90, speed: 65, luck: 50
         },
         skills: [],
         uniqueSkill: {
@@ -95,9 +95,12 @@ const ENEMIES = {
             displayName: 'ビームショット',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 150,
+            power: 120,
             mpCost: 30,
-            description: '単体に魔法攻撃（威力150%）'
+            effects: [
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
+            ],
+            description: '単体に魔法攻撃（威力120%）+ 麻痺状態にする'
         },
         image: { full: 'img/enemy/wadorudo.png' },
         rank: 'normal'
@@ -110,7 +113,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 120, mp: 80, physicalAttack: 40, magicAttack: 60,
-            physicalDefense: 65, magicDefense: 85, speed: 70, luck: 45
+            physicalDefense: 65, magicDefense: 105, speed: 75, luck: 45
         },
         skills: [],
         uniqueSkill: {
@@ -127,7 +130,7 @@ const ENEMIES = {
     },
 
     // ========================================
-    // 1幕 エリート（4種類）
+    // 1幕 エリート（5種類）- 固有スキル＋スキル1
     // ========================================
 
     arboc: {
@@ -136,10 +139,10 @@ const ENEMIES = {
         displayName: 'アーボック',
         type: 'physical_attacker',
         baseStats: {
-            hp: 340, mp: 100, physicalAttack: 75, magicAttack: 0,
-            physicalDefense: 130, magicDefense: 135, speed: 100, luck: 60
+            hp: 400, mp: 100, physicalAttack: 90, magicAttack: 0,
+            physicalDefense: 130, magicDefense: 130, speed: 100, luck: 60
         },
-        skills: ['weaken_all'],
+        skills: ['all_power_down'],
         uniqueSkill: {
             id: 'toxic_fang',
             displayName: 'どくどくのキバ',
@@ -165,15 +168,15 @@ const ENEMIES = {
             hp: 370, mp: 95, physicalAttack: 90, magicAttack: 0,
             physicalDefense: 120, magicDefense: 100, speed: 75, luck: 50
         },
-        skills: ['attack_boost'],
+        skills: ['all_power_boost'],
         uniqueSkill: {
             id: 'bara_bara_attack',
             displayName: 'バラバラアタック',
             type: 'physical_attack',
             target: 'all_enemies',
-            power: 70,
+            power: 60,
             mpCost: 55,
-            description: '全体に物理攻撃（威力70%）'
+            description: '全体に物理攻撃（威力60%）'
         },
         image: { full: 'img/enemy/buggy.png' },
         rank: 'elite'
@@ -188,7 +191,7 @@ const ENEMIES = {
             hp: 320, mp: 120, physicalAttack: 0, magicAttack: 90,
             physicalDefense: 100, magicDefense: 125, speed: 115, luck: 70
         },
-        skills: ['speed_boost_all'],
+        skills: ['all_speed_boost'],
         uniqueSkill: {
             id: 'chaos_lance',
             displayName: 'カオスランス',
@@ -197,9 +200,10 @@ const ENEMIES = {
             power: 120,
             mpCost: 50,
             effects: [
-                { type: 'debuff', stat: 'speed', value: -0.5, duration: 3 }
+                { type: 'debuff', stat: 'physicalAttack', value: -0.5, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.5, duration: 3 }
             ],
-            description: '単体に魔法攻撃（威力120%）+ 速度-50% 3ターン'
+            description: '単体に魔法攻撃（威力120%）+ 攻撃-50% 3ターン'
         },
         image: { full: 'img/enemy/shadow.png' },
         rank: 'elite'
@@ -220,9 +224,9 @@ const ENEMIES = {
             displayName: 'ひろがるオナラガス',
             type: 'physical_attack',
             target: 'all_enemies',
-            power: 70,
+            power: 60,
             mpCost: 35,
-            description: '全体に物理攻撃（威力70%）'
+            description: '全体に物理攻撃（威力60%）'
         },
         image: { full: 'img/enemy/kabaton.png' },
         rank: 'elite'
@@ -237,7 +241,7 @@ const ENEMIES = {
             hp: 370, mp: 100, physicalAttack: 0, magicAttack: 100,
             physicalDefense: 100, magicDefense: 120, speed: 85, luck: 60
         },
-        skills: [],
+        skills: ['magic_wave'],
         uniqueSkill: {
             id: 'magicians_red',
             displayName: 'マジシャンズ・レッド',
@@ -255,7 +259,7 @@ const ENEMIES = {
     },
 
     // ========================================
-    // 1幕 ボス（5種類）
+    // 1幕 ボス（7種類）- 固有スキル＋スキル2
     // ========================================
 
     baikinman: {
@@ -267,16 +271,16 @@ const ENEMIES = {
             hp: 740, mp: 140, physicalAttack: 110, magicAttack: 0,
             physicalDefense: 160, magicDefense: 120, speed: 90, luck: 70
         },
-        skills: ['poison_single'],
+        skills: ['poison_all', 'heavy_wave'],
         uniqueSkill: {
             id: 'baikin_punch',
             displayName: 'バイキンパンチ',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 120,
+            power: 150,
             mpCost: 65,
             effects: [],
-            description: '単体に強力な物理攻撃（威力120%）'
+            description: '単体に強力な物理攻撃（威力150%）'
         },
         image: { full: 'img/enemy/baikinman.png' },
         rank: 'boss'
@@ -291,18 +295,18 @@ const ENEMIES = {
             hp: 742, mp: 180, physicalAttack: 81, magicAttack: 86,
             physicalDefense: 150, magicDefense: 180, speed: 78, luck: 65
         },
-        skills: ['weaken_all'],
+        skills: ['all_power_down', 'magic_bullet'],
         uniqueSkill: {
             id: 'poison_spray',
             displayName: '毒液噴射',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 55,
+            power: 50,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'poison', chance: 30, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力55%）+ 毒付与30%（3T）'
+            description: '全体に魔法攻撃（威力50%）+ 毒付与30%（3T）'
         },
         image: { full: 'img/enemy/giginebura.png' },
         rank: 'boss'
@@ -317,7 +321,7 @@ const ENEMIES = {
             hp: 770, mp: 190, physicalAttack: 75, magicAttack: 92,
             physicalDefense: 160, magicDefense: 190, speed: 82, luck: 72
         },
-        skills: ['defense_boost'],
+        skills: ['all_guard_boost', 'magic_wave'],
         uniqueSkill: {
             id: 'cursed_spirit_manipulation',
             displayName: '呪霊操術',
@@ -340,16 +344,15 @@ const ENEMIES = {
             hp: 792, mp: 130, physicalAttack: 98, magicAttack: 81,
             physicalDefense: 170, magicDefense: 160, speed: 72, luck: 65
         },
-        skills: ['attack_boost'],
+        skills: ['all_power_boost', 'heavy_wave'],
         uniqueSkill: {
             id: 'stone_edge',
             displayName: 'ストーンエッジ',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 140,
+            power: 150,
             mpCost: 65,
-            critBonus: 20,
-            description: '単体に強力な物理攻撃（威力140%、クリ率+20%）'
+            description: '単体に強力な物理攻撃（威力150%）'
         },
         image: { full: 'img/enemy/tyranitar.png' },
         rank: 'boss'
@@ -364,18 +367,18 @@ const ENEMIES = {
             hp: 693, mp: 200, physicalAttack: 69, magicAttack: 92,
             physicalDefense: 140, magicDefense: 200, speed: 90, luck: 75
         },
-        skills: ['speed_down'],
+        skills: ['paralyze_single', 'magic_wave'],
         uniqueSkill: {
             id: 'kusanagi_sword',
             displayName: '草薙の剣',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 200,
+            power: 120,
             mpCost: 58,
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
             ],
-            description: '単体に強力な魔法攻撃（威力200%）+ 沈黙状態にする'
+            description: '単体に魔法攻撃（威力120%）+ 沈黙状態にする'
         },
         image: { full: 'img/enemy/orochimaru.png' },
         rank: 'boss'
@@ -388,11 +391,10 @@ const ENEMIES = {
         displayName: '鹿角聖良',
         type: 'physical_attacker',
         baseStats: {
-            // ボスベース: HP740, 攻撃110程度 → 8割/5割調整済
             hp: 592, mp: 120, physicalAttack: 55, magicAttack: 0,
             physicalDefense: 128, magicDefense: 100, speed: 80, luck: 65
         },
-        skills: ['speed_boost_all'],
+        skills: ['all_speed_boost', 'heavy_wave'],
         uniqueSkill: {
             id: 'crash_mind',
             displayName: 'CRASH MIND',
@@ -408,7 +410,8 @@ const ENEMIES = {
         image: { full: 'img/enemy/sarah.png' },
         rank: 'boss',
         pairWith: 'leah_kazuno',
-        groupName: 'Saint Snow'
+        groupName: 'Saint Snow',
+        groupImage: 'img/enemy/saintsnow.png'
     },
 
     // Saint Snow（ペアボス）- 鹿角理亞
@@ -418,11 +421,10 @@ const ENEMIES = {
         displayName: '鹿角理亞',
         type: 'magic_attacker',
         baseStats: {
-            // ボスベース: HP740, 攻撃110程度 → 8割/5割調整済
             hp: 592, mp: 140, physicalAttack: 0, magicAttack: 55,
             physicalDefense: 100, magicDefense: 128, speed: 75, luck: 65
         },
-        skills: ['attack_boost_all'],
+        skills: ['all_power_boost', 'magic_wave'],
         uniqueSkill: {
             id: 'believe_again',
             displayName: 'Believe again',
@@ -436,11 +438,12 @@ const ENEMIES = {
         image: { full: 'img/enemy/leah.png' },
         rank: 'boss',
         pairWith: 'sarah_kazuno',
-        groupName: 'Saint Snow'
+        groupName: 'Saint Snow',
+        groupImage: 'img/enemy/saintsnow.png'
     },
 
     // ========================================
-    // 2幕 通常敵（5種類）
+    // 2幕 通常敵（5種類）- 固有スキルのみ
     // ========================================
 
     bullfango: {
@@ -457,10 +460,10 @@ const ENEMIES = {
             id: 'charge',
             displayName: '突進',
             type: 'physical_attack',
-            target: 'single_enemy',
-            power: 165,
+            target: 'all_enemies',
+            power: 60,
             mpCost: 32,
-            description: '単体に物理攻撃（威力165%）'
+            description: '全体に物理攻撃（威力60%）'
         },
         image: { full: 'img/enemy/fango.png' },
         rank: 'normal'
@@ -481,12 +484,12 @@ const ENEMIES = {
             displayName: 'エネルギードレイン',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 120,
             mpCost: 35,
             effects: [
                 { type: 'mp_drain', value: 0.1 }
             ],
-            description: '単体に魔法攻撃（威力160%）+ MP吸収10'
+            description: '単体に魔法攻撃（威力120%）+ MP吸収10'
         },
         image: { full: 'img/enemy/metoroid.png' },
         rank: 'normal'
@@ -507,12 +510,12 @@ const ENEMIES = {
             displayName: '絞殺',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 100,
+            power: 120,
             mpCost: 35,
             effects: [
-                { type: 'status', status: 'stun', chance: 30, duration: 1 }
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
-            description: '単体に物理攻撃（威力100%）+ スタン30%'
+            description: '単体に物理攻撃（威力120%）+ 麻痺'
         },
         image: { full: 'img/enemy/redead.png' },
         rank: 'normal'
@@ -533,12 +536,12 @@ const ENEMIES = {
             displayName: '自爆',
             type: 'physical_attack',
             target: 'all_enemies',
-            power: 200,
+            power: 60,
             mpCost: 0,
             effects: [
                 { type: 'self_ko' }
             ],
-            description: '全体に物理攻撃（威力200%）、自分は戦闘不能'
+            description: '全体に物理攻撃（威力60%）、自分は戦闘不能'
         },
         image: { full: 'img/enemy/bombhei.png' },
         rank: 'normal'
@@ -559,19 +562,19 @@ const ENEMIES = {
             displayName: 'オーバードライブ',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 120,
+            power: 50,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'stun', chance: 20, duration: 1 }
             ],
-            description: '全体に魔法攻撃（威力120%）+ スタン20%'
+            description: '全体に魔法攻撃（威力50%）+ スタン20%'
         },
         image: { full: 'img/enemy/toxtricity.png' },
         rank: 'normal'
     },
 
     // ========================================
-    // 2幕 エリート（4種類）
+    // 2幕 エリート（5種類）- 固有スキル＋スキル1
     // ========================================
 
     koopajr: {
@@ -583,18 +586,18 @@ const ENEMIES = {
             hp: 305, mp: 160, physicalAttack: 0, magicAttack: 70,
             physicalDefense: 126, magicDefense: 144, speed: 85, luck: 68
         },
-        skills: ['defense_boost'],
+        skills: ['all_guard_boost'],
         uniqueSkill: {
             id: 'clown_blaster',
             displayName: 'クラウンブラスター',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 120,
             mpCost: 55,
             effects: [
                 { type: 'status', status: 'silence', chance: 100, duration: 3 }
             ],
-            description: '単体に強力な魔法攻撃（威力160%）+ 沈黙状態にする（3T）'
+            description: '単体に魔法攻撃（威力120%）+ 沈黙状態にする（3T）'
         },
         image: { full: 'img/enemy/koopajr.png' },
         rank: 'elite'
@@ -609,16 +612,15 @@ const ENEMIES = {
             hp: 290, mp: 130, physicalAttack: 65, magicAttack: 0,
             physicalDefense: 117, magicDefense: 112, speed: 115, luck: 75
         },
-        skills: ['speed_boost'],
+        skills: ['all_power_boost'],
         uniqueSkill: {
             id: 'mach_tornado',
             displayName: 'マッハトルネイド',
             type: 'physical_attack',
-            target: 'single_enemy',
-            power: 70,
-            hits: 2,
+            target: 'all_enemies',
+            power: 60,
             mpCost: 45,
-            description: '単体に2回攻撃（威力70%×2）'
+            description: '全体に物理攻撃（威力60%）'
         },
         image: { full: 'img/enemy/metaknight.png' },
         rank: 'elite'
@@ -633,18 +635,18 @@ const ENEMIES = {
             hp: 300, mp: 150, physicalAttack: 0, magicAttack: 75,
             physicalDefense: 108, magicDefense: 130, speed: 100, luck: 75
         },
-        skills: ['attack_boost'],
+        skills: ['paralyze_single'],
         uniqueSkill: {
             id: 'bungee_gum',
             displayName: '伸縮自在の愛（バンジーガム）',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 140,
+            power: 120,
             mpCost: 50,
             effects: [
-                { type: 'debuff', stat: 'speed', value: -0.3, duration: 3 }
+                { type: 'debuff', stat: 'speed', value: -0.5, duration: 3 }
             ],
-            description: '単体に魔法攻撃（威力140%）+ 速度-30% 3ターン'
+            description: '単体に魔法攻撃（威力120%）+ 速度-50% 3ターン'
         },
         image: { full: 'img/enemy/hisoka.png' },
         rank: 'elite'
@@ -659,22 +661,23 @@ const ENEMIES = {
             hp: 320, mp: 140, physicalAttack: 75, magicAttack: 0,
             physicalDefense: 130, magicDefense: 120, speed: 95, luck: 70
         },
-        skills: ['weaken_all'],
+        skills: ['all_power_down'],
         uniqueSkill: {
             id: 'darkness_wing',
             displayName: 'ダークネスウィング',
             type: 'physical_attack',
-            target: 'single_enemy',
-            power: 130,
+            target: 'all_enemies',
+            power: 50,
             mpCost: 65,
-            effects: [],
-            description: '単体に強力な物理攻撃（威力130%）'
+            effects: [
+                { type: 'status', status: 'poison', chance: 100, duration: 3 }
+            ],
+            description: '全体に物理攻撃（威力50%）+ 毒状態にする'
         },
         image: { full: 'img/enemy/darkprecure.png' },
         rank: 'elite'
     },
 
-    // テオ・テスカトル（魔法エリート）
     teostra: {
         id: 'teostra',
         name: 'テオ・テスカトル',
@@ -684,25 +687,25 @@ const ENEMIES = {
             hp: 255, mp: 120, physicalAttack: 0, magicAttack: 120,
             physicalDefense: 100, magicDefense: 130, speed: 80, luck: 65
         },
-        skills: [],
+        skills: ['all_power_down'],
         uniqueSkill: {
             id: 'supernova',
             displayName: 'スーパーノヴァ',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 60,
+            power: 50,
             mpCost: 55,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力60%）+ 火傷状態にする'
+            description: '全体に魔法攻撃（威力50%）+ 火傷状態にする'
         },
         image: { full: 'img/enemy/teo.png' },
         rank: 'elite'
     },
 
     // ========================================
-    // 2幕 ラスボス（7種類）
+    // 2幕 ラスボス（9種類）- 固有スキル＋スキル2
     // ========================================
 
     freeza: {
@@ -714,15 +717,15 @@ const ENEMIES = {
             hp: 1275, mp: 250, physicalAttack: 130, magicAttack: 105,
             physicalDefense: 110, magicDefense: 120, speed: 110, luck: 75
         },
-        skills: ['magic_storm'],
+        skills: ['magic_wave', 'all_power_boost'],
         uniqueSkill: {
             id: 'death_ball',
             displayName: 'デスボール',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 160,
+            power: 150,
             mpCost: 60,
-            description: '単体に超強力な魔法攻撃（威力160%）'
+            description: '単体に超強力な魔法攻撃（威力150%）'
         },
         image: { full: 'img/enemy/freeza.png' },
         rank: 'last_boss'
@@ -737,18 +740,18 @@ const ENEMIES = {
             hp: 1400, mp: 220, physicalAttack: 110, magicAttack: 0,
             physicalDefense: 190, magicDefense: 170, speed: 125, luck: 75
         },
-        skills: ['attack_boost'],
+        skills: ['all_power_boost', 'heavy_strike'],
         uniqueSkill: {
             id: 'za_warudo',
             displayName: 'ザ・ワールド',
             type: 'physical_attack',
             target: 'all_enemies',
-            power: 85,
+            power: 50,
             mpCost: 90,
             effects: [
                 { type: 'status', status: 'stun', chance: 50, duration: 1 }
             ],
-            description: '全体に強力な物理攻撃（威力85%）+ スタン50%'
+            description: '全体に物理攻撃（威力50%）+ スタン50%'
         },
         image: { full: 'img/enemy/dio.png' },
         rank: 'last_boss'
@@ -763,22 +766,22 @@ const ENEMIES = {
             hp: 1275, mp: 260, physicalAttack: 0, magicAttack: 110,
             physicalDefense: 185, magicDefense: 215, speed: 115, luck: 75
         },
-        skills: ['weaken_all'],
+        skills: ['all_power_down', 'magic_bullet'],
         uniqueSkill: {
             id: 'kyoka_suigetsu',
             displayName: '鏡花水月',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 85,
+            power: 50,
             mpCost: 70,
             effects: [
-                { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
-                { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 3 },
-                { type: 'debuff', stat: 'physicalDefense', value: -0.15, duration: 3 },
-                { type: 'debuff', stat: 'magicDefense', value: -0.15, duration: 3 },
-                { type: 'debuff', stat: 'speed', value: -0.15, duration: 3 }
+                { type: 'debuff', stat: 'physicalAttack', value: -0.1, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.1, duration: 3 },
+                { type: 'debuff', stat: 'physicalDefense', value: -0.1, duration: 3 },
+                { type: 'debuff', stat: 'magicDefense', value: -0.1, duration: 3 },
+                { type: 'debuff', stat: 'speed', value: -0.1, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力85%）+ 全ステータス-15% 3ターン'
+            description: '全体に魔法攻撃（威力50%）+ 全ステータス-10% 3ターン'
         },
         image: { full: 'img/enemy/aizen.png' },
         rank: 'last_boss'
@@ -793,15 +796,15 @@ const ENEMIES = {
             hp: 1275, mp: 280, physicalAttack: 0, magicAttack: 115,
             physicalDefense: 170, magicDefense: 190, speed: 130, luck: 75
         },
-        skills: ['speed_boost'],
+        skills: ['all_speed_boost', 'magic_wave'],
         uniqueSkill: {
             id: 'photon_geyser',
             displayName: 'フォトンゲイザー',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 155,
+            power: 150,
             mpCost: 65,
-            description: '単体に超強力な魔法攻撃（威力155%）'
+            description: '単体に超強力な魔法攻撃（威力150%）'
         },
         image: { full: 'img/enemy/ultra_necrozma.png' },
         rank: 'last_boss'
@@ -816,18 +819,18 @@ const ENEMIES = {
             hp: 1530, mp: 200, physicalAttack: 125, magicAttack: 0,
             physicalDefense: 210, magicDefense: 185, speed: 105, luck: 75
         },
-        skills: ['iron_wall'],
+        skills: ['all_guard_down', 'heavy_wave'],
         uniqueSkill: {
             id: 'grand_slam',
             displayName: 'グランドスラム',
             type: 'physical_attack',
             target: 'single_enemy',
-            power: 140,
+            power: 120,
             mpCost: 70,
             effects: [
-                { type: 'status', status: 'stun', chance: 15, duration: 1 }
+                { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
-            description: '単体に超強力な物理攻撃（威力140%）+ スタン15%'
+            description: '単体に物理攻撃（威力120%）+ 麻痺状態にする'
         },
         image: { full: 'img/enemy/masterhand.png' },
         rank: 'last_boss'
@@ -842,19 +845,19 @@ const ENEMIES = {
             hp: 1275, mp: 240, physicalAttack: 0, magicAttack: 110,
             physicalDefense: 160, magicDefense: 185, speed: 100, luck: 75
         },
-        skills: ['armor_break_all'],
+        skills: ['all_guard_down', 'poison_single'],
         uniqueSkill: {
             id: 'decay',
             displayName: '崩壊',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 85,
+            power: 50,
             mpCost: 65,
             effects: [
                 { type: 'debuff', stat: 'physicalDefense', value: -0.2, duration: 3 },
                 { type: 'debuff', stat: 'magicDefense', value: -0.2, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力85%）+ 防御-20% 3ターン'
+            description: '全体に魔法攻撃（威力50%）+ 防御-20% 3ターン'
         },
         image: { full: 'img/enemy/tomura.png' },
         rank: 'last_boss'
@@ -869,18 +872,18 @@ const ENEMIES = {
             hp: 1660, mp: 210, physicalAttack: 0, magicAttack: 130,
             physicalDefense: 225, magicDefense: 175, speed: 85, luck: 75
         },
-        skills: ['defense_boost'],
+        skills: ['all_guard_boost', 'magic_bullet'],
         uniqueSkill: {
             id: 'koopa_breath',
             displayName: 'クッパブレス',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 90,
+            power: 50,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'burn', chance: 100, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力90%）+ 火傷状態にする'
+            description: '全体に魔法攻撃（威力50%）+ 火傷状態にする'
         },
         image: { full: 'img/enemy/koopa.png' },
         rank: 'last_boss'
@@ -893,11 +896,10 @@ const ENEMIES = {
         displayName: '桃地再不斬',
         type: 'physical_attacker',
         baseStats: {
-            // ラスボスベース: HP1275, 攻撃130程度 → 8割/5割調整済
             hp: 1020, mp: 180, physicalAttack: 65, magicAttack: 0,
             physicalDefense: 150, magicDefense: 120, speed: 95, luck: 70
         },
-        skills: ['attack_boost_all'],
+        skills: ['all_power_boost', 'heavy_wave'],
         uniqueSkill: {
             id: 'silent_killing',
             displayName: '無音殺人術 - サイレントキリング',
@@ -923,22 +925,21 @@ const ENEMIES = {
         displayName: '白',
         type: 'magic_attacker',
         baseStats: {
-            // ラスボスベース: HP1275, 攻撃130程度 → 8割/5割調整済
             hp: 1020, mp: 200, physicalAttack: 0, magicAttack: 65,
             physicalDefense: 120, magicDefense: 150, speed: 100, luck: 70
         },
-        skills: ['defense_boost_all'],
+        skills: ['all_guard_boost', 'poison_single'],
         uniqueSkill: {
             id: 'crystal_ice_mirrors',
             displayName: '秘術・魔鏡氷晶',
             type: 'magic_attack',
             target: 'all_enemies',
-            power: 60,
+            power: 50,
             mpCost: 60,
             effects: [
                 { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力60%）+ 麻痺状態にする'
+            description: '全体に魔法攻撃（威力50%）+ 麻痺状態にする'
         },
         image: { full: 'img/enemy/haku.png' },
         rank: 'last_boss',

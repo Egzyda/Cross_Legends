@@ -429,6 +429,129 @@ const SKILLS = {
             { type: 'status', status: 'paralysis', chance: 100, duration: 3 }
         ],
         description: '単体を麻痺状態にする (3T)'
+    },
+
+    // --- 敵専用攻撃スキル ---
+    heavy_strike: {
+        id: 'heavy_strike',
+        name: '重撃',
+        type: 'physical_attack',
+        target: 'single_enemy',
+        power: 130,
+        mpCost: 30,
+        description: '単体に物理攻撃（威力130%）'
+    },
+    magic_bullet: {
+        id: 'magic_bullet',
+        name: '魔導弾',
+        type: 'magic_attack',
+        target: 'single_enemy',
+        power: 130,
+        mpCost: 30,
+        description: '単体に魔法攻撃（威力130%）'
+    },
+    heavy_wave: {
+        id: 'heavy_wave',
+        name: '重撃波',
+        type: 'physical_attack',
+        target: 'all_enemies',
+        power: 40,
+        mpCost: 25,
+        description: '全体に物理攻撃（威力40%）'
+    },
+    magic_wave: {
+        id: 'magic_wave',
+        name: '魔導波',
+        type: 'magic_attack',
+        target: 'all_enemies',
+        power: 40,
+        mpCost: 25,
+        description: '全体に魔法攻撃（威力40%）'
+    },
+
+    // --- 敵専用バフスキル（全体、50%効果） ---
+    all_power_boost: {
+        id: 'all_power_boost',
+        name: 'オールパワーブースト',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 40,
+        effects: [
+            { type: 'buff', stat: 'physicalAttack', value: 0.5, duration: 3 },
+            { type: 'buff', stat: 'magicAttack', value: 0.5, duration: 3 }
+        ],
+        description: '全体の物攻/魔攻+50% (3T)'
+    },
+    all_guard_boost: {
+        id: 'all_guard_boost',
+        name: 'オールガードブースト',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 40,
+        effects: [
+            { type: 'buff', stat: 'physicalDefense', value: 0.5, duration: 3 },
+            { type: 'buff', stat: 'magicDefense', value: 0.5, duration: 3 }
+        ],
+        description: '全体の物防/魔防+50% (3T)'
+    },
+    all_speed_boost: {
+        id: 'all_speed_boost',
+        name: 'オールスピードブースト',
+        type: 'buff',
+        target: 'all_allies',
+        mpCost: 40,
+        effects: [
+            { type: 'buff', stat: 'speed', value: 0.5, duration: 3 }
+        ],
+        description: '全体の速度+50% (3T)'
+    },
+
+    // --- 敵専用デバフスキル（全体、50%効果） ---
+    all_power_down: {
+        id: 'all_power_down',
+        name: 'オールパワーダウン',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 40,
+        effects: [
+            { type: 'debuff', stat: 'physicalAttack', value: -0.5, duration: 3 },
+            { type: 'debuff', stat: 'magicAttack', value: -0.5, duration: 3 }
+        ],
+        description: '全体の物攻/魔攻-50% (3T)'
+    },
+    all_guard_down: {
+        id: 'all_guard_down',
+        name: 'オールガードダウン',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 40,
+        effects: [
+            { type: 'debuff', stat: 'physicalDefense', value: -0.5, duration: 3 },
+            { type: 'debuff', stat: 'magicDefense', value: -0.5, duration: 3 }
+        ],
+        description: '全体の物防/魔防-50% (3T)'
+    },
+    all_speed_down: {
+        id: 'all_speed_down',
+        name: 'オールスピードダウン',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 40,
+        effects: [
+            { type: 'debuff', stat: 'speed', value: -0.5, duration: 3 }
+        ],
+        description: '全体の速度-50% (3T)'
+    },
+    poison_all: {
+        id: 'poison_all',
+        name: '毒霧',
+        type: 'debuff',
+        target: 'all_enemies',
+        mpCost: 35,
+        effects: [
+            { type: 'status', status: 'poison', chance: 100, duration: 3 }
+        ],
+        description: '全体を毒状態にする (3T)'
     }
 };
 

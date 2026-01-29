@@ -548,13 +548,6 @@ class Game {
             this.resetGame();
         });
 
-        // 休憩ボタン
-        document.querySelectorAll('.rest-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.handleRest(e.target.dataset.type);
-            });
-        });
-
         // モーダル背景タップで閉じる設定
         const modalOverlays = ['custom-modal', 'character-detail-modal', 'item-modal', 'character-select-modal'];
         modalOverlays.forEach(id => {
@@ -1540,7 +1533,8 @@ class Game {
             const bossData = ENEMIES[this.state.mapBoss];
             if (bossData) {
                 bossName = bossData.groupName || bossData.displayName; // グループ名があれば優先
-                bossImg = bossData.image.face || bossData.image.full;
+                // グループ画像があれば優先使用（Saint Snow等）
+                bossImg = bossData.groupImage || bossData.image.face || bossData.image.full;
             }
         }
         bossPreview.innerHTML = `
@@ -1935,6 +1929,10 @@ class Game {
             unit.className = 'battle-unit';
             if (enemy.currentHp <= 0) unit.classList.add('dead');
             unit.dataset.enemyIndex = idx;
+            // ランク（elite/boss/last_boss）を属性として追加
+            if (enemy.rank) {
+                unit.dataset.rank = enemy.rank;
+            }
 
             const hpPercent = Math.max(0, (enemy.currentHp / enemy.stats.hp) * 100);
 
@@ -3999,8 +3997,8 @@ class Game {
                 });
             });
 
-            // 最大3つ選出するまで繰り返す
-            for (let i = 0; i < 3; i++) {
+            // 最大4つ選出するまで繰り返す
+            for (let i = 0; i < 4; i++) {
                 if (allAvailableSkills.length === 0) break;
 
                 const myRoleOptions = allAvailableSkills.filter(s => s.isMyRole);
@@ -4826,6 +4824,16 @@ class Game {
         item.purchased = true;
         this.updateShopUI();
         this.renderPartyStatusBar();
+        // ショップ画面のパーティ表示も更新
+        const shopPartyStatus = document.getElementById('shop-party-status');
+        if (shopPartyStatus) {
+            shopPartyStatus.innerHTML = '';
+            this.renderPartyIcons(shopPartyStatus);
+            shopPartyStatus.querySelectorAll('.party-member-status').forEach(el => {
+                el.style.transform = 'scale(0.9)';
+                el.style.margin = '0 4px';
+            });
+        }
         this.showToast(message, 'success');
     }
 
@@ -5033,12 +5041,19 @@ class Game {
             }
 
             // Battle context: show buffs/debuffs
-            if (context === 'battle') {
+            if (context === 'battle' || context === 'enemy_battle') {
                 const effectiveValue = this.getEffectiveStat(char, stat);
                 if (effectiveValue !== baseValue) {
                     const buff = char.buffs.find(b => b.stat === stat);
                     const debuff = char.debuffs.find(d => d.stat === stat);
-                    const duration = buff ? buff.duration : (debuff ? debuff.duration : 0);
+                    let duration = buff ? buff.duration : (debuff ? debuff.duration : 0);
+
+                    // 麻痺による速度低下はstatusEffectsから取得
+                    if (stat === 'speed' && duration === 0) {
+                        const paralysis = char.statusEffects.find(e => e.type === 'paralysis');
+                        if (paralysis) duration = paralysis.duration;
+                    }
+
                     const arrow = effectiveValue > baseValue ? '↑' : '↓';
                     const changeClass = effectiveValue > baseValue ? 'stat-change' : 'stat-change down';
                     displayText = `${baseValue} → ${effectiveValue} <span class="${changeClass}">${arrow}${duration}T</span>`;
