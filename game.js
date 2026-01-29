@@ -3392,6 +3392,17 @@ class Game {
                 }
                 this.renderBattle(); // UI即時同期
                 break;
+            case 'heal': // HP回復効果
+                await Promise.all(targets.map(async (t) => {
+                    if (t.currentHp <= 0) return; // 死亡時は無効
+                    await this.showEffectIcon(t, skill, 'heal');
+                    const healAmount = Math.floor(t.stats.hp * effect.value);
+                    t.currentHp = Math.min(t.stats.hp, t.currentHp + healAmount);
+                    this.showDamagePopup(t, healAmount, 'heal');
+                    this.addLog(`${t.displayName}のHPが${healAmount}回復！`);
+                }));
+                this.updateBarsUI();
+                break;
         }
     }
 
