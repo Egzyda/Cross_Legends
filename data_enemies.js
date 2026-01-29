@@ -139,8 +139,8 @@ const ENEMIES = {
         displayName: 'アーボック',
         type: 'physical_attacker',
         baseStats: {
-            hp: 400, mp: 100, physicalAttack: 90, magicAttack: 0,
-            physicalDefense: 130, magicDefense: 130, speed: 100, luck: 60
+            hp: 380, mp: 100, physicalAttack: 90, magicAttack: 0,
+            physicalDefense: 150, magicDefense: 150, speed: 100, luck: 60
         },
         skills: ['all_power_down'],
         uniqueSkill: {
@@ -166,7 +166,7 @@ const ENEMIES = {
         type: 'physical_attacker',
         baseStats: {
             hp: 370, mp: 95, physicalAttack: 90, magicAttack: 0,
-            physicalDefense: 120, magicDefense: 100, speed: 75, luck: 50
+            physicalDefense: 170, magicDefense: 130, speed: 75, luck: 50
         },
         skills: ['all_power_boost'],
         uniqueSkill: {
@@ -189,7 +189,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 320, mp: 120, physicalAttack: 0, magicAttack: 90,
-            physicalDefense: 100, magicDefense: 125, speed: 115, luck: 70
+            physicalDefense: 110, magicDefense: 190, speed: 125, luck: 70
         },
         skills: ['all_speed_boost'],
         uniqueSkill: {
@@ -215,8 +215,8 @@ const ENEMIES = {
         displayName: 'カバトン',
         type: 'physical_attacker',
         baseStats: {
-            hp: 380, mp: 90, physicalAttack: 90, magicAttack: 0,
-            physicalDefense: 130, magicDefense: 95, speed: 50, luck: 55
+            hp: 400, mp: 90, physicalAttack: 90, magicAttack: 0,
+            physicalDefense: 190, magicDefense: 110, speed: 60, luck: 55
         },
         skills: ['paralyze_single'],
         uniqueSkill: {
@@ -239,7 +239,7 @@ const ENEMIES = {
         type: 'magic_attacker',
         baseStats: {
             hp: 370, mp: 100, physicalAttack: 0, magicAttack: 100,
-            physicalDefense: 100, magicDefense: 120, speed: 85, luck: 60
+            physicalDefense: 140, magicDefense: 140, speed: 75, luck: 60
         },
         skills: ['magic_wave'],
         uniqueSkill: {
@@ -268,8 +268,8 @@ const ENEMIES = {
         displayName: 'ばいきんまん',
         type: 'physical_attacker',
         baseStats: {
-            hp: 740, mp: 140, physicalAttack: 110, magicAttack: 0,
-            physicalDefense: 160, magicDefense: 120, speed: 90, luck: 70
+            hp: 740, mp: 140, physicalAttack: 120, magicAttack: 0,
+            physicalDefense: 180, magicDefense: 180, speed: 90, luck: 75
         },
         skills: ['poison_all', 'heavy_wave'],
         uniqueSkill: {
@@ -292,8 +292,8 @@ const ENEMIES = {
         displayName: 'ギギネブラ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 742, mp: 180, physicalAttack: 81, magicAttack: 86,
-            physicalDefense: 150, magicDefense: 180, speed: 78, luck: 65
+            hp: 750, mp: 180, physicalAttack: 0, magicAttack: 120,
+            physicalDefense: 210, magicDefense: 150, speed: 100, luck: 45
         },
         skills: ['all_power_down', 'magic_bullet'],
         uniqueSkill: {
@@ -318,7 +318,7 @@ const ENEMIES = {
         displayName: '夏油傑',
         type: 'magic_attacker',
         baseStats: {
-            hp: 770, mp: 190, physicalAttack: 75, magicAttack: 92,
+            hp: 770, mp: 190, physicalAttack: 0, magicAttack: 92,
             physicalDefense: 160, magicDefense: 190, speed: 82, luck: 72
         },
         skills: ['all_guard_boost', 'magic_wave'],
