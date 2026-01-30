@@ -603,6 +603,7 @@ class Game {
             spPool: this.state.spPool,
             gold: this.state.gold, // 所持金を保存
             difficulty: this.state.difficulty, // 難易度を保存
+            mapBoss: this.state.mapBoss, // ボス情報を保存
             screen: this.state.screen
             // Battle state is complex to save mid-battle, usually save at start of battle or node
             // For now, save mostly map state
@@ -624,6 +625,7 @@ class Game {
         this.state.spPool = data.spPool || 0;
         this.state.gold = data.gold || 0; // 所持金を復元
         this.state.difficulty = data.difficulty !== undefined ? data.difficulty : 0; // 難易度を復元
+        this.state.mapBoss = data.mapBoss; // ボス情報を復元
 
         // Restore screen
         if (data.screen === 'map') {
@@ -1735,6 +1737,23 @@ class Game {
                 if (restPartyContainer) {
                     this.renderPartyIcons(restPartyContainer);
                 }
+                // 難易度に応じて休憩ボタンのテキストを更新
+                const difficulty = this.state.difficulty || 0;
+                const diffConfig = DIFFICULTY_CONFIG[difficulty];
+                const healMultiplier = diffConfig ? diffConfig.restHealPercent : 100;
+                const hpPercent = Math.floor(40 * healMultiplier / 100);
+                const mpPercent = Math.floor(40 * healMultiplier / 100);
+                const bothPercent = Math.floor(20 * healMultiplier / 100);
+                document.querySelectorAll('.rest-btn').forEach(btn => {
+                    const type = btn.dataset.type;
+                    if (type === 'hp') {
+                        btn.textContent = `HP ${hpPercent}%回復`;
+                    } else if (type === 'mp') {
+                        btn.textContent = `MP ${mpPercent}%回復`;
+                    } else if (type === 'both') {
+                        btn.textContent = `HP・MP 両方${bothPercent}%回復`;
+                    }
+                });
                 break;
             case 'event':
                 this.showEventScreen();
@@ -3693,7 +3712,7 @@ class Game {
             const poison = unit.statusEffects.find(e => e.type === 'poison');
             if (poison) {
                 const damage = Math.floor(unit.stats.hp * 0.08);
-                unit.currentHp = Math.max(1, unit.currentHp - damage);
+                unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は毒で${damage}ダメージ！`);
             }
 
@@ -3701,7 +3720,7 @@ class Game {
             const burn = unit.statusEffects.find(e => e.type === 'burn');
             if (burn) {
                 const damage = Math.floor(unit.stats.hp * 0.04);
-                unit.currentHp = Math.max(1, unit.currentHp - damage);
+                unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は火傷で${damage}ダメージ！`);
             }
 
