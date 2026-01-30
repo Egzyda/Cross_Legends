@@ -50,7 +50,10 @@ const SKILLS = {
         power: 120,
         mpCost: 35,
         critBonus: 30,
-        description: '単体攻撃（威力120%、クリ率+30%）'
+        effects: [
+            { type: 'buff', stat: 'criticalRate', value: 0.3, duration: 3, target: 'self' }
+        ],
+        description: '単体攻撃（威力120%、クリ率+30%、攻撃後クリ率+30% 3T）'
     },
 
 
@@ -90,9 +93,9 @@ const SKILLS = {
         power: 120,
         mpCost: 35,
         effects: [
-            { type: 'status', status: 'paralysis', chance: 100 }
+            { type: 'debuff', stat: 'speed', value: -0.5, duration: 3 }
         ],
-        description: '単体魔法攻撃（威力120%、麻痺100%）'
+        description: '単体魔法攻撃（威力120%、速度-50% 3T）'
     },
     continuous_magic_shot: {
         id: 'continuous_magic_shot',

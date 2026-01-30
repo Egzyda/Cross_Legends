@@ -3036,7 +3036,7 @@ class Game {
             }
 
             const paralysis = actor.statusEffects.find(e => e.type === 'paralysis');
-            if (paralysis && Math.random() < 0.3) {
+            if (paralysis && Math.random() < 0.2) {
                 this.addLog(`${actorName}は麻痺で動けない！`);
                 return;
             }
