@@ -268,7 +268,7 @@ const ENEMIES = {
         displayName: 'ばいきんまん',
         type: 'physical_attacker',
         baseStats: {
-            hp: 740, mp: 140, physicalAttack: 120, magicAttack: 0,
+            hp: 740, mp: 140, physicalAttack: 150, magicAttack: 0,
             physicalDefense: 160, magicDefense: 160, speed: 90, luck: 75
         },
         skills: ['poison_all', 'heavy_wave'],
@@ -292,7 +292,7 @@ const ENEMIES = {
         displayName: 'ギギネブラ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 820, mp: 180, physicalAttack: 0, magicAttack: 110,
+            hp: 820, mp: 180, physicalAttack: 0, magicAttack: 140,
             physicalDefense: 180, magicDefense: 140, speed: 105, luck: 45
         },
         skills: ['all_power_down', 'magic_bullet'],
@@ -318,7 +318,7 @@ const ENEMIES = {
         displayName: '夏油傑',
         type: 'magic_attacker',
         baseStats: {
-            hp: 770, mp: 190, physicalAttack: 0, magicAttack: 125,
+            hp: 770, mp: 190, physicalAttack: 0, magicAttack: 155,
             physicalDefense: 140, magicDefense: 180, speed: 85, luck: 50
         },
         skills: ['all_guard_boost', 'magic_wave'],
@@ -341,7 +341,7 @@ const ENEMIES = {
         displayName: 'バンギラス',
         type: 'physical_attacker',
         baseStats: {
-            hp: 790, mp: 130, physicalAttack: 120, magicAttack: 0,
+            hp: 790, mp: 130, physicalAttack: 150, magicAttack: 0,
             physicalDefense: 200, magicDefense: 150, speed: 61, luck: 75
         },
         skills: ['all_power_boost', 'heavy_wave'],
@@ -364,7 +364,7 @@ const ENEMIES = {
         displayName: '大蛇丸',
         type: 'magic_attacker',
         baseStats: {
-            hp: 750, mp: 200, physicalAttack: 0, magicAttack: 130,
+            hp: 750, mp: 200, physicalAttack: 0, magicAttack: 150,
             physicalDefense: 150, magicDefense: 150, speed: 130, luck: 75
         },
         skills: ['paralyze_single', 'magic_wave'],
@@ -391,7 +391,7 @@ const ENEMIES = {
         displayName: '鹿角聖良',
         type: 'physical_attacker',
         baseStats: {
-            hp: 560, mp: 120, physicalAttack: 100, magicAttack: 0,
+            hp: 560, mp: 120, physicalAttack: 140, magicAttack: 0,
             physicalDefense: 180, magicDefense: 140, speed: 90, luck: 65
         },
         skills: ['all_speed_boost', 'heavy_wave'],
@@ -421,7 +421,7 @@ const ENEMIES = {
         displayName: '鹿角理亞',
         type: 'magic_attacker',
         baseStats: {
-            hp: 550, mp: 140, physicalAttack: 0, magicAttack: 100,
+            hp: 550, mp: 140, physicalAttack: 0, magicAttack: 140,
             physicalDefense: 140, magicDefense: 180, speed: 95, luck: 65
         },
         skills: ['all_power_boost', 'magic_wave'],
