@@ -1734,6 +1734,8 @@ class Game {
                 if (restPartyContainer) {
                     this.renderPartyIcons(restPartyContainer);
                 }
+                // 難易度に応じた回復率でボタンテキストを更新
+                this.updateRestButtonLabels();
                 break;
             case 'event':
                 this.showEventScreen();
@@ -3690,23 +3692,35 @@ class Game {
 
             // 毒ダメージ
             const poison = unit.statusEffects.find(e => e.type === 'poison');
-            if (poison) {
+            if (poison && unit.currentHp > 0) {
                 const damage = Math.floor(unit.stats.hp * 0.08);
-                unit.currentHp = Math.max(1, unit.currentHp - damage);
+                unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は毒で${damage}ダメージ！`);
+                if (unit.currentHp === 0) {
+                    this.addLog(`${unit.displayName}は毒に蝕まれ力尽きた！`);
+                    unit.buffs = [];
+                    unit.debuffs = [];
+                    unit.statusEffects = [];
+                }
             }
 
             // 火傷ダメージ
             const burn = unit.statusEffects.find(e => e.type === 'burn');
-            if (burn) {
+            if (burn && unit.currentHp > 0) {
                 const damage = Math.floor(unit.stats.hp * 0.04);
-                unit.currentHp = Math.max(1, unit.currentHp - damage);
+                unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は火傷で${damage}ダメージ！`);
+                if (unit.currentHp === 0) {
+                    this.addLog(`${unit.displayName}は火傷のダメージで力尽きた！`);
+                    unit.buffs = [];
+                    unit.debuffs = [];
+                    unit.statusEffects = [];
+                }
             }
 
             // リジェネ
             const regen = unit.statusEffects.find(e => e.type === 'regen');
-            if (regen) {
+            if (regen && unit.currentHp > 0) {
                 const heal = Math.floor(unit.stats.hp * regen.value);
                 unit.currentHp = Math.min(unit.stats.hp, unit.currentHp + heal);
                 this.addLog(`${unit.displayName}はHP${heal}回復！`);
@@ -4250,6 +4264,31 @@ class Game {
         });
 
         this.finishNode();
+    }
+
+    // 休憩画面のボタンラベルを難易度に応じて更新
+    updateRestButtonLabels() {
+        const difficulty = this.state.difficulty || 0;
+        const diffConfig = DIFFICULTY_CONFIG[difficulty];
+        const healMultiplier = diffConfig ? (diffConfig.restHealPercent / 100) : 1.0;
+
+        // 実際の回復率を計算（基本40%, 20%に倍率を適用）
+        const hpRecovery = Math.round(40 * healMultiplier);
+        const mpRecovery = Math.round(40 * healMultiplier);
+        const bothRecovery = Math.round(20 * healMultiplier);
+
+        // ボタンテキストを更新
+        const buttons = document.querySelectorAll('.rest-btn');
+        buttons.forEach(btn => {
+            const type = btn.dataset.type;
+            if (type === 'hp') {
+                btn.textContent = `HP ${hpRecovery}%回復`;
+            } else if (type === 'mp') {
+                btn.textContent = `MP ${mpRecovery}%回復`;
+            } else if (type === 'both') {
+                btn.textContent = `HP・MP 両方${bothRecovery}%回復`;
+            }
+        });
     }
 
     // 運判定の成功率計算
