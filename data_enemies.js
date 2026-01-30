@@ -341,8 +341,8 @@ const ENEMIES = {
         displayName: 'バンギラス',
         type: 'physical_attacker',
         baseStats: {
-            hp: 790, mp: 130, physicalAttack: 150, magicAttack: 0,
-            physicalDefense: 200, magicDefense: 150, speed: 61, luck: 75
+            hp: 790, mp: 130, physicalAttack: 130, magicAttack: 0,
+            physicalDefense: 200, magicDefense: 150, speed: 61, luck: 105
         },
         skills: ['all_power_boost', 'heavy_wave'],
         uniqueSkill: {
@@ -527,7 +527,7 @@ const ENEMIES = {
         displayName: 'ボム兵',
         type: 'physical_attacker',
         baseStats: {
-            hp: 200, mp: 60, physicalAttack: 300, magicAttack: 0,
+            hp: 190, mp: 60, physicalAttack: 300, magicAttack: 0,
             physicalDefense: 70, magicDefense: 70, speed: 5, luck: 0
         },
         skills: [],
@@ -583,8 +583,9 @@ const ENEMIES = {
         displayName: 'クッパJr.',
         type: 'magic_attacker',
         baseStats: {
-            hp: 500, mp: 160, physicalAttack: 0, magicAttack: 130,
-            physicalDefense: 140, magicDefense: 140, speed: 85, luck: 45
+            hp: 500, mp: 160, physicalAttack: 0, magicAttack: 160,
+            physicalDefense: 150, magicDefense: 150
+            , speed: 85, luck: 45
         },
         skills: ['all_guard_boost'],
         uniqueSkill: {
@@ -609,7 +610,7 @@ const ENEMIES = {
         displayName: 'メタナイト',
         type: 'physical_attacker',
         baseStats: {
-            hp: 480, mp: 130, physicalAttack: 140, magicAttack: 0,
+            hp: 480, mp: 130, physicalAttack: 165, magicAttack: 0,
             physicalDefense: 170, magicDefense: 130, speed: 135, luck: 15
         },
         skills: ['all_power_boost'],
@@ -632,7 +633,7 @@ const ENEMIES = {
         displayName: 'ヒソカ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 510, mp: 150, physicalAttack: 0, magicAttack: 140,
+            hp: 510, mp: 150, physicalAttack: 0, magicAttack: 155,
             physicalDefense: 150, magicDefense: 150, speed: 100, luck: 75
         },
         skills: ['paralyze_single'],
@@ -658,7 +659,7 @@ const ENEMIES = {
         displayName: 'ダークプリキュア',
         type: 'physical_attacker',
         baseStats: {
-            hp: 480, mp: 140, physicalAttack: 130, magicAttack: 0,
+            hp: 480, mp: 140, physicalAttack: 150, magicAttack: 0,
             physicalDefense: 150, magicDefense: 160, speed: 95, luck: 15
         },
         skills: ['all_power_down'],
@@ -684,7 +685,7 @@ const ENEMIES = {
         displayName: 'テオ・テスカトル',
         type: 'magic_attacker',
         baseStats: {
-            hp: 490, mp: 120, physicalAttack: 0, magicAttack: 140,
+            hp: 490, mp: 120, physicalAttack: 0, magicAttack: 150,
             physicalDefense: 170, magicDefense: 130, speed: 110, luck: 25
         },
         skills: ['all_power_down'],
@@ -714,7 +715,7 @@ const ENEMIES = {
         displayName: 'フリーザ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1200, mp: 250, physicalAttack: 0, magicAttack: 160,
+            hp: 1000, mp: 250, physicalAttack: 0, magicAttack: 180,
             physicalDefense: 180, magicDefense: 180, speed: 120, luck: 75
         },
         skills: ['magic_wave', 'all_power_boost'],
@@ -737,8 +738,8 @@ const ENEMIES = {
         displayName: 'ディオ',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1400, mp: 220, physicalAttack: 110, magicAttack: 0,
-            physicalDefense: 190, magicDefense: 170, speed: 125, luck: 75
+            hp: 1100, mp: 220, physicalAttack: 160, magicAttack: 0,
+            physicalDefense: 190, magicDefense: 170, speed: 95, luck: 45
         },
         skills: ['all_power_boost', 'heavy_strike'],
         uniqueSkill: {
@@ -763,8 +764,8 @@ const ENEMIES = {
         displayName: '愛染惣右介',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 260, physicalAttack: 0, magicAttack: 110,
-            physicalDefense: 185, magicDefense: 215, speed: 115, luck: 75
+            hp: 985, mp: 260, physicalAttack: 0, magicAttack: 170,
+            physicalDefense: 160, magicDefense: 200, speed: 145, luck: 45
         },
         skills: ['all_power_down', 'magic_bullet'],
         uniqueSkill: {
@@ -793,8 +794,8 @@ const ENEMIES = {
         displayName: 'ウルトラネクロズマ',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 280, physicalAttack: 0, magicAttack: 115,
-            physicalDefense: 170, magicDefense: 190, speed: 130, luck: 75
+            hp: 1005, mp: 280, physicalAttack: 0, magicAttack: 185,
+            physicalDefense: 170, magicDefense: 170, speed: 140, luck: 75
         },
         skills: ['all_speed_boost', 'magic_wave'],
         uniqueSkill: {
@@ -816,8 +817,8 @@ const ENEMIES = {
         displayName: 'マスターハンド',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1530, mp: 200, physicalAttack: 125, magicAttack: 0,
-            physicalDefense: 210, magicDefense: 185, speed: 105, luck: 75
+            hp: 1000, mp: 200, physicalAttack: 180, magicAttack: 0,
+            physicalDefense: 200, magicDefense: 180, speed: 75, luck: 75
         },
         skills: ['all_guard_down', 'heavy_wave'],
         uniqueSkill: {
@@ -842,8 +843,8 @@ const ENEMIES = {
         displayName: '死柄木弔',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1275, mp: 240, physicalAttack: 0, magicAttack: 110,
-            physicalDefense: 160, magicDefense: 185, speed: 100, luck: 75
+            hp: 1015, mp: 240, physicalAttack: 0, magicAttack: 220,
+            physicalDefense: 160, magicDefense: 200, speed: 100, luck: 45
         },
         skills: ['all_guard_down', 'poison_single'],
         uniqueSkill: {
@@ -869,8 +870,8 @@ const ENEMIES = {
         displayName: 'クッパ',
         type: 'tank',
         baseStats: {
-            hp: 1660, mp: 210, physicalAttack: 0, magicAttack: 130,
-            physicalDefense: 225, magicDefense: 175, speed: 85, luck: 75
+            hp: 1200, mp: 210, physicalAttack: 0, magicAttack: 150,
+            physicalDefense: 190, magicDefense: 190, speed: 80, luck: 45
         },
         skills: ['all_guard_boost', 'magic_bullet'],
         uniqueSkill: {
@@ -896,8 +897,8 @@ const ENEMIES = {
         displayName: '桃地再不斬',
         type: 'physical_attacker',
         baseStats: {
-            hp: 1020, mp: 180, physicalAttack: 65, magicAttack: 0,
-            physicalDefense: 150, magicDefense: 120, speed: 95, luck: 70
+            hp: 780, mp: 180, physicalAttack: 150, magicAttack: 0,
+            physicalDefense: 190, magicDefense: 170, speed: 105, luck: 45
         },
         skills: ['all_power_boost', 'heavy_wave'],
         uniqueSkill: {
@@ -925,8 +926,8 @@ const ENEMIES = {
         displayName: '白',
         type: 'magic_attacker',
         baseStats: {
-            hp: 1020, mp: 200, physicalAttack: 0, magicAttack: 65,
-            physicalDefense: 120, magicDefense: 150, speed: 100, luck: 70
+            hp: 720, mp: 200, physicalAttack: 0, magicAttack: 150,
+            physicalDefense: 160, magicDefense: 200, speed: 120, luck: 45
         },
         skills: ['all_guard_boost', 'poison_single'],
         uniqueSkill: {
