@@ -1098,14 +1098,14 @@ const CHARACTERS = {
         name: '波風ミナト',
         displayName: '波風ミナト',
         stats: {
-            hp: 175,
+            hp: 160,
             mp: 135,
-            physicalAttack: 120,
+            physicalAttack: 100,
             magicAttack: 70,
             physicalDefense: 80,
             magicDefense: 80,
-            speed: 80,
-            luck: 70
+            speed: 120,
+            luck: 45
         },
         type: 'support',
         uniqueSkill: {

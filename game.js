@@ -15,7 +15,7 @@ class Game {
             gold: 0, // 所持金（￥）
             battle: null,
             currentTab: 'all',
-            currentSort: 'default',
+            currentSort: 'role',
             selectedChar: null,
             difficulty: 0  // 難易度（0-10）
         };
@@ -754,6 +754,11 @@ class Game {
             filterSelect.appendChild(option);
         });
 
+        // Initialize sort to 'role' if it's 'default' (legacy) or unset
+        if (!this.state.currentSort || this.state.currentSort === 'default') {
+            this.state.currentSort = 'role';
+        }
+
         filterSelect.addEventListener('change', (e) => {
             this.state.currentTab = e.target.value;
             this.renderCharacterList(); // Re-render list with filter
@@ -764,7 +769,6 @@ class Game {
         sortSelect.id = 'party-sort';
 
         const sortOptions = [
-            { id: 'default', label: 'デフォルト' },
             { id: 'role', label: '役割' },
             { id: 'hp_desc', label: 'HP降順' },
             { id: 'mp_desc', label: 'MP降順' },
@@ -773,7 +777,8 @@ class Game {
             { id: 'physicalDefense_desc', label: '物防降順' },
             { id: 'magicDefense_desc', label: '魔防降順' },
             { id: 'speed_desc', label: '速さ降順' },
-            { id: 'luck_desc', label: '運降順' }
+            { id: 'luck_desc', label: '運降順' },
+            { id: 'added_desc', label: '追加降順' }
         ];
 
         sortOptions.forEach(opt => {
@@ -811,7 +816,7 @@ class Game {
         if (this.state.currentSort === 'role') {
             const roleOrder = ['tank', 'physical_attacker', 'magic_attacker', 'healer', 'support', 'debuffer'];
             chars.sort((a, b) => roleOrder.indexOf(a.type) - roleOrder.indexOf(b.type));
-        } else if (this.state.currentSort !== 'default') {
+        } else if (this.state.currentSort !== 'added_desc') {
             // Extract stat name from sort option (e.g., 'hp_desc' -> 'hp')
             const statMatch = this.state.currentSort.match(/^(.+)_desc$/);
             if (statMatch) {
