@@ -583,10 +583,12 @@ class Game {
         localStorage.setItem('cross_legends_system', JSON.stringify(mergedData));
     }
 
-    getUnlockedDifficulty() {
+        getUnlockedDifficulty() {
+        return 10; // 一時的に全難易度を解放
         const sys = this.loadSystemData();
         return sys.unlockedDifficulty !== undefined ? sys.unlockedDifficulty : 0;
     }
+
 
     // --- Save System ---
 
