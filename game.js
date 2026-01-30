@@ -1739,8 +1739,8 @@ class Game {
                 if (restPartyContainer) {
                     this.renderPartyIcons(restPartyContainer);
                 }
-                // 難易度に応じた回復率でボタンテキストを更新
-                this.updateRestButtonLabels();
+                // 難易度に応じた回復率でボタンテキストを更新（DOM更新後に実行）
+                requestAnimationFrame(() => this.updateRestButtonLabels());
                 break;
             case 'event':
                 this.showEventScreen();
@@ -2144,7 +2144,8 @@ class Game {
     renderStatusAilments(unit) {
         const statusLabels = {
             poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス',
-            taunt: '挑', burn: '火', regen: '再', defending: '防', damageReduction: '軽', counter: '反'
+            taunt: '挑', burn: '火', regen: '再', defending: '防', damageReduction: '軽', counter: '反',
+            curse: '呪'
         };
 
         return unit.statusEffects
@@ -3605,6 +3606,13 @@ class Game {
             }
         }
 
+        // 呪い：攻撃・魔攻ダウン
+        if (statName === 'physicalAttack' || statName === 'magicAttack') {
+            if (unit.statusEffects.some(e => e.type === 'curse')) {
+                value *= 0.8; // 20%ダウン（緩和）
+            }
+        }
+
         return Math.floor(value);
     }
 
@@ -4330,6 +4338,18 @@ class Game {
         document.getElementById('event-title').textContent = event.title;
         document.getElementById('event-description').textContent = event.description;
 
+        // パーティ情報を表示
+        const eventPartyContainer = document.getElementById('event-party-status');
+        if (eventPartyContainer) {
+            this.renderPartyIcons(eventPartyContainer);
+        }
+
+        // 所持金を表示
+        const eventGoldDisplay = document.getElementById('event-gold-display');
+        if (eventGoldDisplay) {
+            eventGoldDisplay.textContent = `所持金: ${this.state.gold}円`;
+        }
+
         const options = document.getElementById('event-options');
         options.innerHTML = '';
 
@@ -4422,6 +4442,18 @@ class Game {
                 } else {
                     // インベントリがいっぱいの場合、交換モーダルを表示
                     this.showEventItemSwapModal(itemId);
+                    return; // メッセージ表示をスキップ
+                }
+                break;
+            case 'item_and_gold': // アイテム+金の両方を獲得
+                const itemId2 = effect.item === 'random' ? ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)] : effect.item;
+                this.state.gold += effect.gold || 0;
+                if (this.state.items.length < 3) {
+                    this.state.items.push(itemId2);
+                    message = effect.message || `${ITEMS[itemId2].name}と${effect.gold}円を入手した！`;
+                } else {
+                    // インベントリがいっぱいの場合、交換モーダルを表示
+                    this.showEventItemSwapModal(itemId2);
                     return; // メッセージ表示をスキップ
                 }
                 break;
@@ -4524,7 +4556,7 @@ class Game {
                     }
                 }
                 break;
-            case 'sacrifice_mp': // 旧仕様互換
+            case 'sacrifice_mp': // MPを捧げて報酬を得る
                 targets.forEach(m => {
                     if (m.currentHp > 0) m.currentMp = Math.max(0, m.currentMp - m.stats.mp * (effect.percent / 100));
                 });
@@ -4535,6 +4567,13 @@ class Game {
                         });
                     });
                     message = '全員のステータスが少し上昇した！';
+                } else if (effect.reward === 'attack_boost') {
+                    // 全員攻撃+10%永続
+                    targets.forEach(m => {
+                        m.stats.physicalAttack = Math.floor(m.stats.physicalAttack * 1.10);
+                        m.stats.magicAttack = Math.floor(m.stats.magicAttack * 1.10);
+                    });
+                    message = '全員の攻撃力が10%上昇した！';
                 }
                 break;
             case 'gamble_gold':
@@ -4592,12 +4631,30 @@ class Game {
                 return; // モーダルを出さずに戦闘へ
             case 'gacha_item':
                 if (Math.random() * 100 < effect.chance) {
-                    const gItem = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+                    let gItem;
+                    if (effect.rare) {
+                        // レア＝ポーション系以外のアイテム（装備強化素材やレア消耗品など）
+                        // 現状の実装ではITEM_POOLからランダムだが、rare指定時は少し良いものを出す
+                        // 簡易的に、ITEM_POOLをフィルタリングしてポーション以外を狙う、または全アイテムから再抽選
+                        // ここではシンプルに「当たり」演出を変えるだけに留めず、
+                        // 本当はレアアイテムテーブルが欲しいが、既存プールから抽出する
+                        const rarePool = ITEM_POOL.filter(id => !id.includes('potion'));
+                        if (rarePool.length > 0) {
+                            gItem = rarePool[Math.floor(Math.random() * rarePool.length)];
+                        } else {
+                            gItem = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+                        }
+                    } else {
+                        gItem = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+                    }
+
                     if (this.state.items.length < 3) {
                         this.state.items.push(gItem);
                         message = `当たりだ！ ${ITEMS[gItem].name}を手に入れた！`;
                     } else {
-                        message = '当たりだが、アイテムがいっぱいだ...';
+                        // インベントリがいっぱいの場合、交換モーダルを表示
+                        this.showEventItemSwapModal(gItem);
+                        return; // メッセージ表示をスキップ
                     }
                 } else {
                     message = 'ハズレだ...何もなかった。';
@@ -5104,10 +5161,10 @@ class Game {
                     const debuff = char.debuffs.find(d => d.stat === stat);
                     let duration = buff ? buff.duration : (debuff ? debuff.duration : 0);
 
-                    // 麻痺による速度低下はstatusEffectsから取得
-                    if (stat === 'speed' && duration === 0) {
-                        const paralysis = char.statusEffects.find(e => e.type === 'paralysis');
-                        if (paralysis) duration = paralysis.duration;
+                    // 麻痺・呪いによる変動はstatusEffectsから取得
+                    if ((stat === 'speed' || stat === 'physicalAttack' || stat === 'magicAttack') && duration === 0) {
+                        const ailment = char.statusEffects.find(e => (stat === 'speed' && e.type === 'paralysis') || ((stat === 'physicalAttack' || stat === 'magicAttack') && e.type === 'curse'));
+                        if (ailment) duration = ailment.duration;
                     }
 
                     const arrow = effectiveValue > baseValue ? '↑' : '↓';

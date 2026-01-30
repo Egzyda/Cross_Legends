@@ -304,9 +304,9 @@ const ENEMIES = {
             power: 50,
             mpCost: 60,
             effects: [
-                { type: 'status', status: 'poison', chance: 30, duration: 3 }
+                { type: 'status', status: 'poison', chance: 100, duration: 3 }
             ],
-            description: '全体に魔法攻撃（威力50%）+ 毒付与30%（3T）'
+            description: '全体に魔法攻撃（威力50%）+ 毒付与（3T）'
         },
         image: { full: 'img/enemy/giginebura.png' },
         rank: 'boss'

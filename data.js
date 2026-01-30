@@ -574,7 +574,7 @@ const SKILL_ACQUISITION_RATES = {
     otherRole: 0.20     // 他の役割のスキル: 20% (各役割4%ずつ、5役割)
 };
 
-// イベントデータ
+// イベントデータ（バランス改修版）
 const EVENTS = [
     {
         id: 'merchant',
@@ -586,12 +586,12 @@ const EVENTS = [
                 effect: { type: 'none' }
             },
             {
-                text: '脅して奪う<br><span class="event-desc">成功で品物 / 失敗で反撃（ダメージ）</span>',
+                text: '脅して奪う<br><span class="event-desc">成功で品物+100円 / 失敗でダメージ</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
-                    success: { type: 'item', item: 'random', message: '商人から品物を奪った！' },
-                    fail: { type: 'damage', percent: 20, message: '用心棒に反撃された！全員HP20%ダメージ' }
+                    success: { type: 'item_and_gold', item: 'random', gold: 100, message: '商人から品物と金を奪った！' },
+                    fail: { type: 'damage', percent: 15, message: '用心棒に反撃された！全員HP15%ダメージ' }
                 }
             }
         ]
@@ -602,12 +602,12 @@ const EVENTS = [
         description: '不思議な力を感じる祭壇だ。代償を払えば力が得られそうだ。',
         options: [
             {
-                text: 'HPを捧げる<br><span class="event-desc">全員HP-20% → ランダムスキル習得</span>',
-                effect: { type: 'sacrifice_hp', percent: 20, reward: 'random_skill' }
+                text: 'HPを捧げる<br><span class="event-desc">全員HP-10% → ランダムスキル習得</span>',
+                effect: { type: 'sacrifice_hp', percent: 10, reward: 'random_skill' }
             },
             {
-                text: 'MPを捧げる<br><span class="event-desc">全員MP-30% → 全員ステータスUP</span>',
-                effect: { type: 'sacrifice_mp', percent: 30, reward: 'stat_boost_all' }
+                text: 'MPを捧げる<br><span class="event-desc">全員MP-20% → 全員攻撃+10%永続</span>',
+                effect: { type: 'sacrifice_mp', percent: 20, reward: 'attack_boost' }
             },
             {
                 text: '立ち去る',
@@ -662,16 +662,16 @@ const EVENTS = [
         description: '足元の地面が突然崩れた！',
         options: [
             {
-                text: '受け身を取る<br><span class="event-desc">全員HP-10%</span>',
-                effect: { type: 'damage', percent: 10 }
+                text: '受け身を取る<br><span class="event-desc">全員HP-8%</span>',
+                effect: { type: 'damage', percent: 8 }
             },
             {
-                text: '回避を試みる<br><span class="event-desc">失敗で大ダメージ</span>',
+                text: '回避を試みる<br><span class="event-desc">成功でSP+5 / 失敗で大ダメージ</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'medium',
-                    success: { type: 'none', message: '華麗に回避した！' },
-                    fail: { type: 'damage', percent: 30, message: '失敗！激しく打ち付けた...全員HP30%ダメージ' }
+                    success: { type: 'gain_sp', value: 5, message: '華麗に回避！経験値を得た！' },
+                    fail: { type: 'damage', percent: 25, message: '失敗！激しく打ち付けた...全員HP25%ダメージ' }
                 }
             }
         ]
@@ -682,12 +682,12 @@ const EVENTS = [
         description: '古い訓練用具が残されている。少し体を動かせそうだ。',
         options: [
             {
-                text: '軽く運動<br><span class="event-desc">SP+3</span>',
-                effect: { type: 'gain_sp', value: 3, message: 'いい運動になった。' }
+                text: '軽く運動<br><span class="event-desc">SP+8</span>',
+                effect: { type: 'gain_sp', value: 8, message: 'いい運動になった！SP+8' }
             },
             {
-                text: 'ハードトレーニング<br><span class="event-desc">全員HP-30% → 全員 攻/防+5%永続</span>',
-                effect: { type: 'stat_boost_all', stat: 'all', value: 0.05, cost: { type: 'hp', percent: 30 } }
+                text: 'ハードトレーニング<br><span class="event-desc">全員HP-20% → 全員 攻/防+8%永続</span>',
+                effect: { type: 'stat_boost_all', stat: 'all', value: 0.08, cost: { type: 'hp', percent: 20 } }
             }
         ]
     },
@@ -701,12 +701,12 @@ const EVENTS = [
                 effect: { type: 'stat_trade', targetStat: 'attack', targetValue: 0.15, costStat: 'max_hp', costValue: 0.10 }
             },
             {
-                text: '像を破壊する<br><span class="event-desc">成功でSP獲得 / 失敗で呪い</span>',
+                text: '像を破壊する<br><span class="event-desc">成功でSP+10 / 失敗で呪い</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',
-                    success: { type: 'gain_sp', value: 5, message: '像の中から魔力の欠片（SP）が出てきた！' },
-                    fail: { type: 'status_all', status: 'curse', duration: 3, message: '呪い（攻撃ダウン）を受けてしまった...' }
+                    success: { type: 'gain_sp', value: 10, message: '像の中から魔力の欠片（SP）が出てきた！' },
+                    fail: { type: 'status_all', status: 'curse', duration: 2, message: '呪い（攻撃ダウン）を受けてしまった...' }
                 }
             },
             {
@@ -721,8 +721,8 @@ const EVENTS = [
         description: '道に迷った冒険者が困っている。「ポーションを恵んでくれませんか...」',
         options: [
             {
-                text: 'HP回復薬をあげる<br><span class="event-desc">SP+10</span>',
-                effect: { type: 'trade_item', reqItem: 'hp_potion', reward: { type: 'gain_sp', value: 10 } }
+                text: 'HP回復薬をあげる<br><span class="event-desc">SP+15</span>',
+                effect: { type: 'trade_item', reqItem: 'hp_potion', reward: { type: 'gain_sp', value: 15 } }
             },
             {
                 text: '無視する',
@@ -736,12 +736,12 @@ const EVENTS = [
         description: '「へい旦那、運試ししていかねぇかい？」',
         options: [
             {
-                text: '100円賭ける<br><span class="event-desc">50%で300円</span>',
-                effect: { type: 'gamble_gold', cost: 100, reward: 300, chance: 50 }
+                text: '100円賭ける<br><span class="event-desc">50%で400円</span>',
+                effect: { type: 'gamble_gold', cost: 100, reward: 400, chance: 50 }
             },
             {
-                text: '500円賭ける<br><span class="event-desc">30%で1500円</span>',
-                effect: { type: 'gamble_gold', cost: 500, reward: 1500, chance: 30 }
+                text: '500円賭ける<br><span class="event-desc">40%で1800円</span>',
+                effect: { type: 'gamble_gold', cost: 500, reward: 1800, chance: 40 }
             },
             {
                 text: '興味ない',
@@ -755,12 +755,12 @@ const EVENTS = [
         description: '清らかな空気が流れる場所だ。心が安らぐ。',
         options: [
             {
-                text: '休息する<br><span class="event-desc">全員HP30%回復</span>',
-                effect: { type: 'heal_all', percent: 30 }
+                text: '休息する<br><span class="event-desc">全員HP35%回復</span>',
+                effect: { type: 'heal_all', percent: 35 }
             },
             {
-                text: '瞑想する<br><span class="event-desc">全員MP50%回復</span>',
-                effect: { type: 'heal_mp_all', percent: 50, message: '精神が研ぎ澄まされた！' }
+                text: '瞑想する<br><span class="event-desc">全員MP60%回復</span>',
+                effect: { type: 'heal_mp_all', percent: 60, message: '精神が研ぎ澄まされた！' }
             }
         ]
     },
@@ -770,8 +770,8 @@ const EVENTS = [
         description: 'ボロボロの本が散らばっている。何か役に立つ知識があるかもしれない。',
         options: [
             {
-                text: '本を読む<br><span class="event-desc">全員MP-20% → SP+5</span>',
-                effect: { type: 'gain_sp', value: 5, cost: { type: 'mp', percent: 20 } }
+                text: '本を読む<br><span class="event-desc">全員MP-15% → SP+10</span>',
+                effect: { type: 'gain_sp', value: 10, cost: { type: 'mp', percent: 15 } }
             },
             {
                 text: '立ち去る',
@@ -785,12 +785,12 @@ const EVENTS = [
         description: '「武器の手入れをしてやろうか？もちろんタダじゃないがな」',
         options: [
             {
-                text: '武器を磨く<br><span class="event-desc">300円: 誰か1人の攻撃+10%永続</span>',
-                effect: { type: 'upgrade_stat', stat: 'attack', value: 0.10, cost: 300, target: 'single' }
+                text: '武器を磨く<br><span class="event-desc">200円: 誰か1人の攻撃+10%永続</span>',
+                effect: { type: 'upgrade_stat', stat: 'attack', value: 0.10, cost: 200, target: 'single' }
             },
             {
-                text: '防具を叩く<br><span class="event-desc">300円: 誰か1人の防御+10%永続</span>',
-                effect: { type: 'upgrade_stat', stat: 'defense', value: 0.10, cost: 300, target: 'single' }
+                text: '防具を叩く<br><span class="event-desc">200円: 誰か1人の防御+10%永続</span>',
+                effect: { type: 'upgrade_stat', stat: 'defense', value: 0.10, cost: 200, target: 'single' }
             },
             {
                 text: '今はいい',
@@ -828,12 +828,12 @@ const EVENTS = [
                 effect: { type: 'heal_mp_all', percent: 100 }
             },
             {
-                text: '踊ってもらう<br><span class="event-desc">成功で全体強化 / 失敗でMP減少</span>',
+                text: '踊ってもらう<br><span class="event-desc">成功で全体強化+8% / 失敗でMP減少</span>',
                 effect: {
                     type: 'luck_check',
                     risk: 'low',
-                    success: { type: 'stat_boost_all', stat: 'all', value: 0.03, message: '不思議な粉を浴びて力が湧いてきた！' },
-                    fail: { type: 'mp_damage_all', percent: 20, message: 'MPを吸い取られて逃げられた...' }
+                    success: { type: 'stat_boost_all', stat: 'all', value: 0.08, message: '不思議な粉を浴びて力が湧いてきた！' },
+                    fail: { type: 'mp_damage_all', percent: 15, message: 'MPを吸い取られて逃げられた...' }
                 }
             }
         ]
@@ -844,12 +844,12 @@ const EVENTS = [
         description: 'コインを投げ入れると願いが叶うという井戸だ。',
         options: [
             {
-                text: '小銭を投げる<br><span class="event-desc">50円: 低確率でアイテム</span>',
-                effect: { type: 'gacha_item', cost: 50, chance: 30 }
+                text: '小銭を投げる<br><span class="event-desc">50円: 60%でアイテム</span>',
+                effect: { type: 'gacha_item', cost: 50, chance: 60 }
             },
             {
-                text: '大金を投げる<br><span class="event-desc">300円: 高確率でレアアイテム</span>',
-                effect: { type: 'gacha_item', cost: 300, chance: 80, rare: true }
+                text: '大金を投げる<br><span class="event-desc">200円: 確定でアイテム</span>',
+                effect: { type: 'gacha_item', cost: 200, chance: 100, rare: true }
             },
             {
                 text: '立ち去る',
@@ -1166,92 +1166,93 @@ const DIFFICULTY_CONFIG = {
     },
     1: {
         name: '難易度1',
-        description: '少し難易度アップ',
-        hpMultiplier: 1.05,
-        attackMultiplier: 1.02,
-        eliteBonus: 1,
-        restHealPercent: 100,
-        shopPriceMultiplier: 1.05
+        description: '挑戦的な難易度',
+        hpMultiplier: 1.10,
+        attackMultiplier: 1.05,
+        eliteBonus: 0,
+        restHealPercent: 95,
+        shopPriceMultiplier: 1.10
     },
     2: {
         name: '難易度2',
-        description: 'エリート数が増加',
-        hpMultiplier: 1.10,
-        attackMultiplier: 1.04,
+        description: '刺激的な難易度',
+        hpMultiplier: 1.20,
+        attackMultiplier: 1.10,
         eliteBonus: 1,
         restHealPercent: 90,
-        shopPriceMultiplier: 1.10
+        shopPriceMultiplier: 1.20
     },
     3: {
         name: '難易度3',
-        description: '休憩の回復量が減少',
-        hpMultiplier: 1.15,
-        attackMultiplier: 1.06,
+        description: '困難な難易度',
+        hpMultiplier: 1.30,
+        attackMultiplier: 1.15,
         eliteBonus: 1,
-        restHealPercent: 80,
-        shopPriceMultiplier: 1.15
+        restHealPercent: 85,
+        shopPriceMultiplier: 1.30
     },
     4: {
         name: '難易度4',
-        description: 'エリート数がさらに増加',
-        hpMultiplier: 1.20,
-        attackMultiplier: 1.08,
+        description: '試練の難易度',
+        hpMultiplier: 1.40,
+        attackMultiplier: 1.20,
         eliteBonus: 2,
-        restHealPercent: 70,
-        shopPriceMultiplier: 1.20
+        restHealPercent: 80,
+        shopPriceMultiplier: 1.40
     },
     5: {
         name: '難易度5',
-        description: '中級者向けの難易度',
-        hpMultiplier: 1.25,
-        attackMultiplier: 1.10,
+        description: '熟練の難易度',
+        hpMultiplier: 1.50,
+        attackMultiplier: 1.25,
         eliteBonus: 2,
-        restHealPercent: 60,
-        shopPriceMultiplier: 1.25
+        restHealPercent: 75,
+        shopPriceMultiplier: 1.50
     },
     6: {
         name: '難易度6',
-        description: '休憩の回復量がさらに減少',
-        hpMultiplier: 1.30,
-        attackMultiplier: 1.12,
-        eliteBonus: 2,
-        restHealPercent: 60,
-        shopPriceMultiplier: 1.30
+        description: '達人の難易度',
+        hpMultiplier: 1.60,
+        attackMultiplier: 1.30,
+        eliteBonus: 3,
+        restHealPercent: 70,
+        shopPriceMultiplier: 1.60
     },
     7: {
         name: '難易度7',
-        description: 'エリートが大幅に増加',
-        hpMultiplier: 1.35,
-        attackMultiplier: 1.15,
+        description: '英雄の難易度',
+        hpMultiplier: 1.70,
+        attackMultiplier: 1.35,
         eliteBonus: 3,
-        restHealPercent: 50,
-        shopPriceMultiplier: 1.40
+        restHealPercent: 65,
+        shopPriceMultiplier: 1.70
     },
     8: {
         name: '難易度8',
-        description: '上級者向けの難易度',
-        hpMultiplier: 1.40,
-        attackMultiplier: 1.18,
-        eliteBonus: 3,
-        restHealPercent: 50,
-        shopPriceMultiplier: 1.50
+        description: '伝説の難易度',
+        hpMultiplier: 1.80,
+        attackMultiplier: 1.40,
+        eliteBonus: 4,
+        restHealPercent: 60,
+        shopPriceMultiplier: 1.80
     },
     9: {
         name: '難易度9',
-        description: '非常に高い難易度',
-        hpMultiplier: 1.45,
-        attackMultiplier: 1.20,
-        eliteBonus: 3,
-        restHealPercent: 40,
-        shopPriceMultiplier: 1.60
+        description: '神話の難易度',
+        hpMultiplier: 1.90,
+        attackMultiplier: 1.45,
+        eliteBonus: 4,
+        restHealPercent: 55,
+        shopPriceMultiplier: 1.90
     },
     10: {
         name: '難易度10（極限）',
-        description: '最高難易度',
-        hpMultiplier: 1.50,
-        attackMultiplier: 1.25,
-        eliteBonus: 4,
-        restHealPercent: 40,
-        shopPriceMultiplier: 1.80
+        description: '極限の難易度',
+        hpMultiplier: 2.00,
+        attackMultiplier: 1.50,
+        eliteBonus: 5,
+        restHealPercent: 50,
+        shopPriceMultiplier: 2.00
     }
 };
+
