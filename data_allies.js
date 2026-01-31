@@ -1611,7 +1611,7 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'saikyou_no_omo',
             displayName: '最強の囮',
-            type: 'magic_attack',
+            type: 'physical_attack',
             target: 'single_enemy',
             power: 140,
             mpCost: 40,
