@@ -1423,6 +1423,211 @@ const CHARACTERS = {
         skills: [],
         excludeSkills: ['weaken_all']
     },
+    daiti: {
+        id: 'daiti',
+        name: '澤村大地',
+        displayName: '澤村大地',
+        stats: {
+            hp: 235,
+            mp: 90,
+            physicalAttack: 100,
+            magicAttack: 30,
+            physicalDefense: 140,
+            magicDefense: 90,
+            speed: 55,
+            luck: 55
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'karasuno_no_dodai',
+            displayName: '烏野の土台',
+            type: 'buff',
+            target: 'self',
+            power: 0,
+            mpCost: 45,
+            priority: 'first',
+            effects: [
+                { type: 'taunt', duration: 3 },
+                { type: 'immune', duration: 1 }
+            ],
+            description: '挑発(3T)＋1ターンダメージ無効（先制）',
+        },
+        image: {
+            full: 'img/daiti_full.png',
+            face: 'img/daiti_face.png'
+        },
+        skills: [],
+        excludeSkills: ['taunt'] // 上位互換のため除外
+    },
+    hutakuti: {
+        id: 'hutakuti',
+        name: '二口堅治',
+        displayName: '二口堅治',
+        stats: {
+            hp: 240,
+            mp: 90,
+            physicalAttack: 70,
+            magicAttack: 25,
+            physicalDefense: 135,
+            magicDefense: 130,
+            speed: 60,
+            luck: 45
+        },
+        type: 'tank',
+        uniqueSkill: {
+            id: 'dateko_no_tetteki',
+            displayName: '伊達工の鉄壁',
+            type: 'buff',
+            target: 'self',
+            power: 0,
+            mpCost: 30,
+            priority: 'first',
+            effects: [
+                { type: 'buff', stat: 'physicalDefense', value: 0.60, duration: 3 },
+                { type: 'buff', stat: 'magicDefense', value: 0.60, duration: 3 }
+            ],
+            description: '自身の物防/魔防+60% (3T)（先制）',
+        },
+        image: {
+            full: 'img/hutakuti_full.png',
+            face: 'img/hutakuti_face.png'
+        },
+        skills: [],
+        excludeSkills: ['iron_wall'] // 上位互換のため除外
+    },
+    osamu: {
+        id: 'osamu',
+        name: '宮治',
+        displayName: '宮治',
+        stats: {
+            hp: 240,
+            mp: 150,
+            physicalAttack: 80,
+            magicAttack: 40,
+            physicalDefense: 85,
+            magicDefense: 85,
+            speed: 85,
+            luck: 50
+        },
+        type: 'healer',
+        uniqueSkill: {
+            id: 'onigiri_miya',
+            displayName: 'おにぎり宮',
+            mpCost: 40,
+            type: 'mp_heal',
+            target: 'all_allies_except_self',
+            mpHealPercent: 20,
+            effects: [],
+            description: '自分以外の味方のMPを20%回復',
+        },
+        image: {
+            full: 'img/osamu_full.png',
+            face: 'img/osamu_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
+    oikawa: {
+        id: 'oikawa',
+        name: '及川徹',
+        displayName: '及川徹',
+        stats: {
+            hp: 160,
+            mp: 120,
+            physicalAttack: 25,
+            magicAttack: 135,
+            physicalDefense: 70,
+            magicDefense: 75,
+            speed: 95,
+            luck: 55
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'saijin_serve',
+            displayName: '殺人サーブ',
+            type: 'magic_attack',
+            target: 'single_enemy',
+            power: 220,
+            mpCost: 60,
+            effects: [],
+            description: '単体に強力な魔法攻撃（威力220%）',
+        },
+        image: {
+            full: 'img/oikawa_full.png',
+            face: 'img/oikawa_face.png'
+        },
+        skills: [],
+        excludeSkills: ['strong_magic_shot'] // 上位互換のため除外
+    },
+    atumu: {
+        id: 'atumu',
+        name: '宮侑',
+        displayName: '宮侑',
+        stats: {
+            hp: 195,
+            mp: 130,
+            physicalAttack: 100,
+            magicAttack: 50,
+            physicalDefense: 80,
+            magicDefense: 80,
+            speed: 100,
+            luck: 60
+        },
+        type: 'support',
+        uniqueSkill: {
+            id: 'don_pishhari',
+            displayName: 'ドン　ピシャリ',
+            mpCost: 50,
+            type: 'buff',
+            target: 'all_allies',
+            effects: [
+                { type: 'buff', stat: 'physicalAttack', value: 0.5, duration: 3 },
+                { type: 'buff', stat: 'magicAttack', value: 0.5, duration: 3 }
+            ],
+            description: '味方全体の物攻・魔攻+50% (3T)',
+        },
+        image: {
+            full: 'img/atumu_full.png',
+            face: 'img/atumu_face.png'
+        },
+        skills: [],
+        excludeSkills: ['attack_boost_all'] // 上位互換のため除外
+    },
+    hinata: {
+        id: 'hinata',
+        name: '日向翔陽',
+        displayName: '日向翔陽',
+        stats: {
+            hp: 125,
+            mp: 100,
+            physicalAttack: 125,
+            magicAttack: 40,
+            physicalDefense: 85,
+            magicDefense: 80,
+            speed: 130,
+            luck: 15
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'saikyou_no_omo',
+            displayName: '最強の囮',
+            type: 'magic_attack',
+            target: 'single_enemy',
+            power: 140,
+            mpCost: 40,
+            effects: [
+                { type: 'ally_buff', stat: 'physicalAttack', value: 0.15, duration: 3 },
+                { type: 'ally_buff', stat: 'magicAttack', value: 0.15, duration: 3 }
+            ],
+            description: '単体魔法攻撃（威力140%）＋自分以外の物攻・魔攻15%上昇(3T)',
+        },
+        image: {
+            full: 'img/hinata_full.png',
+            face: 'img/hinata_face.png'
+        },
+        skills: [],
+        excludeSkills: []
+    },
     nana: {
         id: 'nana',
         name: '中川菜々',

@@ -3378,11 +3378,22 @@ class Game {
                 }));
                 this.renderBattle(); // UI同期（全対象完了後）
                 break;
+            case 'ally_buff': { // 自分以外の味方バフ
+                const actorTeam = this.state.party.includes(actor) ? this.state.party : this.state.battle.enemies;
+                const allyBuffTargets = actorTeam.filter(c => c !== actor && c.currentHp > 0);
+                await Promise.all(allyBuffTargets.map(async (t) => {
+                    await this.showEffectIcon(t, skill, 'buff');
+                    t.buffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
+                }));
+                this.renderBattle();
+                break;
+            }
             case 'debuff':
             case 'self_debuff':
                 const debuffTargets = effect.type === 'self_debuff' ? [actor] : targets;
                 await Promise.all(debuffTargets.map(async (t) => {
                     if (t.currentHp <= 0) return; // 死亡時は無効
+                    if (effect.type !== 'self_debuff' && t.statusEffects.find(e => e.type === 'immune')) return; // immune中は無効
                     await this.showEffectIcon(t, skill, 'debuff');
                     // 重複許可：常に新規追加
                     t.debuffs.push({ stat: effect.stat, value: effect.value, duration: effect.duration });
@@ -3399,10 +3410,23 @@ class Game {
                 }
                 this.renderBattle(); // UI即時同期
                 break;
+            case 'immune': { // ダメージ無効状態
+                await this.showEffectIcon(actor, skill, 'shield');
+                const existingImmune = actor.statusEffects.find(e => e.type === 'immune');
+                if (existingImmune) {
+                    existingImmune.duration = Math.max(existingImmune.duration, effect.duration);
+                } else {
+                    actor.statusEffects.push({ type: 'immune', duration: effect.duration });
+                }
+                this.addLog(`${actor.displayName}は${effect.duration}ターンダメージ無効の状態になった！`);
+                this.renderBattle();
+                break;
+            }
             case 'status':
                 // 並列処理だとログ順序が乱れる可能性があるが、エフェクト同期優先
                 await Promise.all(targets.map(async (t) => {
                     if (t.currentHp <= 0) return; // 死亡時は無効
+                    if (t.statusEffects.find(e => e.type === 'immune')) return; // immune中は無効
                     if (!effect.chance || Math.random() * 100 < effect.chance) {
                         await this.showEffectIcon(t, skill, 'status', effect.status);
                         const existingStatus = t.statusEffects.find(e => e.type === effect.status);
@@ -3444,6 +3468,7 @@ class Game {
                 break;
             case 'mp_drain': // メトロイドの技：敵への吸収ではなく一律20減少
                 for (const t of targets) {
+                    if (t.statusEffects.find(e => e.type === 'immune')) continue; // immune中は無効
                     const drainAmount = 20;
                     t.currentMp = Math.max(0, t.currentMp - drainAmount);
                     this.showDamagePopup(t, drainAmount, 'mp-heal');
@@ -3595,6 +3620,11 @@ class Game {
         let baseDamage = attack * (power / 100);
 
         if (power === 0) {
+            return { value: 0, critical: false };
+        }
+
+        // immune状態はダメージ無効
+        if (defender.statusEffects.find(e => e.type === 'immune')) {
             return { value: 0, critical: false };
         }
 
@@ -3765,9 +3795,12 @@ class Game {
         [...this.state.party, ...this.state.battle.enemies].forEach(unit => {
             if (unit.currentHp <= 0) return;
 
+            // immune状態はDoTも無効
+            const isImmune = unit.statusEffects.find(e => e.type === 'immune');
+
             // 毒ダメージ
             const poison = unit.statusEffects.find(e => e.type === 'poison');
-            if (poison && unit.currentHp > 0) {
+            if (poison && unit.currentHp > 0 && !isImmune) {
                 const damage = Math.floor(unit.stats.hp * 0.08);
                 unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は毒で${damage}ダメージ！`);
@@ -3781,7 +3814,7 @@ class Game {
 
             // 火傷ダメージ
             const burn = unit.statusEffects.find(e => e.type === 'burn');
-            if (burn && unit.currentHp > 0) {
+            if (burn && unit.currentHp > 0 && !isImmune) {
                 const damage = Math.floor(unit.stats.hp * 0.04);
                 unit.currentHp = Math.max(0, unit.currentHp - damage);
                 this.addLog(`${unit.displayName}は火傷で${damage}ダメージ！`);
