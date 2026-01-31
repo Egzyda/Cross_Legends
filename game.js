@@ -633,7 +633,8 @@ class Game {
             gold: this.state.gold, // 所持金を保存
             difficulty: this.state.difficulty, // 難易度を保存
             playerName: this.state.playerName || localStorage.getItem('cross_legends_player_name'),
-            screen: this.state.screen
+            screen: this.state.screen,
+            mapBoss: this.state.mapBoss // ボスを保存
             // Battle state is complex to save mid-battle, usually save at start of battle or node
             // For now, save mostly map state
         };
@@ -655,6 +656,7 @@ class Game {
         this.state.spPool = data.spPool || 0;
         this.state.gold = data.gold || 0; // 所持金を復元
         this.state.difficulty = data.difficulty !== undefined ? data.difficulty : 0; // 難易度を復元
+        this.state.mapBoss = data.mapBoss; // ボスを復元
 
         // Restore screen
         if (data.screen === 'map') {
