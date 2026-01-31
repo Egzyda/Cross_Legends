@@ -2207,7 +2207,7 @@ class Game {
         const statusLabels = {
             poison: '毒', paralysis: '麻', silence: '沈', stun: 'ス',
             taunt: '挑', burn: '火', regen: '再', defending: '防', damageReduction: '軽', counter: '反',
-            curse: '呪'
+            curse: '呪', immune: '無'
         };
 
         return unit.statusEffects
@@ -3483,11 +3483,14 @@ class Game {
                 actor.statusEffects.push({ type: 'countdown', duration: effect.turns, action: effect.action });
                 break;
             case 'critBoost': // クリティカル率バフ
-                for (const t of targets) {
+            case 'self_critBoost': { // 自己対象クリティカル率バフ
+                const critBoostTargets = effect.type === 'self_critBoost' ? [actor] : targets;
+                for (const t of critBoostTargets) {
                     t.statusEffects.push({ type: 'critBoost', value: effect.value, duration: effect.duration });
                 }
                 this.renderBattle(); // UI即時同期
                 break;
+            }
             case 'heal': // HP回復効果
                 await Promise.all(targets.map(async (t) => {
                     if (t.currentHp <= 0) return; // 死亡時は無効
@@ -5440,7 +5443,7 @@ class Game {
                 visibleEffects.forEach(effect => {
                     const tag = document.createElement('span');
                     tag.className = 'status-tag ailment';
-                    const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御', gmax: 'G-MAX' };
+                    const labels = { poison: '毒', paralysis: '麻痺', silence: '沈黙', stun: 'スタン', taunt: '挑発', defending: '防御', gmax: 'G-MAX', immune: '無敵' };
                     tag.textContent = `${labels[effect.type] || effect.type}(残${effect.duration}T)`;
                     statusList.appendChild(tag);
                 });

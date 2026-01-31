@@ -1619,7 +1619,7 @@ const CHARACTERS = {
                 { type: 'ally_buff', stat: 'physicalAttack', value: 0.15, duration: 3 },
                 { type: 'ally_buff', stat: 'magicAttack', value: 0.15, duration: 3 }
             ],
-            description: '単体魔法攻撃（威力140%）＋自分以外の物攻・魔攻15%上昇(3T)',
+            description: '単体物理攻撃（威力140%）＋自分以外の物攻・魔攻15%上昇(3T)',
         },
         image: {
             full: 'img/hinata_full.png',

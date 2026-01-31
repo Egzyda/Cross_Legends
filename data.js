@@ -51,7 +51,7 @@ const SKILLS = {
         mpCost: 35,
         critBonus: 30,
         effects: [
-            { type: 'buff', stat: 'criticalRate', value: 0.3, duration: 3, target: 'self' }
+            { type: 'self_critBoost', value: 30, duration: 3 }
         ],
         description: '単体攻撃（威力120%、クリ率+30%、攻撃後クリ率+30% 3T）'
     },
