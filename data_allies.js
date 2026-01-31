@@ -1422,39 +1422,40 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['weaken_all']
+    },
+    nana: {
+        id: 'nana',
+        name: '中川菜々',
+        displayName: '中川菜々',
+        isHidden: true, // Dev-only hidden character
+        stats: {
+            hp: 12000,
+            mp: 17500,
+            physicalAttack: 60,
+            magicAttack: 140000,
+            physicalDefense: 90,
+            magicDefense: 80,
+            speed: 10000,
+            luck: 50
+        },
+        type: 'magic_attacker',
+        uniqueSkill: {
+            id: 'scarlet_storm',
+            displayName: 'せつ菜⭐︎スカーレットストーム',
+            type: 'magic_attack',
+            target: 'all_enemies',
+            power: 90,
+            mpCost: 50,
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '全体に魔法攻撃（威力90%）＋火傷(3T)',
+        },
+        image: {
+            full: 'img/setsuna_full.png', // Fallback image (reusing Setsuna)
+            face: 'img/setsuna_face.png'
+        },
+        skills: [],
+        excludeSkills: ['wide_attack'] // 上位互換のため除外
     }
-    // nana: {
-    //     id: 'nana',
-    //     name: '中川菜々',
-    //     displayName: '中川菜々',
-    //     stats: {
-    //         hp: 12000,
-    //         mp: 17500,
-    //         physicalAttack: 60,
-    //         magicAttack: 140000,
-    //         physicalDefense: 90,
-    //         magicDefense: 80,
-    //         speed: 10000,
-    //         luck: 50
-    //     },
-    //     type: 'magic_attacker',
-    //     uniqueSkill: {
-    //         id: 'scarlet_storm',
-    //         displayName: 'せつ菜⭐︎スカーレットストーム',
-    //         type: 'magic_attack',
-    //         target: 'all_enemies',
-    //         power: 90,
-    //         mpCost: 50,
-    //         effects: [
-    //             { type: 'status', status: 'burn', chance: 100, duration: 3 }
-    //         ],
-    //         description: '全体に魔法攻撃（威力90%）＋火傷(3T)',
-    //     },
-    //     image: {
-    //         full: 'img/setsuna_full.png',
-    //         face: 'img/setsuna_face.png'
-    //     },
-    //     skills: [],
-    //     excludeSkills: ['wide_attack'] // 上位互換のため除外
-    // }
 };

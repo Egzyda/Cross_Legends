@@ -45,8 +45,9 @@ class FirebaseManager {
 
     // クリアデータの保存
     async saveClearRecord(recordData) {
+        console.log('firebaseManager.saveClearRecord called', recordData);
         if (!this.isInitialized || !this.currentUser) {
-            console.warn('Firebase not initialized or user not signed in.');
+            console.warn('Firebase not initialized or user not signed in.', { initialized: this.isInitialized, user: this.currentUser });
             return;
         }
 
@@ -96,6 +97,39 @@ class FirebaseManager {
             console.error('Error fetching leaderboard:', error);
             // インデックス未作成エラーの場合など
             return [];
+        }
+    }
+
+    // デバッグ用：ランキングリセット（全削除）
+    async resetLeaderboard() {
+        if (!this.isInitialized) {
+            console.warn('Firebase not initialized.');
+            return;
+        }
+
+        if (!confirm('本当にランキングデータを全て削除しますか？この操作は取り消せません。')) {
+            return;
+        }
+
+        try {
+            const snapshot = await this.db.collection('clear_records').get();
+            if (snapshot.empty) {
+                console.log('No records to delete.');
+                return;
+            }
+
+            // バッチ処理で削除（500件まで）
+            const batch = this.db.batch();
+            snapshot.docs.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+            console.log('Leaderboard reset successfully!');
+            alert('ランキングデータをリセットしました。');
+        } catch (error) {
+            console.error('Error resetting leaderboard:', error);
+            alert('リセットに失敗しました。コンソールを確認してください。');
         }
     }
 }

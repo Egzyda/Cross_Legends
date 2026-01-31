@@ -847,6 +847,9 @@ class Game {
 
         let chars = Object.values(CHARACTERS);
 
+        // Filter hidden characters unless unlocked
+        chars = chars.filter(c => !c.isHidden || localStorage.getItem('cross_legends_dev_unlock_nana') === 'true');
+
         if (this.state.currentTab !== 'all') {
             chars = chars.filter(c => c.type === this.state.currentTab);
         }
@@ -1769,6 +1772,12 @@ class Game {
     enterNode(node) {
         // ノードオブジェクトを直接受け取る
         this.state.currentNode = node; // オブジェクト参照またはID保持
+
+        // Check if node is available
+        if (node.completed || node.status !== 'available') {
+            console.warn('Attempted to enter unavailable node:', node);
+            return;
+        }
 
         // 以前のロジックとの互換性のため currentNodeIndex 的なものが必要なら調整
         // ここでは currentNode をオブジェクトとして扱うように全体を直すのがベストだが
@@ -3897,6 +3906,27 @@ class Game {
                 this.saveSystemData({ unlockedDifficulty: nextDiff });
                 this.showToast(`最高難易度更新！ 難易度 ${nextDiff} が解放されました！`, 'success');
             }
+
+            // Save Clear Record
+            if (this.state.playerName) {
+                const record = {
+                    playerName: this.state.playerName,
+                    difficulty: this.state.difficulty,
+                    party: this.state.party.map(p => ({
+                        characterId: p.id,
+                        displayName: p.displayName,
+                        stats: p.stats,
+                        image: p.image,
+                        skills: p.skills
+                    })),
+                    gold: this.state.gold
+                };
+                firebaseManager.saveClearRecord(record)
+                    .then(() => console.log('Record save successful'))
+                    .catch(err => console.error('Record save failed', err));
+            }
+
+            this.clearSaveData();
         }
 
         setTimeout(() => {
@@ -5136,13 +5166,17 @@ class Game {
 
 
     // キャラ詳細モーダル表示
-    showCharacterDetail(charId, context) {
+    showCharacterDetail(charId, context, charData = null) {
         const modal = document.getElementById('character-detail-modal');
         const nameEl = document.getElementById('detail-char-name');
         const bodyEl = document.getElementById('detail-body');
 
         let char;
-        if (context === 'party') {
+        if (context === 'record') {
+            char = charData;
+            // Record data fallback: If char is missing (shouldn't happen), return.
+            if (!char) return;
+        } else if (context === 'party') {
             char = CHARACTERS[charId];
         } else if (context === 'enemy_battle') {
             // 敵の場合はインデックスで取得
@@ -5153,22 +5187,35 @@ class Game {
             if (!char) return;
         }
 
-        nameEl.textContent = char.name;
+        // Base Definition Resolution (for static data like Type, Image fallback)
+        // Record data usually has { characterId: "...", ... } or { templateId: "...", ... }
+        // Instance data has templateId.
+        const baseId = char.characterId || char.templateId || (CHARACTERS[char.id] ? char.id : null);
+        const baseDef = baseId ? CHARACTERS[baseId] : null;
+
+        nameEl.textContent = char.displayName || char.name || (baseDef ? baseDef.name : 'Unknown');
         bodyEl.innerHTML = '';
 
         // Content area
         const content = document.createElement('div');
         content.className = 'detail-content';
 
-        // Image (Always show full, but style differs for enemy)
+        // Image
         const imageDiv = document.createElement('div');
         imageDiv.className = 'detail-image';
         let imgStyle = '';
         if (context === 'enemy_battle') {
             imgStyle = 'object-fit:contain; aspect-ratio:1/1; width:100%;';
         }
-        // Enemy uses full image same as ally in this context
-        const imgSrc = char.image.full || char.image.face;
+
+        // Resolve Image (Priority: Instance -> Base -> Unknown)
+        let imgSrc = 'img/unknown.png';
+        if (char.image && (char.image.full || char.image.face)) {
+            imgSrc = char.image.full || char.image.face;
+        } else if (baseDef && baseDef.image) {
+            imgSrc = baseDef.image.full || baseDef.image.face;
+        }
+
         imageDiv.innerHTML = `<img src="${imgSrc}" alt="${char.name}" style="${imgStyle}" onerror="this.style.background='#555'">`;
         content.appendChild(imageDiv);
 
@@ -5177,13 +5224,22 @@ class Game {
         statsDiv.className = 'detail-stats';
 
         if (context !== 'enemy_battle') {
-            const typeLabel = this.getTypeLabel(char.type);
+            // Type Resolution
+            const type = char.type || (baseDef ? baseDef.type : 'unknown');
+            const typeLabel = this.getTypeLabel(type) || type;
             statsDiv.innerHTML = `<div class="detail-type">タイプ：${typeLabel}</div>`;
         }
 
-        // 通常攻撃タイプを判定（素のステータスで高い方）
-        const basePhys = CHARACTERS[char.id]?.stats.physicalAttack || char.stats.physicalAttack;
-        const baseMag = CHARACTERS[char.id]?.stats.magicAttack || char.stats.magicAttack;
+        // Stat Helper
+        const getCharStat = (key) => {
+            if (char.stats && char.stats[key] !== undefined) return char.stats[key];
+            if (baseDef && baseDef.stats && baseDef.stats[key] !== undefined) return baseDef.stats[key];
+            return 0;
+        };
+
+        // 通常攻撃タイプを判定
+        const basePhys = getCharStat('physicalAttack');
+        const baseMag = getCharStat('magicAttack');
         const primaryAttackType = basePhys >= baseMag ? 'physical' : 'magic';
 
         // HP/MP with colors
@@ -5191,18 +5247,29 @@ class Game {
         const mpColor = '#4facfe'; // 戦闘画面のMPバーと同じ色
 
         let hpMpHtml = '';
+        const maxHp = getCharStat('hp');
+        const maxMp = getCharStat('mp');
+
         if (context === 'party') {
-            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${char.stats.hp}</span></div>`;
-            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${char.stats.mp}</span></div>`;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${maxHp}</span></div>`;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${maxMp}</span></div>`;
+        } else if (context === 'record') {
+            // Record: Show Max HP/MP (User Request)
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${maxHp}</span></div>`;
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${maxMp}</span></div>`;
         } else {
-            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${Math.floor(char.currentHp)}/${char.stats.hp}</span></div>`;
+            // Active (Battle/Map)
+            const currentHp = (char.currentHp !== undefined) ? Math.floor(char.currentHp) : maxHp;
+            const currentMp = (char.currentMp !== undefined) ? Math.floor(char.currentMp) : maxMp;
+
+            hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${hpColor}">HP:</span> <span class="stat-value" style="color:${hpColor}">${currentHp}/${maxHp}</span></div>`;
             if (context !== 'enemy_battle') {
-                hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${Math.floor(char.currentMp)}/${char.stats.mp}</span></div>`;
+                hpMpHtml += `<div class="stat-row"><span class="stat-label" style="color:${mpColor}">MP:</span> <span class="stat-value" style="color:${mpColor}">${currentMp}/${maxMp}</span></div>`;
             }
         }
         statsDiv.innerHTML += hpMpHtml;
 
-        // Other stats with attack highlights
+        // Other stats
         const stats = ['physicalAttack', 'magicAttack', 'physicalDefense', 'magicDefense', 'speed', 'luck'];
         const statLabels = {
             physicalAttack: '物攻', magicAttack: '魔攻',
@@ -5215,12 +5282,12 @@ class Game {
         const magColor = '#a29bfe'; // 魔法攻撃色（紫系）
 
         stats.forEach(stat => {
-            const baseValue = char.stats[stat];
+            const baseValue = getCharStat(stat);
             let displayText = `${baseValue}`;
             let labelStyle = '';
             let valueStyle = '';
 
-            // 物理/魔法攻撃力に色を付ける（主攻撃タイプを強調）
+            // 物理/魔法攻撃力に色を付ける
             if (stat === 'physicalAttack') {
                 const isMain = primaryAttackType === 'physical';
                 labelStyle = `color:${physColor}; ${isMain ? 'font-weight:bold;' : ''}`;
@@ -5256,10 +5323,11 @@ class Game {
 
         // 会心率 (Crit Rate)
         {
-            const effectiveLuck = (context === 'battle' || context === 'enemy_battle') ? this.getEffectiveStat(char, 'luck') : char.stats.luck;
-            let baseCrit = 5 + Math.floor(effectiveLuck / 3) + (char.critBonus || 0); // 基本 + 運補正 + 装備補正(仮)
+            const effectiveLuck = (context === 'battle' || context === 'enemy_battle') ? this.getEffectiveStat(char, 'luck') : getCharStat('luck');
+            const critBonus = char.critBonus || (baseDef ? baseDef.critBonus : 0) || 0;
+            let baseCrit = 5 + Math.floor(effectiveLuck / 3) + critBonus;
 
-            // バフ補正 (戦闘中のみ) - 複数のcritBoostを合算
+            // バフ補正 (戦闘中のみ)
             let buffVal = 0;
             if (context === 'battle' || context === 'enemy_battle') {
                 const critBoosts = char.statusEffects.filter(e => e.type === 'critBoost');
@@ -5272,8 +5340,6 @@ class Game {
             if (buffVal !== 0) {
                 const arrow = buffVal > 0 ? '↑' : '↓';
                 const changeClass = buffVal > 0 ? 'stat-change' : 'stat-change down';
-                // 元の値(baseCrit) → 新しい値(finalCrit) ... というよりは、最終値 + バフ分を表示
-                // ここではシンプルに「最終値 (矢印)」にする
                 displayCrit = `${baseCrit}% → ${finalCrit}% <span class="${changeClass}">${arrow}</span>`;
             }
 
@@ -5289,10 +5355,14 @@ class Game {
         skillsSection.innerHTML = '<h4>【スキル】</h4>';
 
         // 固有スキルと通常スキルを統合
+        // Fallback to base def if missing in char (e.g. record data might leak skills?)
+        let uniqueSkill = char.uniqueSkill || (baseDef ? baseDef.uniqueSkill : null);
+        let normalSkills = (char.skills && char.skills.length > 0) ? char.skills : (baseDef ? baseDef.skills : []);
+
         let skillList = [];
-        if (char.uniqueSkill) skillList.push(char.uniqueSkill);
-        if (char.skills && char.skills.length > 0) {
-            skillList = skillList.concat(char.skills);
+        if (uniqueSkill) skillList.push(uniqueSkill);
+        if (normalSkills && normalSkills.length > 0) {
+            skillList = skillList.concat(normalSkills);
         }
 
         if (skillList.length > 0) {
@@ -5301,12 +5371,11 @@ class Game {
                 const skillId = (typeof skill === 'string') ? skill : skill.id;
                 const skillData = SKILLS[skillId] || {}; // 汎用スキル定義を取得（フォールバック用）
 
-                // キャラ固有のスキル情報を優先（displayName等）
+                // キャラ固有のスキル情報を優先
                 const displayName = (typeof skill === 'object' && skill.displayName) ? skill.displayName : (skillData.displayName || skillData.name || skillId);
                 const mpCost = (typeof skill === 'object' && skill.mpCost !== undefined) ? skill.mpCost : (skillData.mpCost || 0);
                 const description = (typeof skill === 'object' && skill.description) ? skill.description : (skillData.description || '');
 
-                // 敵の場合はMPコスト非表示
                 const showCost = context !== 'enemy_battle';
 
                 const skillItem = document.createElement('div');
@@ -5321,13 +5390,14 @@ class Game {
                 skillsSection.appendChild(skillItem);
             });
             bodyEl.appendChild(skillsSection);
+        } else {
+            skillsSection.innerHTML += '<div class="skill-item"><div class="skill-item-desc">スキルなし</div></div>';
+            bodyEl.appendChild(skillsSection);
         }
 
         // Status ailments (battle only)
         if ((context === 'battle' || context === 'enemy_battle') && char.statusEffects && char.statusEffects.length > 0) {
-            // critBoostは詳細リストからも除外
             const visibleEffects = char.statusEffects.filter(e => e.type !== 'critBoost');
-
             if (visibleEffects.length > 0) {
                 const statusSection = document.createElement('div');
                 statusSection.className = 'detail-section';
@@ -6929,8 +6999,18 @@ class Game {
             const card = document.createElement('div');
             card.className = 'record-card';
 
-            // Build Party Faces HTML
-            let facesHtml = '';
+            const header = document.createElement('div');
+            header.className = 'record-header';
+            header.innerHTML = `
+                <span class="record-difficulty-badge">Lv.${record.difficulty}</span>
+                <span class="record-player-name">${this.escapeHtml(record.playerName)}</span>
+                <span class="record-date">${date}</span>
+            `;
+            card.appendChild(header);
+
+            const facesContainer = document.createElement('div');
+            facesContainer.className = 'record-party-faces';
+
             if (record.party && Array.isArray(record.party)) {
                 record.party.forEach(p => {
                     let imgPath = 'img/unknown.png';
@@ -6939,42 +7019,25 @@ class Game {
                     } else if (p.characterId && typeof CHARACTERS !== 'undefined' && CHARACTERS[p.characterId]) {
                         imgPath = CHARACTERS[p.characterId].image.face;
                     }
-                    facesHtml += `<img src="${imgPath}" class="record-face-img" title="${p.displayName}">`;
+
+                    const img = document.createElement('img');
+                    img.src = imgPath;
+                    img.className = 'record-face-img';
+                    img.title = `${p.displayName} (詳細を見る)`;
+
+                    // クリックで詳細表示
+                    img.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // IDが重複する可能性があるため、recordオブジェクトそのものを渡す必要があるが
+                        // showCharacterDetail側で p.id をそのまま使うことはない（recordコンテキストではデータそのものを使う）
+                        // ただし第一引数は形式上必要なので p.id を渡す
+                        this.showCharacterDetail(p.id, 'record', p);
+                    });
+
+                    facesContainer.appendChild(img);
                 });
             }
-
-            // Build Details HTML
-            let detailsHtml = '';
-            if (record.party) {
-                record.party.forEach(p => {
-                    const skills = p.skills ? p.skills.map(s => s.displayName || s.name || s).join(', ') : 'None';
-                    detailsHtml += `
-                        <div class="detail-member-row">
-                            <span class="detail-member-name">${p.displayName}</span>
-                            <span class="detail-skills">${skills}</span>
-                        </div>
-                     `;
-                });
-            }
-
-            card.innerHTML = `
-                <div class="record-header">
-                    <span class="record-difficulty-badge">Lv.${record.difficulty}</span>
-                    <span class="record-player-name">${this.escapeHtml(record.playerName)}</span>
-                    <span class="record-date">${date}</span>
-                </div>
-                <div class="record-party-faces">
-                    ${facesHtml}
-                </div>
-                <div class="record-details">
-                    ${detailsHtml}
-                </div>
-            `;
-
-            card.addEventListener('click', () => {
-                card.classList.toggle('expanded');
-            });
-
+            card.appendChild(facesContainer);
             container.appendChild(card);
         });
     }
@@ -7019,3 +7082,10 @@ class Game {
 
 // ゲーム開始
 const game = new Game();
+
+// Console Command for Devs
+window.unlockNana = () => {
+    localStorage.setItem('cross_legends_dev_unlock_nana', 'true');
+    console.log('中川菜々 has been unlocked! Reloading...');
+    location.reload();
+};
