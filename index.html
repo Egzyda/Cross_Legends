@@ -50,7 +50,10 @@
 
             <button id="start-btn" class="btn-primary">GAME START</button>
             <button id="continue-btn" class="btn-primary" style="margin-top: 16px; display: none;">CONTINUE</button>
-            <button id="howto-btn" class="btn-secondary" style="margin-top: 24px;">遊び方</button>
+            <div class="title-sub-buttons">
+                <button id="record-btn" class="btn-secondary">RECORD</button>
+                <button id="howto-btn" class="btn-secondary">遊び方</button>
+            </div>
         </div>
 
         <!-- パーティ編成画面 -->
@@ -84,6 +87,10 @@
                         <div class="slot-content"></div>
                     </div>
                 </div>
+            </div>
+            <div class="name-input-container">
+                <label for="player-name-input" class="name-input-label">PLAYER NAME</label>
+                <input type="text" id="player-name-input" class="name-input" placeholder="ENTER NAME" maxlength="12">
             </div>
             <button id="start-run-btn" class="btn-primary" disabled>冒険開始</button>
         </div>
@@ -232,10 +239,30 @@
             </div>
         </div>
 
+        <!-- Records Modal -->
+        <div id="records-modal" class="modal-overlay hidden">
+            <div class="modal-content records-modal-content">
+                <h3>OFFICIAL RECORDS</h3>
+                <div class="records-header">
+                    <span>Rank / Player</span>
+                    <span>Date</span>
+                </div>
+                <div id="records-list" class="records-list">
+                    <!-- Records will be injected here -->
+                    <div class="loading-records">Loading...</div>
+                </div>
+                <button class="btn-primary" onclick="game.closeRecordsModal()">閉じる</button>
+            </div>
+        </div>
+
         <!-- Toast Container -->
         <div id="toast-container"></div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase_manager.js"></script>
     <script src="data.js"></script>
     <script src="data_allies.js"></script>
     <script src="data_enemies.js"></script>

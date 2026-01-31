@@ -24,6 +24,9 @@ class Game {
     }
 
     async init() {
+        // Firebase Init
+        firebaseManager.init();
+
         // 画像プリロード
         await this.preloadImages();
         document.getElementById('loading-overlay').classList.add('hidden');
@@ -363,6 +366,21 @@ class Game {
             </div>
 
             <div class="howto-section">
+                <h4>状態異常・特殊効果</h4>
+                <ul>
+                    <li><span style="color:#a8f">毒</span>: ターン終了時に最大HPの8%ダメージ</li>
+                    <li><span style="color:#f84">火傷</span>: ターン終了時に最大HPの4%ダメージ + 防御15%低下</li>
+                    <li><span style="color:#ff4">麻痺</span>: 素早さが半減 + 20%の確率で行動不能</li>
+                    <li><span style="color:#444">呪い</span>: 攻撃・魔攻が20%低下</li>
+                    <li><span style="color:#8ff">スタン</span>: 1ターン行動不能</li>
+                    <li><span style="color:#aaf">沈黙</span>: スキル使用不可</li>
+                    <li><span style="color:#afa">挑発</span>: 敵から狙われやすくなる</li>
+                    <li><span style="color:#faa">反撃</span>: 攻撃を受けた時に反撃</li>
+                    <li><span style="color:#fff">防御</span>: ダメージ半減 + MP回復</li>
+                </ul>
+            </div>
+
+            <div class="howto-section">
                 <h4>配置と狙われやすさ</h4>
                 <p>パーティ編成時の配置で狙われる確率が変わります。</p>
                 <ul>
@@ -450,7 +468,12 @@ class Game {
 
         // タイトル画面
         document.getElementById('start-btn').addEventListener('click', () => {
+            // ... existing start button logic ...
+            // Logic is complex, better not to replace the whole block if possible, but bindEvents is long.
+            // I will append my new listeners at the END of bindEvents instead.
+            // Skipping this chunk.
             if (this.hasSaveData()) {
+
                 this.showModal('確認', '進行中のデータがあります。新しいゲームを始めるとデータは消去されます。<br><br>よろしいですか？', [
                     {
                         text: 'はじめる',
@@ -564,6 +587,13 @@ class Game {
                 });
             }
         });
+        // Record Button
+        const recordBtn = document.getElementById('record-btn');
+        if (recordBtn) {
+            recordBtn.addEventListener('click', () => {
+                this.showRecordsModal();
+            });
+        }
     }
 
     // --- System Data (Global Progress) ---
@@ -602,6 +632,7 @@ class Game {
             spPool: this.state.spPool,
             gold: this.state.gold, // 所持金を保存
             difficulty: this.state.difficulty, // 難易度を保存
+            playerName: this.state.playerName || localStorage.getItem('cross_legends_player_name'),
             screen: this.state.screen
             // Battle state is complex to save mid-battle, usually save at start of battle or node
             // For now, save mostly map state
@@ -614,6 +645,7 @@ class Game {
         if (!json) return;
 
         const data = JSON.parse(json);
+        this.state.playerName = data.playerName || localStorage.getItem('cross_legends_player_name');
         this.state.party = data.party;
         this.state.currentAct = data.currentAct;
         this.state.currentNode = data.currentNode;
@@ -703,6 +735,13 @@ class Game {
 
     // パーティ編成画面表示
     showPartyScreen() {
+        // Load saved name
+        const savedName = localStorage.getItem('cross_legends_player_name');
+        if (savedName) {
+            const input = document.getElementById('player-name-input');
+            if (input) input.value = savedName;
+        }
+
         this.state.party = [];
         this.state.selectedChar = null;
         this.state.currentTab = 'all';
@@ -1063,6 +1102,20 @@ class Game {
 
     // ラン開始
     startRun() {
+        // Name Validation
+        const nameInput = document.getElementById('player-name-input');
+        const name = nameInput ? nameInput.value.trim() : 'Player';
+        if (!name) {
+            this.showToast('名前を入力してください', 'error');
+            return;
+        }
+        if (name.length > 12) {
+            this.showToast('名前は12文字以内で入力してください', 'error');
+            return;
+        }
+        localStorage.setItem('cross_legends_player_name', name);
+        this.state.playerName = name;
+
         // パーティを選択したスロット位置（左・中・右）の順に並び替える
         const posOrder = { 'left': 0, 'center': 1, 'right': 2 };
         this.state.party.sort((a, b) => posOrder[a.position] - posOrder[b.position]);
@@ -4230,10 +4283,35 @@ class Game {
 
         // ラスボス撃破チェック
         if (this.state.battle?.rank === 'last_boss') {
+            // Save Clear Record
+            if (this.state.playerName) {
+                const record = {
+                    playerName: this.state.playerName,
+                    difficulty: this.state.difficulty,
+                    party: this.state.party.map(p => ({
+                        characterId: p.id,
+                        displayName: p.displayName,
+                        stats: p.stats, // Base stats + boost? Current stats might be better or max stats
+                        image: p.image,
+                        skills: p.skills
+                    })),
+                    gold: this.state.gold
+                };
+                firebaseManager.saveClearRecord(record);
+            }
+
             this.clearSaveData(); // Clear save on victory
-            this.showScreen('clear');
+            // Check for victory modal in HTML, fallback to clear screen if logic exists
+            const victoryModal = document.getElementById('victory-modal');
+            if (victoryModal) {
+                victoryModal.classList.remove('hidden');
+                // Confetti or effects could go here
+            } else {
+                this.showScreen('clear');
+            }
             return;
         }
+
 
         // 中ボス撃破で第2幕へ
         if (this.state.battle?.rank === 'boss' && this.state.currentAct === 1) {
@@ -6819,6 +6897,123 @@ class Game {
 
             await this.delay(500);
         }
+    }
+    // ========================================
+    // Firebase / Records Logic
+    // ========================================
+
+    async showRecordsModal() {
+        document.getElementById('records-modal').classList.remove('hidden');
+        const listContainer = document.getElementById('records-list');
+        listContainer.innerHTML = '<div class="loading-records">Loading records...</div>';
+
+        const records = await firebaseManager.fetchLeaderboard(50);
+        this.updateRecordsList(records);
+    }
+
+    closeRecordsModal() {
+        document.getElementById('records-modal').classList.add('hidden');
+    }
+
+    updateRecordsList(records) {
+        const container = document.getElementById('records-list');
+        container.innerHTML = '';
+
+        if (records.length === 0) {
+            container.innerHTML = '<div class="loading-records">No records found.</div>';
+            return;
+        }
+
+        records.forEach(record => {
+            const date = record.clearedAt ? new Date(record.clearedAt).toLocaleDateString() : 'Unknown';
+            const card = document.createElement('div');
+            card.className = 'record-card';
+
+            // Build Party Faces HTML
+            let facesHtml = '';
+            if (record.party && Array.isArray(record.party)) {
+                record.party.forEach(p => {
+                    let imgPath = 'img/unknown.png';
+                    if (p.image && p.image.face) {
+                        imgPath = p.image.face;
+                    } else if (p.characterId && typeof CHARACTERS !== 'undefined' && CHARACTERS[p.characterId]) {
+                        imgPath = CHARACTERS[p.characterId].image.face;
+                    }
+                    facesHtml += `<img src="${imgPath}" class="record-face-img" title="${p.displayName}">`;
+                });
+            }
+
+            // Build Details HTML
+            let detailsHtml = '';
+            if (record.party) {
+                record.party.forEach(p => {
+                    const skills = p.skills ? p.skills.map(s => s.displayName || s.name || s).join(', ') : 'None';
+                    detailsHtml += `
+                        <div class="detail-member-row">
+                            <span class="detail-member-name">${p.displayName}</span>
+                            <span class="detail-skills">${skills}</span>
+                        </div>
+                     `;
+                });
+            }
+
+            card.innerHTML = `
+                <div class="record-header">
+                    <span class="record-difficulty-badge">Lv.${record.difficulty}</span>
+                    <span class="record-player-name">${this.escapeHtml(record.playerName)}</span>
+                    <span class="record-date">${date}</span>
+                </div>
+                <div class="record-party-faces">
+                    ${facesHtml}
+                </div>
+                <div class="record-details">
+                    ${detailsHtml}
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                card.classList.toggle('expanded');
+            });
+
+            container.appendChild(card);
+        });
+    }
+
+    closeVictoryModal() {
+        document.getElementById('victory-modal').classList.add('hidden');
+    }
+
+    closeGameOverModal() {
+        document.getElementById('gameover-modal').classList.add('hidden');
+    }
+
+    resetGame() {
+        this.clearSaveData();
+        this.state.party = [];
+        this.state.currentAct = 1;
+        this.state.currentNode = 0;
+        this.state.nodeMap = [];
+        this.state.items = [];
+        this.state.spPool = 0;
+        this.state.gold = 0;
+        this.state.battle = null;
+        this.state.playerName = localStorage.getItem('cross_legends_player_name');
+
+        this.showScreen('title');
+        this.initTitleScreen();
+    }
+
+    escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, function (m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m];
+        });
     }
 }
 
