@@ -1576,7 +1576,7 @@ const CHARACTERS = {
         type: 'support',
         uniqueSkill: {
             id: 'don_pishhari',
-            displayName: 'ドン　ピシャリ',
+            displayName: 'どん ぴしゃり',
             mpCost: 50,
             type: 'buff',
             target: 'all_allies',
