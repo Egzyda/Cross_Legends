@@ -598,12 +598,13 @@ const CHARACTERS = {
             displayName: 'シャイニートルネード',
             type: 'magic_attack',
             target: 'single_enemy',
-            power: 120,
-            mpCost: 30,
+            power: 100,
+            mpCost: 40,
+            priority: 'first',
             effects: [
                 { type: 'taunt', duration: 3 }
             ],
-            description: '単体魔法攻撃（威力120%）＋挑発(3T)'
+            description: '単体魔法攻撃（威力100%）＋挑発(3T) (先制)'
         },
         image: {
             full: 'img/mari_full.png',
