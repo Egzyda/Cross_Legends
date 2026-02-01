@@ -5231,7 +5231,7 @@ class Game {
         const baseId = char.characterId || char.templateId || (CHARACTERS[char.id] ? char.id : null);
         const baseDef = baseId ? CHARACTERS[baseId] : null;
 
-        nameEl.textContent = char.displayName || char.name || (baseDef ? baseDef.name : 'Unknown');
+        nameEl.textContent = char.name || (baseDef ? baseDef.name : 'Unknown');
         bodyEl.innerHTML = '';
 
         // Content area
