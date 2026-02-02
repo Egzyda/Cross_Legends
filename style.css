@@ -8949,3 +8949,24 @@ h3 {
     100% { transform: translate(calc(-50% + var(--x)), -300px) rotate(var(--rotation)); opacity: 0; }
 }
 
+
+/* Starburst Stream Final Cross Slash */
+.vfx-slash-cross {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 12px;
+    transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 0 15px currentColor;
+    border-radius: 4px;
+    animation: vfx-slash-flash 0.4s ease-out forwards;
+}
+
+@keyframes vfx-slash-flash {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scaleX(0.5); }
+    20% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scaleX(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scaleX(1); }
+}

@@ -3,7 +3,7 @@ class SkillEffectManager {
         this.game = game;
     }
 
-    async playEffect(actor, target, skill, damageType) {
+    async playEffect(actor, target, skill, damageType, hitIndex = 0) {
         const skillId = skill ? skill.id : 'normal_attack';
         const isPhysical = (damageType === 'physical');
 
@@ -737,6 +737,7 @@ class SkillEffectManager {
         else if (skillId === 'karasuno_no_dodai') { this._playDoshatto(vfx, 'orange'); }
         else if (skillId === 'dateko_no_tetteki') { this._playDoshatto(vfx, 'green'); }
         else if (skillId === 'saikyou_no_omo') { this._playBeam(vfx, actor, target, 'orange', 'sphere'); }
+        else if (skillId === 'starburst_stream') { this._playStarburstStream(vfx, hitIndex); }
         // New Mappings
         else if (skillId === 'spy_technique') { this._playScan(vfx, 'green'); } // Loid
         else if (skillId === 'nyammy_shield') { this._playBarrier(vfx, 'pink', 'cat'); } // Nyammy
@@ -744,6 +745,7 @@ class SkillEffectManager {
         else if (skillId === 'onigiri_miya') { this._playSparkles(vfx, 'white', 'circle'); } // Osamu
         else if (skillId === 'don_pishhari') { this._playSparkles(vfx, 'gold', 'twin'); } // Atsumu
         else if (skillId === 'assassination') { this._playCritSlash(vfx, 'crimson'); } // Yor
+        else if (skillId === 'fireball') { this._playStorm(vfx, 'red', 'explosion'); } // Mario
 
         // === 汎用エフェクト ===
         else if (skillId === 'defense_boost' || skillId === 'iron_wall' || skill && skill.type === 'buff') {
@@ -800,10 +802,11 @@ class SkillEffectManager {
                                                                                                     (skillId === 'judrajim') ? 800 : // ジュドラジルム (Raikiri base): 0.8s
                                                                                                         (skillId === 'zukyuun_bazooka') ? 1800 : // Match Burst Stream duration
                                                                                                             (skillId === 'rasengan' || skillId === 'saijin_serve' || skillId === 'saikyou_no_omo') ? 800 : // 1300 -> 800
-                                                                                                                (skillId === 'teppen_strike' || skillId === 'edelstein' || skillId === 'flame_alchemy') ? 1200 :
+                                                                                                                (skillId === 'teppen_strike' || skillId === 'edelstein' || skillId === 'flame_alchemy' || skillId === 'fireball') ? 1200 :
                                                                                                                     (skillId === 'dark_slash' || skillId === 'mentan_ken') ? 1200 :
                                                                                                                         (skillId === 'sand_coffin' || skillId === 'shadow_possession') ? 1500 :
-                                                                                                                            1000;
+                                                                                                                            (skillId === 'starburst_stream') ? 400 : // Individual hit duration
+                                                                                                                                1000;
         1000;
 
         // ダメージタイミング：基本50%だが、技によっては微調整
@@ -815,6 +818,7 @@ class SkillEffectManager {
         if (skillId === 'zukyuun_bazooka') damageTiming = 1500; // Match Burst Stream timing
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
         if (skillId === 'star_platinum') damageTiming = 0; // 即時ダメージ表示
+        if (skillId === 'starburst_stream') damageTiming = 0; // Synchronize damage with hit appearance
 
         // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
         // Fade out before removal
@@ -1477,5 +1481,72 @@ class SkillEffectManager {
             'silver': '0deg'
         };
         return map[color] || '0deg';
+    }
+
+    _playStarburstStream(vfx, hitIndex) {
+        const el = document.createElement('div'); el.className = 'vfx-starburst-stream';
+
+        if (hitIndex < 15) {
+            // 1-15Hits: Single Slash per call
+            const slash = document.createElement('div');
+            slash.className = 'vfx-slash-pro-svg';
+            const color = hitIndex % 2 === 0 ? '#60a5fa' : '#111827';
+            const angle = Math.random() * 360;
+            const scale = 1.0 + Math.random() * 0.5;
+
+            slash.innerHTML = `<svg width="200" height="200" viewBox="0 0 200 200" style="overflow:visible;">
+                 <path d="M 20 20 Q 100 100 180 180 L 170 190 Q 100 120 30 30 Z" fill="${color}" opacity="0.9" style="mix-blend-mode: screen;">
+                    <animate attributeName="opacity" values="0.9;0" dur="0.15s" begin="0.05s" fill="freeze" />
+                    <animateTransform attributeName="transform" type="scale" from="0.5 0.5" to="1.2 1.2" dur="0.15s" fill="freeze" />
+                 </path>
+                 <path d="M 25 25 Q 100 100 175 175" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8">
+                     <animate attributeName="opacity" values="0.8;0" dur="0.2s" fill="freeze" />
+                 </path>
+            </svg>`;
+
+            slash.style.position = 'absolute';
+            slash.style.left = '50%';
+            slash.style.top = '50%';
+            const offsetX = (Math.random() - 0.5) * 20;
+            const offsetY = (Math.random() - 0.5) * 20;
+            slash.style.transform = `translate(-50%, -50%) translate(${offsetX}px, ${offsetY}px) rotate(${angle}deg) scale(${scale})`;
+            el.appendChild(slash);
+        } else {
+            // Final Heavy Hit (16th)
+            const finalSlash = document.createElement('div');
+            finalSlash.className = 'vfx-crit-slash';
+
+            const slash1 = document.createElement('div');
+            slash1.className = 'vfx-slash-cross';
+            slash1.style.setProperty('--r', '-45deg');
+            slash1.style.background = 'linear-gradient(to right, transparent, white, #3b82f6)';
+            slash1.style.height = '8px';
+            slash1.style.boxShadow = '0 0 10px #3b82f6';
+
+            const slash2 = document.createElement('div');
+            slash2.className = 'vfx-slash-cross';
+            slash2.style.setProperty('--r', '45deg');
+            slash2.style.background = 'linear-gradient(to right, transparent, white, #000)';
+            slash2.style.height = '8px';
+            slash2.style.boxShadow = '0 0 10px #000';
+
+            const impact = document.createElement('div');
+            impact.className = 'vfx-impact-flash';
+            impact.style.background = 'radial-gradient(circle, #93c5fd, transparent)';
+            impact.style.transform = 'translate(-50%, -50%) scale(2)';
+
+            finalSlash.appendChild(slash1);
+            finalSlash.appendChild(slash2);
+            finalSlash.appendChild(impact);
+            el.appendChild(finalSlash);
+
+            const screen = document.getElementById('battle-screen');
+            screen.classList.add('void-invert');
+            setTimeout(() => screen.classList.remove('void-invert'), 200);
+            screen.classList.add('screen-shake');
+            setTimeout(() => screen.classList.remove('screen-shake'), 300);
+        }
+
+        vfx.appendChild(el);
     }
 }

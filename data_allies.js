@@ -683,12 +683,12 @@ const CHARACTERS = {
         stats: {
             hp: 220,
             mp: 150,
-            physicalAttack: 115,
+            physicalAttack: 100,
             magicAttack: 65,
-            physicalDefense: 60,
-            magicDefense: 95,
-            speed: 60,
-            luck: 70
+            physicalDefense: 70,
+            magicDefense: 75,
+            speed: 95,
+            luck: 50
         },
         type: 'healer',
         uniqueSkill: {
@@ -1072,11 +1072,11 @@ const CHARACTERS = {
             hp: 245,
             mp: 170,
             physicalAttack: 40,
-            magicAttack: 85,
-            physicalDefense: 60,
-            magicDefense: 110,
-            speed: 60,
-            luck: 65
+            magicAttack: 70,
+            physicalDefense: 85,
+            magicDefense: 85,
+            speed: 85,
+            luck: 50
         },
         type: 'healer',
         uniqueSkill: {
@@ -1663,5 +1663,72 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: ['wide_attack'] // 上位互換のため除外
+    },
+    kirito: {
+        id: 'kirito',
+        name: 'キリト',
+        displayName: 'キリト',
+        stats: {
+            hp: 130,
+            mp: 110,
+            physicalAttack: 140,
+            magicAttack: 0,
+            physicalDefense: 60,
+            magicDefense: 60,
+            speed: 125,
+            luck: 95
+        },
+        type: 'physical_attacker',
+        uniqueSkill: {
+            id: 'starburst_stream',
+            displayName: 'スターバースト・ストリーム',
+            type: 'physical_attack',
+            target: 'single_enemy',
+            power: 14,
+            mpCost: 60,
+            hits: 16,
+            effects: [],
+            description: '物理単体攻撃（14％×16連撃）',
+        },
+        image: {
+            full: 'img/kirito_full.png',
+            face: 'img/kirito_face.png'
+        },
+        skills: [],
+        excludeSkills: ['ultra_attack']
+    },
+    mario: {
+        id: 'mario',
+        name: 'マリオ',
+        displayName: 'マリオ',
+        stats: {
+            hp: 150,
+            mp: 150,
+            physicalAttack: 95,
+            magicAttack: 95,
+            physicalDefense: 80,
+            magicDefense: 80,
+            speed: 110,
+            luck: 85
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'fireball',
+            displayName: 'ファイヤーボール',
+            type: 'debuff',
+            target: 'single_enemy',
+            power: 0,
+            mpCost: 25,
+            effects: [
+                { type: 'status', status: 'burn', chance: 100, duration: 3 }
+            ],
+            description: '敵単体を火傷 (3T)',
+        },
+        image: {
+            full: 'img/mario_full.png',
+            face: 'img/mario_face.png'
+        },
+        skills: [],
+        excludeSkills: []
     }
 };

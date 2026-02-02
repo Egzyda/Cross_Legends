@@ -3294,7 +3294,7 @@ class Game {
                     }
                     if (target.currentHp <= 0) return;
 
-                    await this.showAttackEffect(actor, target, skill, damageType);
+                    await this.showAttackEffect(actor, target, skill, damageType, i);
                     const damage = this.calculateDamage(actor, target, damageType, skill.power || skill.basePower || 100, skill.critBonus);
                     this.applyDamage(target, damage);
                     this.addLog(`${target.displayName}に${damage.value}ダメージ！`);
@@ -3303,8 +3303,15 @@ class Game {
                     await this.processCounter(target, actor);
                 }));
                 nextRetargetStrategy = (nextRetargetStrategy === 'right') ? 'left' : 'right';
-                // スタープラチナは超高速連撃
-                const hitDelay = skill.id === 'star_platinum' ? 50 : 200;
+                // ヒット間のディレイ計算
+                let hitDelay = 200;
+                if (skill.id === 'starburst_stream') {
+                    if (i < 14) hitDelay = Math.max(50, 120 - (i * 5)); // 120msから徐々に加速（最低50ms）
+                    else if (i === 14) hitDelay = 500; // 15発目と16発目の間に溜め
+                    else hitDelay = 500; // 最終ヒット後の余韻
+                } else if (skill.id === 'star_platinum') {
+                    hitDelay = 50;
+                }
                 await this.delay(hitDelay);
             }
         } else if (skill.type === 'debuff' || skill.type === 'buff' || skill.type === 'cure') {
@@ -3481,6 +3488,7 @@ class Game {
                     t.currentMp = Math.max(0, t.currentMp - drainAmount);
                     this.showDamagePopup(t, drainAmount, 'mp-heal');
                     this.addLog(`${t.displayName}のMPが${drainAmount}減少した！`);
+                    this.updateBarsUI(); // 即時反映
                 }
                 break;
             case 'self_ko': // ボム兵等の自壊
@@ -3903,6 +3911,14 @@ class Game {
 
         this.state.battle.enemies.forEach(enemy => {
             const rank = enemy.rank || 'normal';
+
+            // Saint Snow例外対応: ペアで30SPにするため、1体あたり15SPとする
+            if (enemy.groupName === 'Saint Snow') {
+                spGain += 15;
+                goldGain += 450 + Math.floor(Math.random() * 101); // 金額はボスクラス維持
+                return; // ランク判定をスキップ
+            }
+
             switch (rank) {
                 case 'normal':
                     spGain += 3; // 1体あたり3SP
@@ -6130,8 +6146,8 @@ class Game {
         }
     }
 
-    async showAttackEffect(actor, target, skill, damageType) {
-        return this.skillEffectManager.playEffect(actor, target, skill, damageType);
+    async showAttackEffect(actor, target, skill, damageType, hitIndex = 0) {
+        return this.skillEffectManager.playEffect(actor, target, skill, damageType, hitIndex);
     }
     getUnitSelector(unit) {
         const isEnemy = this.state.battle.enemies.includes(unit);
