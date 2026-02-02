@@ -346,8 +346,10 @@ const CHARACTERS = {
             power: 140,
             mpCost: 35,
             critBonus: 40,
-            effects: [],
-            description: '単体物理攻撃（威力140%＋クリティカル率40%）',
+            effects: [
+            { type: 'self_critBoost', value: 40, duration: 3 }
+        ],
+            description: '単体物理攻撃（威力140%＋クリ率+40%、攻撃後クリ率+40% 3T）',
         },
         image: {
             full: 'img/kakasi_full.png',
@@ -667,9 +669,11 @@ const CHARACTERS = {
             power: 140,
             mpCost: 50,
             critBonus: 40,
-            effects: [],
-            description: '単体魔法攻撃（威力140%＋クリティカル率40%）'
-        },
+            effects: [
+        { type: 'self_critBoost', value: 40, duration: 3 }
+    ],
+    description: '単体魔法攻撃（威力140%＋クリ率+40%、攻撃後クリ率+40% 3T）',
+},
         image: {
             full: 'img/blueeyes_full.png',
             face: 'img/blueeyes_face.png'
@@ -922,21 +926,23 @@ const CHARACTERS = {
         uniqueSkill: {
             id: 'assassination',
             displayName: '暗殺術',
-            power: 65,
-            mpCost: 40,
+            power: 70,
+            mpCost: 35,
             type: 'physical_attack',
             target: 'single_enemy',
             hits: 2,
             critBonus: 40,
-            effects: [],
-            description: '2連続攻撃(威力65%)＋クリティカル率+40%'
-        },
+            effects: [
+        { type: 'self_critBoost', value: 40, duration: 3 }
+    ],
+    description: '2連続攻撃（威力70%＋クリ率+40%、攻撃後クリ率+40% 3T）',
+},
         image: {
             full: 'img/yor_full.png',
             face: 'img/yor_face.png'
         },
         skills: [],
-        excludeSkills: ['double_attack']
+        excludeSkills: ['critical_attack', 'double_attack']
     }, naruto: {
         id: 'naruto',
         name: 'うずまきナルト',
