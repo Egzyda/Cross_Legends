@@ -92,7 +92,7 @@ class SkillEffectManager {
             el.appendChild(lightning);
             vfx.appendChild(el);
         } else if (skillId === 'aura_sphere') { // ルカリオ：はどうだん
-            // チャージエフェクト（actor側）
+            // チャージ（短縮）
             const actorEl = document.querySelector(this.game.getUnitSelector(actor));
             if (actorEl) {
                 const chargeVfx = document.createElement('div');
@@ -108,7 +108,7 @@ class SkillEffectManager {
                     ring.style.setProperty('--delay', `${i * 0.1}s`);
                     chargeVfx.appendChild(ring);
                 }
-                setTimeout(() => chargeVfx.remove(), 700);
+                setTimeout(() => chargeVfx.remove(), 400); // 700 -> 400
             }
 
             const el = document.createElement('div'); el.className = 'vfx-aura-sphere';
@@ -135,7 +135,9 @@ class SkillEffectManager {
 
                 el.style.setProperty('--start-x', `${startX}px`);
                 el.style.setProperty('--start-y', `${startY}px`);
-                el.classList.add('vfx-projectile-dynamic');
+                el.classList.add('vfx-projectile-dynamic-fast'); // fastクラスに変更（CSSで0.4sなどを定義している前提、またはJSで制御）
+                // JSで直接スタイル注入して速度制御
+                el.style.animationDuration = '0.4s';
             } else {
                 // フォールバック
                 if (this.game.state.battle.enemies.includes(actor)) {
@@ -143,6 +145,7 @@ class SkillEffectManager {
                 } else {
                     el.classList.add('vfx-projectile-up');
                 }
+                el.style.animationDuration = '0.4s';
             }
             // 波動球本体
             const sphere = document.createElement('div'); sphere.className = 'vfx-aura-sphere-core';
@@ -151,7 +154,7 @@ class SkillEffectManager {
             for (let i = 0; i < 3; i++) {
                 const ring = document.createElement('div');
                 ring.className = 'vfx-aura-ring';
-                ring.style.setProperty('--delay', `${i * 0.15}s`);
+                ring.style.setProperty('--delay', `${i * 0.1}s`);
                 ring.style.setProperty('--angle', `${i * 60}deg`);
                 el.appendChild(ring);
             }
@@ -191,7 +194,7 @@ class SkillEffectManager {
                 }
 
                 setTimeout(() => burst.style.opacity = '0', 300);
-            }, 1000); // Trigger at damage timing (approx)
+            }, 500); // 1000 -> 500 (Impact timing)
         } else if (skillId === 'scarlet_storm') { // 優木せつ菜：多層爆発演出
             const screen = document.getElementById('battle-screen');
             // 衝撃の瞬間に反転と揺れ（50%タイミング前後）
@@ -535,30 +538,7 @@ class SkillEffectManager {
             }
             vfx.appendChild(el);
         } else if (skillId === 'shiny_tornado') { // マリ：シャイニートルネード
-            const el = document.createElement('div'); el.className = 'vfx-shiny-tornado';
-            // 金色の光粒子螺旋（30個）
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'vfx-tornado-particle';
-                const height = (i / 30) * 180;
-                const angle = (i / 30) * Math.PI * 6; // 3回転
-                particle.style.setProperty('--y', `${-height}px`);
-                particle.style.setProperty('--angle', `${angle}rad`);
-                particle.style.setProperty('--delay', `${i * 0.015}s`);
-                el.appendChild(particle);
-            }
-            // 竜巻本体
-            const tornado = document.createElement('div'); tornado.className = 'vfx-tornado-core';
-            el.appendChild(tornado);
-            // ピーク時のキラキラ爆発（15個）
-            for (let i = 0; i < 15; i++) {
-                const burst = document.createElement('div');
-                burst.className = 'vfx-tornado-burst';
-                burst.style.setProperty('--angle', `${i * 24}deg`);
-                burst.style.setProperty('--delay', `${0.8 + i * 0.02}s`);
-                el.appendChild(burst);
-            }
-            vfx.appendChild(el);
+            this._playStorm(vfx, 'gold', 'tornado');
         } else if (skillId === 'burst_stream') { // 青眼の白龍：滅びの爆裂疾風弾
             const screen = document.getElementById('battle-screen');
             // 青白画面反転（0.8秒後）
@@ -799,7 +779,7 @@ class SkillEffectManager {
                 (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 :
                     (skillId === 'daten_bind') ? 1500 : // 堕天龍鳳凰縛: 1.5s
                         (skillId === 'heal' && actor.id === 'josuke') ? 1200 : // クレイジーD: 1.2s
-                            (skillId === 'aura_sphere') ? 1300 : // はどうだん: 1.3s
+                            (skillId === 'aura_sphere') ? 800 : // はどうだん: 1.3s -> 0.8s
                                 (skillId === 'scarlet_storm') ? 1200 : // スカーレットストーム: 1.2s
                                     (skillId === 'fusion_crust') ? 1400 : // フュージョンクラスト: 1.4s
                                         (skillId === 'doshatto') ? 1000 : // ドシャット: 1.0s
@@ -818,8 +798,8 @@ class SkillEffectManager {
                                                                                             (skillId === 'pineapple_stake') ? 1100 : // 鳳梨磔: 1.1s
                                                                                                 (skillId === 'big_light') ? 1000 : // ビッグライト: 1.0s
                                                                                                     (skillId === 'judrajim') ? 800 : // ジュドラジルム (Raikiri base): 0.8s
-                                                                                                        (skillId === 'zukyuun_bazooka') ? 1800 :
-                                                                                                            (skillId === 'rasengan' || skillId === 'saijin_serve' || skillId === 'saikyou_no_omo') ? 1300 :
+                                                                                                        (skillId === 'zukyuun_bazooka') ? 1800 : // Match Burst Stream duration
+                                                                                                            (skillId === 'rasengan' || skillId === 'saijin_serve' || skillId === 'saikyou_no_omo') ? 800 : // 1300 -> 800
                                                                                                                 (skillId === 'teppen_strike' || skillId === 'edelstein' || skillId === 'flame_alchemy') ? 1200 :
                                                                                                                     (skillId === 'dark_slash' || skillId === 'mentan_ken') ? 1200 :
                                                                                                                         (skillId === 'sand_coffin' || skillId === 'shadow_possession') ? 1500 :
@@ -831,13 +811,19 @@ class SkillEffectManager {
         // 通常攻撃（スキルIDがない場合）は0.3秒
         if (!skillId || skillId === 'normal_attack') damageTiming = 300;
 
-        // Raikiriは1000ms / 0.5 = 500msの標準タイミングを使用するため削除
-        if (skillId === 'aura_sphere') damageTiming = 1000; // 発射後
-        if (skillId === 'burst_stream') damageTiming = 1000; // 爆発演出に合わせる
+        if (skillId === 'burst_stream') damageTiming = 1500;
+        if (skillId === 'zukyuun_bazooka') damageTiming = 1500; // Match Burst Stream timing
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
         if (skillId === 'star_platinum') damageTiming = 0; // 即時ダメージ表示
 
         // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
+        // Fade out before removal
+        setTimeout(() => {
+            if (vfx) {
+                vfx.style.transition = 'opacity 0.5s ease-out';
+                vfx.style.opacity = '0';
+            }
+        }, vfxDuration);
         setTimeout(() => vfx.remove(), vfxDuration + 500);
         await this.game.delay(damageTiming);
     }
@@ -991,6 +977,9 @@ class SkillEffectManager {
             el.appendChild(ripple);
             vfx.appendChild(el);
 
+            // Faster Animation CSS Override
+            el.style.animationDuration = '0.4s';
+
             // Dissipation / Explosion at the end (approx 0.8s impact)
             setTimeout(() => {
                 // Hide sphere
@@ -1017,7 +1006,7 @@ class SkillEffectManager {
                 }
 
                 setTimeout(() => impact.style.opacity = '0', 300);
-            }, 800);
+            }, 500); // 800 -> 500
         }
     }
 
@@ -1030,23 +1019,74 @@ class SkillEffectManager {
         }
 
         const el = document.createElement('div');
-        el.className = type === 'tornado' ? 'vfx-shiny-tornado' : 'vfx-scarlet-storm';
-        el.style.filter = `hue-rotate(${this._getHueRotate(color)})`;
+        el.className = 'vfx-storm-container';
+        el.style.position = 'absolute';
+        el.style.width = '100%';
+        el.style.height = '100%';
+
+        // Define colors
+        let strokeColor = '#ffffff';
+        if (color === 'red') strokeColor = '#ef4444';
+        if (color === 'purple') strokeColor = '#a855f7';
+        if (color === 'gold') strokeColor = '#fbbf24';
 
         if (type === 'tornado') {
-            const tornado = document.createElement('div'); tornado.className = 'vfx-tornado-core';
-            el.appendChild(tornado);
-            for (let i = 0; i < 15; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'vfx-tornado-particle';
-                const height = (i / 15) * 180;
-                particle.style.setProperty('--y', `${-height}px`);
-                particle.style.setProperty('--angle', `${i * 2}rad`);
-                particle.style.setProperty('--delay', `${i * 0.05}s`);
-                el.appendChild(particle);
+            // SVG Tornado (High Speed, Centered Vortex)
+            el.innerHTML = `<svg width="200%" height="200%" viewBox="0 0 200 200" style="position:absolute; top:-50%; left:-50%; overflow:visible;">
+                <defs>
+                    <linearGradient id="grad-${color}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="${strokeColor}" stop-opacity="0" />
+                        <stop offset="50%" stop-color="${strokeColor}" stop-opacity="0.8" />
+                        <stop offset="100%" stop-color="${strokeColor}" stop-opacity="0" />
+                    </linearGradient>
+                    <filter id="glow-${color}">
+                         <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="${strokeColor}" flood-opacity="0.6"/>
+                    </filter>
+                </defs>
+                <g class="vfx-tornado-group" style="transform-origin: 100px 100px;">
+                    <!-- Multiple Wind Streams (Thinner, layered for volume) -->
+                    <!-- Inner Core -->
+                    <path d="M100,160 Q130,130 100,100 Q70,70 100,40" 
+                          fill="none" stroke="url(#grad-${color})" stroke-width="6" stroke-linecap="round" filter="url(#glow-${color})" opacity="0.9" />
+                    <path d="M100,160 Q70,130 100,100 Q130,70 100,40" 
+                          fill="none" stroke="url(#grad-${color})" stroke-width="6" stroke-linecap="round" filter="url(#glow-${color})" opacity="0.9" style="transform: rotate(90deg); transform-origin: 100px 100px;" />
+
+                    <!-- Outer Layers -->
+                    <path d="M100,170 Q150,135 100,100 Q50,65 100,30" 
+                          fill="none" stroke="url(#grad-${color})" stroke-width="4" opacity="0.6" style="transform: rotate(45deg); transform-origin: 100px 100px;" />
+                    <path d="M100,170 Q50,135 100,100 Q150,65 100,30" 
+                          fill="none" stroke="url(#grad-${color})" stroke-width="4" opacity="0.6" style="transform: rotate(-45deg); transform-origin: 100px 100px;" />
+                    
+                    <!-- Debris/Particles lines -->
+                    <circle cx="100" cy="100" r="40" fill="none" stroke="${strokeColor}" stroke-width="1" stroke-dasharray="10 30" opacity="0.6">
+                         <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="0.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="100" cy="100" r="60" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-dasharray="20 40" opacity="0.4">
+                         <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="0.7s" repeatCount="indefinite"/>
+                    </circle>
+                </g>
+            </svg>`;
+
+            // Inject Animation (High Speed)
+            if (!document.getElementById('tornado-anim')) {
+                const s = document.createElement('style');
+                s.id = 'tornado-anim';
+                s.innerHTML = `
+                    .vfx-tornado-group { animation: tornado-spin 1.2s ease-out forwards; }
+                    @keyframes tornado-spin {
+                        0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+                        15% { opacity: 1; transform: scale(1.2) rotate(180deg); } /* Quick appearance */
+                        80% { opacity: 1; transform: scale(1.5) rotate(1440deg); } /* High speed spin (4 rotations) */
+                        100% { transform: scale(1.8) rotate(1600deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(s);
             }
+
         } else {
-            // Explosion
+            // Explosion (Original Logic)
+            el.className = 'vfx-scarlet-storm';
+            el.style.filter = `hue-rotate(${this._getHueRotate(color)})`;
             let layers = '<div class="vfx-explosion-layer outer"></div>';
             el.innerHTML = layers;
         }
@@ -1092,8 +1132,10 @@ class SkillEffectManager {
     _playBind(vfx, color) {
         const screen = document.getElementById('battle-screen');
         // Flash
-        screen.classList.add('void-invert');
-        setTimeout(() => screen.classList.remove('void-invert'), 300);
+        if (color !== 'black') { // Shikamaru's shadow binding shouldn't invert screen
+            screen.classList.add('void-invert');
+            setTimeout(() => screen.classList.remove('void-invert'), 300);
+        }
 
         const el = document.createElement('div'); el.className = 'vfx-fallen-bind';
         el.style.filter = `hue-rotate(${this._getHueRotate(color)})`;
@@ -1125,11 +1167,14 @@ class SkillEffectManager {
         const growth = document.createElement('div'); growth.className = 'vfx-ice-growth';
         el.appendChild(growth);
 
-        // Pillars (Enhancement for Dave)
-        for (let i = 0; i < 5; i++) {
+        // Pillars (Enhancement for Dave - Increased count for full screen coverage)
+        for (let i = 0; i < 9; i++) {
             const pillar = document.createElement('div');
             pillar.className = 'vfx-ice-pillar';
-            pillar.style.setProperty('--index', i);
+            // Override style to ensure distribution
+            pillar.style.position = 'absolute';
+            pillar.style.left = `${(i / 8) * 100}%`;
+            pillar.style.bottom = '0';
             pillar.style.setProperty('--delay', `${i * 0.05}s`);
             el.appendChild(pillar);
         }
@@ -1205,12 +1250,35 @@ class SkillEffectManager {
 
     _playScan(vfx, color) {
         const el = document.createElement('div'); el.className = 'vfx-scan-wave';
-        el.style.filter = `hue-rotate(${this._getHueRotate(color)})`;
-        if (color === 'green') el.style.filter = 'hue-rotate(120deg) brightness(1.5)';
 
-        const grid = document.createElement('div'); grid.className = 'vfx-scan-grid';
-        el.appendChild(grid);
-        const line = document.createElement('div'); line.className = 'vfx-scan-line';
+        // CSS Animation Injection if missing
+        if (!document.getElementById('scan-anim-style')) {
+            const style = document.createElement('style');
+            style.id = 'scan-anim-style';
+            style.innerHTML = `@keyframes scan-down { 0% { top: -20%; opacity:0; } 20% { opacity:1; } 80% { opacity:1; } 100% { top: 120%; opacity:0; } }`;
+            document.head.appendChild(style);
+        }
+
+        const scanColor = color === 'green' ? '#4ade80' : '#ffffff';
+        // SVG Grid Background
+        el.innerHTML = `<svg width="100%" height="100%" style="position:absolute;top:0;left:0;opacity:0.3;">
+            <defs>
+                <pattern id="grid-${color}" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="${scanColor}" stroke-width="0.5"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-${color})" />
+        </svg>`;
+
+        const line = document.createElement('div');
+        line.className = 'vfx-scan-line';
+        line.style.background = `linear-gradient(to bottom, transparent, ${scanColor}, transparent)`;
+        line.style.height = '10%';
+        line.style.width = '100%';
+        line.style.position = 'absolute';
+        line.style.top = '-10%';
+        line.style.animation = 'scan-down 1.2s ease-in-out forwards';
+
         el.appendChild(line);
         vfx.appendChild(el);
     }
@@ -1218,8 +1286,15 @@ class SkillEffectManager {
     _playBarrier(vfx, color, type = 'hex') {
         const el = document.createElement('div'); el.className = 'vfx-barrier-container';
         if (type === 'cat') {
-            const cat = document.createElement('div'); cat.className = 'vfx-cat-barrier';
-            if (color === 'pink') cat.style.borderColor = '#f472b6';
+            const cat = document.createElement('div');
+            cat.className = 'vfx-cat-barrier';
+            const strokeColor = color === 'pink' ? '#f472b6' : '#ffffff';
+            // SVG Cat Shield
+            cat.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 100 100" style="overflow:visible; filter: drop-shadow(0 0 5px ${strokeColor});">
+                <path d="M50 10 Q 80 10 90 30 L 90 70 Q 50 100 10 70 L 10 30 Q 20 10 50 10 Z" fill="rgba(255,255,255,0.1)" stroke="${strokeColor}" stroke-width="2"/>
+                <path d="M20 30 L 30 15 L 40 30" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linejoin="round"/> <!-- Left Ear -->
+                <path d="M80 30 L 70 15 L 60 30" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linejoin="round"/> <!-- Right Ear -->
+            </svg>`;
             el.appendChild(cat);
         } else {
             const hex = document.createElement('div'); hex.className = 'vfx-hex-barrier-large';
@@ -1233,24 +1308,51 @@ class SkillEffectManager {
         const el = document.createElement('div'); el.className = 'vfx-sparkle-container';
         const num = shape === 'twin' ? 2 : 12; // Twin for Atsumu
 
+        const svgContent = shape === 'circle' ?
+            `<circle cx="10" cy="10" r="8" fill="currentColor"/>` :
+            `<polygon points="10,2 12,8 19,8 13,12 15,19 10,15 5,19 7,12 1,8 8,8" fill="currentColor"/>`; // star
+
         for (let i = 0; i < num; i++) {
             const p = document.createElement('div');
             p.className = `vfx-sparkle-${shape}`;
+            p.style.position = 'absolute'; // Force absolute
+            p.style.width = '20px';
+            p.style.height = '20px';
             p.style.setProperty('--delay', `${i * 0.1}s`);
+
+            // Add SVG for visibility
+            p.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" style="overflow:visible;">${svgContent}</svg>`;
+
             if (shape === 'twin') {
                 p.style.left = i === 0 ? '30%' : '70%';
                 p.style.top = '50%';
-                p.style.animationName = 'vfx-flash';
+                // Explicit animation for Twins
+                p.style.animation = 'vfx-flash-anim 0.5s infinite alternate';
             } else {
-                p.style.left = `${Math.random() * 100}%`;
-                p.style.top = `${Math.random() * 100}%`;
+                p.style.left = `${Math.random() * 90}%`;
+                p.style.top = `${Math.random() * 90}%`;
+                // Explicit animation for others if class fails
+                p.style.animation = 'vfx-sparkle-anim 1s ease-out forwards';
             }
+
             // Color override
             if (color === 'pink') p.style.color = '#f472b6';
             if (color === 'gold') p.style.color = '#fbbf24';
             if (color === 'yellow') p.style.color = '#facc15';
+            if (color === 'white') p.style.color = '#ffffff';
 
             el.appendChild(p);
+        }
+
+        // Inject Animations if missing
+        if (!document.getElementById('sparkle-anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'sparkle-anim-style';
+            s.innerHTML = `
+            @keyframes vfx-flash-anim { 0% { opacity:0.2; transform:scale(0.8); } 100% { opacity:1; transform:scale(1.5); } }
+            @keyframes vfx-sparkle-anim { 0% { transform:scale(0); opacity:0; } 50% { opacity:1; } 100% { transform:scale(1.5); opacity:0; } }
+        `;
+            document.head.appendChild(s);
         }
         vfx.appendChild(el);
     }
@@ -1259,11 +1361,31 @@ class SkillEffectManager {
         const el = document.createElement('div'); el.className = 'vfx-heart-storm';
         for (let i = 0; i < 15; i++) {
             const heart = document.createElement('div'); heart.className = 'vfx-heart-particle';
-            heart.textContent = '❤';
+            // Use SVG Heart
+            heart.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="overflow:visible; filter:drop-shadow(0 0 5px currentColor);">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>`;
+
+            heart.style.position = 'absolute';
+            heart.style.left = '50%';
+            heart.style.top = '50%';
+
             heart.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+            heart.style.setProperty('--y', `${(Math.random() - 0.5) * 200}px`); // Add Y spread
             heart.style.setProperty('--delay', `${i * 0.05}s`);
+
+            // Inline animation assurance
+            heart.style.animation = 'vfx-heart-pop 1s ease-out forwards';
+
             if (color === 'pink') heart.style.color = '#f472b6';
             el.appendChild(heart);
+        }
+
+        if (!document.getElementById('heart-anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'heart-anim-style';
+            s.innerHTML = `@keyframes vfx-heart-pop { 0% { transform:translate(0,0) scale(0); opacity:0; } 20% { opacity:1; } 100% { transform:translate(var(--x), var(--y)) scale(1.5); opacity:0; } }`;
+            document.head.appendChild(s);
         }
         vfx.appendChild(el);
     }
@@ -1272,9 +1394,14 @@ class SkillEffectManager {
         const el = document.createElement('div'); el.className = 'vfx-butterfly-swarm';
         for (let i = 0; i < 10; i++) {
             const b = document.createElement('div'); b.className = 'vfx-butterfly';
+            // SVG Butterfly (Better filled butterfly)
+            b.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C12 2 11 3 11 5V14C11 16 12 17 12 17C12 17 13 16 13 14V5C13 3 12 2 12 2M7.5 5C5 5 3 7.5 3 10C3 13 5.5 14 7 14C5 15.5 4 18 5 19.5C6 21 8.5 20.5 10 18.5V13C9 13 8 12.5 8 12C8 11.5 9 11 10 11V6C9.5 5.5 8.5 5 7.5 5M16.5 5C15.5 5 14.5 5.5 14 6V11C15 11 16 11.5 16 12C16 12.5 15 13 14 13V18.5C15.5 20.5 18 21 19 19.5C20 18 19 15.5 17 14C18.5 14 21 13 21 10C21 7.5 19 5 16.5 5Z"/>
+            </svg>`;
+
             b.style.setProperty('--x', `${(Math.random() - 0.5) * 150}px`);
             b.style.setProperty('--delay', `${i * 0.1}s`);
-            if (color === 'gold') b.style.filter = 'sepia(1) saturate(5) hue-rotate(45deg)';
+            if (color === 'gold') b.style.color = '#fbbf24';
             el.appendChild(b);
         }
         vfx.appendChild(el);
@@ -1282,8 +1409,22 @@ class SkillEffectManager {
 
     _playCritSlash(vfx, color) {
         const el = document.createElement('div'); el.className = 'vfx-crit-slash';
-        const slash = document.createElement('div'); slash.className = 'vfx-slash-pro red';
-        if (color === 'crimson') slash.style.filter = 'hue-rotate(-20deg) saturate(2) brightness(0.8)';
+
+        // SVG Slash
+        const slash = document.createElement('div');
+        slash.className = 'vfx-slash-pro-svg';
+        const slashColor = color === 'crimson' ? '#dc2626' : '#ffffff';
+
+        slash.innerHTML = `<svg width="200" height="200" viewBox="0 0 100 100" style="position:absolute; top:-50%; left:-50%; width:200%; height:200%;">
+             <path d="M10 90 Q 50 50 90 10" stroke="${slashColor}" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="120">
+                <animate attributeName="stroke-dashoffset" from="120" to="0" dur="0.15s" fill="freeze" />
+                <animate attributeName="opacity" values="1;0" dur="0.3s" begin="0.15s" fill="freeze" />
+             </path>
+             <path d="M20 95 Q 50 55 95 20" stroke="${slashColor}" stroke-width="1" fill="none" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="120" opacity="0.6">
+                <animate attributeName="stroke-dashoffset" from="120" to="0" dur="0.15s" begin="0.05s" fill="freeze" />
+                <animate attributeName="opacity" values="0.6;0" dur="0.3s" begin="0.2s" fill="freeze" />
+             </path>
+        </svg>`;
 
         const flash = document.createElement('div'); flash.className = 'vfx-impact-flash';
         el.appendChild(slash);

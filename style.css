@@ -8610,3 +8610,342 @@ h3 {
     color: var(--text-sub);
     font-style: italic;
 }
+/* ========================================
+   Phase 4: Enhanced Skill Effects (VFX)
+   ======================================== */
+
+/* Loid: Scan Wave */
+.vfx-scan-wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 0%, rgba(0, 255, 0, 0.2) 50%, rgba(0, 255, 0, 0.6) 100%);
+    opacity: 0;
+    animation: vfx-scan-expand 1s ease-out forwards;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.vfx-scan-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 0, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.3) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.5;
+    transform: perspective(500px) rotateX(60deg);
+}
+
+.vfx-scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: #0f0;
+    box-shadow: 0 0 10px #0f0;
+    animation: vfx-scan-move 1s linear infinite;
+}
+
+@keyframes vfx-scan-expand {
+    0% { width: 0%; height: 0%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { width: 200%; height: 200%; opacity: 0; }
+}
+
+@keyframes vfx-scan-move {
+    0% { top: 0%; opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* Nyammy: Barrier */
+.vfx-barrier-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+}
+
+.vfx-cat-barrier {
+    width: 120px;
+    height: 120px;
+    border: 4px solid #f472b6;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* Cat head shape approx */
+    position: relative;
+    box-shadow: 0 0 20px #f472b6, inset 0 0 20px #f472b6;
+    animation: vfx-pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.vfx-cat-barrier::before, .vfx-cat-barrier::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 30px solid #f472b6;
+}
+.vfx-cat-barrier::before { left: 0; transform: rotate(-30deg); }
+.vfx-cat-barrier::after { right: 0; transform: rotate(30deg); }
+
+.vfx-hex-barrier-large {
+    width: 150px;
+    height: 150px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: vfx-pop-in 0.5s ease forwards;
+}
+
+@keyframes vfx-pop-in {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Sparkles (Anya, Hanamaru, Osamu, Atsumu) */
+.vfx-sparkle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 950;
+    pointer-events: none;
+}
+
+.vfx-sparkle-star {
+    position: absolute;
+    font-size: 24px;
+    color: yellow;
+    animation: vfx-sparkle-float 0.8s ease-out forwards;
+    animation-delay: var(--delay);
+    opacity: 0;
+}
+
+.vfx-sparkle-star::before { content: ''; }
+
+.vfx-sparkle-circle {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px white;
+    opacity: 0;
+    animation: vfx-float-up 0.8s ease-out forwards;
+    animation-delay: var(--delay);
+}
+
+.vfx-sparkle-twin {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, white, transparent 70%);
+    opacity: 0;
+}
+
+@keyframes vfx-sparkle-float {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes vfx-float-up {
+    0% { transform: translateY(0) scale(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-50px) scale(0); opacity: 0; }
+}
+
+@keyframes vfx-flash {
+    0% { transform: scale(0); opacity: 0; }
+    10% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+/* Heart Storm (Chiyuki) */
+.vfx-heart-storm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 950;
+    pointer-events: none;
+}
+
+/* CSS Heart Shape Construction */
+.vfx-heart-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: #f472b6;
+    transform: translate(-50%, -50%) rotate(45deg);
+    opacity: 0;
+    animation: vfx-heart-scatter 1s ease-out forwards;
+    animation-delay: var(--delay);
+    box-shadow: 0 0 5px #f472b6;
+}
+
+.vfx-heart-particle::before,
+.vfx-heart-particle::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #f472b6;
+    border-radius: 50%;
+}
+
+.vfx-heart-particle::before {
+    top: -10px;
+    left: 0;
+}
+
+.vfx-heart-particle::after {
+    top: 0;
+    left: -10px;
+}
+
+/* Override text content if I removed it in JS, but for safety in CSS hide text if present */
+.vfx-heart-particle { color: transparent; } 
+
+@keyframes vfx-heart-scatter {
+    0% { transform: translate(-50%, -50%) rotate(45deg) scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--x)), calc(-50% - 100px)) rotate(45deg) scale(0); opacity: 0; }
+}
+
+/* Butterflies (Akiko) */
+.vfx-butterfly-swarm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 950;
+}
+
+.vfx-butterfly {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, gold, transparent);
+    opacity: 0;
+    animation: vfx-butterfly-fly 1.2s ease-in-out forwards;
+    animation-delay: var(--delay);
+}
+
+.vfx-butterfly::before, .vfx-butterfly::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 25px;
+    background: rgba(255, 215, 0, 0.8);
+    border-radius: 50% 50% 0 50%;
+    top: -5px;
+}
+.vfx-butterfly::before { left: -12px; transform: rotate(30deg); transform-origin: right; animation: flutter 0.2s infinite alternate; }
+.vfx-butterfly::after { right: -12px; transform: rotate(-30deg) scaleX(-1); transform-origin: left; animation: flutter 0.2s infinite alternate; }
+
+@keyframes flutter {
+    from { transform: rotate(30deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes vfx-butterfly-fly {
+    0% { transform: translate(-50%, 0) scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--x)), -150px) scale(1); opacity: 0; }
+}
+
+/* Critical Slash (Yor) */
+.vfx-crit-slash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    transform: translate(-50%, -50%); /* Fix: Centered correctly */
+    z-index: 2000;
+    pointer-events: none;
+}
+
+.vfx-slash-pro.red {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 40%, rgba(200, 0, 0, 0.9) 50%, transparent 60%);
+    animation: vfx-slash-anim 0.2s cubic-bezier(0.1, 0.7, 1.0, 0.1) forwards;
+}
+
+.vfx-impact-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #fff, transparent);
+    animation: vfx-flash-anim 0.3s ease-out forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes vfx-flash-anim {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+/* Koikaze (Kaho) - Ensure it exists if not already */
+.vfx-koikaze {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 900;
+}
+
+.vfx-sakura-petal {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: #ffb3d9;
+    border-radius: 10px 0 10px 0;
+    opacity: 0;
+    animation: vfx-petal-rise 1.5s ease-out forwards;
+    animation-delay: var(--delay);
+}
+
+@keyframes vfx-petal-rise {
+    0% { transform: translate(-50%, 0) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--x)), -300px) rotate(var(--rotation)); opacity: 0; }
+}
+

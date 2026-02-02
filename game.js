@@ -3352,7 +3352,12 @@ class Game {
         } else if (skill.type === 'mp_heal') {
             await Promise.all(targets.map(async (target) => {
                 await this.showAttackEffect(actor, target, skill, 'magic');
-                const healAmount = Math.floor(target.stats.mp * (skill.mpHealPercent / 100));
+                let healAmount = 0;
+                if (skill.mpHealValue !== undefined) {
+                    healAmount = skill.mpHealValue;
+                } else {
+                    healAmount = Math.floor(target.stats.mp * (skill.mpHealPercent / 100));
+                }
                 target.currentMp = Math.min(target.stats.mp, target.currentMp + healAmount);
                 this.showDamagePopup(target, healAmount, 'mp-heal');
                 this.addLog(`${target.displayName}のMPが${healAmount}回復！`);
