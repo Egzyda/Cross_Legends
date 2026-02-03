@@ -3689,19 +3689,23 @@ class Game {
     getEffectiveStat(unit, statName) {
         let value = unit.stats[statName];
 
-        // バフ適用
+        // バフ・デバフの合計を計算（加算方式）
+        let totalModifier = 0;
+
         unit.buffs.forEach(b => {
             if (b.stat === statName) {
-                value *= (1 + b.value);
+                totalModifier += b.value;
             }
         });
 
-        // デバフ適用
         unit.debuffs.forEach(d => {
             if (d.stat === statName) {
-                value *= (1 + d.value);
+                totalModifier += d.value;
             }
         });
+
+        // 合計した補正値を一度に適用
+        value *= (1 + totalModifier);
 
         // 火傷の実効ステータス低下（物理防御・魔法防御）
         if (statName === 'physicalDefense' || statName === 'magicDefense') {
