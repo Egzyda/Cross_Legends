@@ -347,8 +347,8 @@ const CHARACTERS = {
             mpCost: 35,
             critBonus: 40,
             effects: [
-            { type: 'self_critBoost', value: 40, duration: 3 }
-        ],
+                { type: 'self_critBoost', value: 40, duration: 3 }
+            ],
             description: '単体物理攻撃（威力140%＋クリ率+40%、攻撃後クリ率+40% 3T）',
         },
         image: {
@@ -670,10 +670,10 @@ const CHARACTERS = {
             mpCost: 50,
             critBonus: 40,
             effects: [
-        { type: 'self_critBoost', value: 40, duration: 3 }
-    ],
-    description: '単体魔法攻撃（威力140%＋クリ率+40%、攻撃後クリ率+40% 3T）',
-},
+                { type: 'self_critBoost', value: 40, duration: 3 }
+            ],
+            description: '単体魔法攻撃（威力140%＋クリ率+40%、攻撃後クリ率+40% 3T）',
+        },
         image: {
             full: 'img/blueeyes_full.png',
             face: 'img/blueeyes_face.png'
@@ -933,10 +933,10 @@ const CHARACTERS = {
             hits: 2,
             critBonus: 40,
             effects: [
-        { type: 'self_critBoost', value: 40, duration: 3 }
-    ],
-    description: '2連続攻撃（威力70%＋クリ率+40%、攻撃後クリ率+40% 3T）',
-},
+                { type: 'self_critBoost', value: 40, duration: 3 }
+            ],
+            description: '2連続攻撃（威力70%＋クリ率+40%、攻撃後クリ率+40% 3T）',
+        },
         image: {
             full: 'img/yor_full.png',
             face: 'img/yor_face.png'
@@ -1418,8 +1418,8 @@ const CHARACTERS = {
             power: 0,
             mpCost: 45,
             effects: [
-                { type: 'debuff', stat: 'physicalAttack', value: 0.35, duration: 3 },
-                { type: 'debuff', stat: 'magicAttack', value: 0.35, duration: 3 }
+                { type: 'debuff', stat: 'physicalAttack', value: -0.35, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.35, duration: 3 }
             ],
             description: '全体の物攻/魔攻-35% (3T)',
         },

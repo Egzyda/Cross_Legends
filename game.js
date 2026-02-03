@@ -5372,9 +5372,13 @@ class Game {
                     const debuff = char.debuffs.find(d => d.stat === stat);
                     let duration = buff ? buff.duration : (debuff ? debuff.duration : 0);
 
-                    // 麻痺・呪いによる変動はstatusEffectsから取得
-                    if ((stat === 'speed' || stat === 'physicalAttack' || stat === 'magicAttack') && duration === 0) {
-                        const ailment = char.statusEffects.find(e => (stat === 'speed' && e.type === 'paralysis') || ((stat === 'physicalAttack' || stat === 'magicAttack') && e.type === 'curse'));
+                    // 麻痺・呪い・火傷による変動はstatusEffectsから取得
+                    if ((stat === 'speed' || stat === 'physicalAttack' || stat === 'magicAttack' || stat === 'physicalDefense' || stat === 'magicDefense') && duration === 0) {
+                        const ailment = char.statusEffects.find(e =>
+                            (stat === 'speed' && e.type === 'paralysis') ||
+                            ((stat === 'physicalAttack' || stat === 'magicAttack') && e.type === 'curse') ||
+                            ((stat === 'physicalDefense' || stat === 'magicDefense') && e.type === 'burn')
+                        );
                         if (ailment) duration = ailment.duration;
                     }
 
