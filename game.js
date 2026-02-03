@@ -213,6 +213,7 @@ class Game {
                 this.showToast(`${item.name}を捨てて${ITEMS[newItemId].name}を入手した！`, 'success');
 
                 // イベント画面を閉じてマップ画面に戻る
+                this.finishNode(); // ノードを完了としてマーク
                 this.showMapScreen();
                 this.saveGame();
             };
@@ -231,6 +232,7 @@ class Game {
         skipCard.onclick = () => {
             this.closeCharacterSelectModal();
             this.showToast('アイテムを諦めた...', 'info');
+            this.finishNode(); // ノードを完了としてマーク
             this.showMapScreen();
         };
         grid.appendChild(skipCard);
@@ -1583,7 +1585,7 @@ class Game {
         mapEl.innerHTML = '';
         mapEl.classList.add('branching-map');
 
-        document.getElementById('act-display').textContent = `第${this.state.currentAct}幕`;
+        document.getElementById('act-display').textContent = `第${this.state.currentAct}幕 - 難易度${this.state.difficulty}`;
         document.getElementById('node-progress').textContent =
             `階層 ${this.state.currentLayer + 1}/10`;
 
