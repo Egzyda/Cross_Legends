@@ -813,7 +813,7 @@ const EVENTS = [
                     type: 'luck_check',
                     risk: 'medium',
                     success: { type: 'none', message: '気づかれずに通り抜けた。' },
-                    fail: { type: 'battle_start', rank: 'normal', message: '見つかってしまった！戦闘開始！' }
+                    fail: { type: 'battle_start', rank: 'elite', message: '見つかってしまった！エリート戦闘開始！' }
                 }
             }
         ]

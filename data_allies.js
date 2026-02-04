@@ -1664,8 +1664,8 @@ const CHARACTERS = {
             description: '全体に魔法攻撃（威力90%）＋火傷(3T)',
         },
         image: {
-            full: 'img/setsuna_full.png', // Fallback image (reusing Setsuna)
-            face: 'img/setsuna_face.png'
+            full: 'img/nana_full.png', // Fallback image (reusing Setsuna)
+            face: 'img/nana_face.png'
         },
         skills: [],
         excludeSkills: ['wide_attack'] // 上位互換のため除外
