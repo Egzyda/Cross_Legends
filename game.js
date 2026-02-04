@@ -1946,6 +1946,9 @@ class Game {
             stats.hp = Math.floor(stats.hp * 1.3);
         }
 
+        // ランク決定: テンプレートのランクを優先し、指定がなければisEliteで判定
+        const rank = template.rank || (isElite ? 'elite' : 'normal');
+
         return {
             id: template.id + '_' + Date.now() + Math.random(),
             templateId: template.id,
@@ -1961,7 +1964,10 @@ class Game {
             debuffs: [],
             statusEffects: [],
             uniqueSkill: template.uniqueSkill, // uniqueSkillをコピー
-            rank: isElite ? 'elite' : 'normal' // デフォルトランク設定
+            rank: rank,
+            groupName: template.groupName, // グループ名コピー（Saint Snow等）
+            pairWith: template.pairWith,   // ペア情報コピー
+            groupImage: template.groupImage // グループ画像コピー
         };
     }
 
@@ -2911,10 +2917,10 @@ class Game {
                         }
                     }
 
-                    // 回復スキル: HP50%以下の味方がいる時のみ使用
+                    // 回復スキル: HP30%以下の味方がいる時のみ使用（自分含む）
                     if (skill.type === 'heal') {
                         const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
-                        const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
+                        const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.3);
                         if (!woundedAlly) canUse = false;
                     }
 
@@ -2938,10 +2944,10 @@ class Game {
                         canUse = false;
                     }
 
-                    // 回復スキル: HP50%以下の味方がいる時のみ使用
+                    // 回復スキル: HP30%以下の味方がいる時のみ使用（自分含む）
                     if (uniqueSkillType === 'heal') {
                         const aliveAllies = this.state.battle.enemies.filter(e => e.currentHp > 0);
-                        const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.5);
+                        const woundedAlly = aliveAllies.find(e => e.currentHp / e.stats.hp <= 0.3);
                         if (!woundedAlly) canUse = false;
                     }
 
@@ -3013,16 +3019,13 @@ class Game {
                 if (aliveAllies.length > 0) {
                     let allyTarget;
                     if (skillData.type === 'heal') {
-                        // 回復スキル: HP%が最も低い味方を優先
-                        let candidates = aliveAllies;
-                        if (skillData.excludeSelf) {
-                            candidates = aliveAllies.filter(e => e.id !== enemy.id);
-                        }
+                        // 回復スキル: HP30%以下で最もHP%が低い味方を優先（自分含む）
+                        let candidates = aliveAllies.filter(e => e.currentHp / e.stats.hp <= 0.3);
                         if (candidates.length > 0) {
                             candidates.sort((a, b) => (a.currentHp / a.stats.hp) - (b.currentHp / b.stats.hp));
                             allyTarget = candidates[0];
                         } else {
-                            // 自分しかいない場合は攻撃に変更
+                            // HP30%以下の味方がいない場合は攻撃に変更
                             action = { type: 'attack' };
                             allyTarget = null;
                         }

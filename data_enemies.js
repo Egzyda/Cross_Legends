@@ -431,9 +431,9 @@ const ENEMIES = {
             type: 'heal',
             target: 'single_ally',
             mpCost: 50,
-            healPercent: 30,
-            excludeSelf: true,
-            description: '味方1体のHPを30%回復（自分以外）'
+            healPercent: 15,
+            // excludeSelf削除：自分も回復対象に含める
+            description: '味方1体のHPを15%回復（HP30%以下時発動）'
         },
         image: { full: 'img/enemy/leah.png' },
         rank: 'boss',
