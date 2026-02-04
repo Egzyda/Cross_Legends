@@ -6343,3 +6343,9 @@ window.unlockNana = () => {
     console.log('中川菜々 has been unlocked! Reloading...');
     location.reload();
 };
+
+window.startBoss = (bossId = 'sarah_kazuno') => {
+    game.state.mapBoss = bossId;
+    game.startBattle('boss');
+    console.log(`Started boss battle with ${bossId}`);
+};
