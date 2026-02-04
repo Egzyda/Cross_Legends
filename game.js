@@ -362,7 +362,7 @@ class Game {
                 <ul>
                     <li><strong>攻撃</strong>: 通常攻撃（対象選択）</li>
                     <li><strong>スキル</strong>: MP消費して強力な技を使用</li>
-                    <li><strong>防御</strong>: ダメージ半減 + MP10%回復（先制発動）</li>
+                    <li><strong style="white-space: nowrap;">防御</strong>: ダメージ半減 + MP10%回復（先制発動）</li>
                     <li><strong>アイテム</strong>: 所持アイテムを使用</li>
                 </ul>
                 <p>行動順は速度が高い順です（防御は最優先）。</p>
@@ -379,7 +379,7 @@ class Game {
                     <li><span style="color:#aaf">沈黙</span>: スキル使用不可</li>
                     <li><span style="color:#afa">挑発</span>: 敵から狙われやすくなる</li>
                     <li><span style="color:#faa">反撃</span>: 攻撃を受けた時に反撃</li>
-                    <li><span style="color:#fff">防御</span>: ダメージ半減 + MP回復</li>
+                    <li><span style="color:#fff; white-space: nowrap;">防御</span>: ダメージ半減 + MP回復</li>
                 </ul>
             </div>
 
@@ -409,8 +409,8 @@ class Game {
 
             <div class="howto-section">
                 <h4>難易度</h4>
-                <p>タイトル画面で難易度を選択できます。高難易度をクリアすると次の難易度が解放されます。</p>
-                <p>難易度が上がると敵のステータスが上昇します。</p>
+                <p>タイトル画面で難易度を選択できます。クリアすると次の難易度が解放されます。</p>
+                <p>難易度が上がると、敵のステータスが上昇したりするなど攻略が難しくなります。</p>
             </div>
 
             <div class="howto-section">
