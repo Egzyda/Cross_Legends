@@ -661,17 +661,58 @@ class Game {
         this.state.difficulty = data.difficulty !== undefined ? data.difficulty : 0; // 難易度を復元
         this.state.mapBoss = data.mapBoss; // ボスを復元
 
-        // Restore screen
-        if (data.screen === 'map') {
+        // 厳選防止：未完了のノードがあれば、そのノードに自動的に入る
+        if (this.state.currentNode && !this.state.currentNode.completed) {
             this.showMapScreen();
+            // 少し遅延させてから自動的にノードに入る（UI描画後）
+            requestAnimationFrame(() => {
+                this.resumeCurrentNode();
+            });
         } else {
-            // Default to map if saved elsewhere or unknown
-            this.showMapScreen();
+            // Restore screen
+            if (data.screen === 'map') {
+                this.showMapScreen();
+            } else {
+                // Default to map if saved elsewhere or unknown
+                this.showMapScreen();
+            }
         }
     }
 
     hasSaveData() {
         return !!localStorage.getItem('cross_legends_save');
+    }
+
+    // コンティニュー時に未完了ノードを再開
+    resumeCurrentNode() {
+        const node = this.state.currentNode;
+        if (!node || node.completed) return;
+
+        switch (node.type) {
+            case 'battle':
+                this.startBattle('normal');
+                break;
+            case 'elite':
+                this.startBattle('elite');
+                break;
+            case 'boss':
+                this.startBattle(this.state.currentAct === 2 ? 'last_boss' : 'boss', true);
+                break;
+            case 'rest':
+                this.showScreen('rest');
+                const restPartyContainer = document.getElementById('rest-party-status');
+                if (restPartyContainer) {
+                    this.renderPartyIcons(restPartyContainer);
+                }
+                requestAnimationFrame(() => this.updateRestButtonLabels());
+                break;
+            case 'event':
+                this.showEventScreen();
+                break;
+            case 'shop':
+                this.showShopScreen();
+                break;
+        }
     }
 
     clearSaveData() {
@@ -1784,10 +1825,8 @@ class Game {
             return;
         }
 
-        // 以前のロジックとの互換性のため currentNodeIndex 的なものが必要なら調整
-        // ここでは currentNode をオブジェクトとして扱うように全体を直すのがベストだが
-        // 部分的な修正にとどめるなら注意が必要。
-        // とりあえず this.state.currentNode には node オブジェクトを入れる。
+        // 厳選防止：ノード選択を確定してセーブ（分岐の選び直しを防ぐ）
+        this.saveGame();
 
         switch (node.type) {
             case 'battle':
@@ -1821,6 +1860,41 @@ class Game {
 
     // 戦闘開始
     startBattle(rank) {
+        let enemies = [];
+
+        // 厳選防止：保存済みのbattleDataがあればそれを使用
+        if (this.state.currentNode.battleData) {
+            enemies = this.state.currentNode.battleData;
+        } else {
+            // 敵を新規生成
+            enemies = this.generateBattleEnemies(rank);
+            // 生成した敵データをノードに保存してセーブ（厳選防止）
+            this.state.currentNode.battleData = enemies;
+            this.saveGame();
+        }
+
+        this.state.battle = {
+            enemies: enemies,
+            turn: 1,
+            commands: [],
+            currentCharIndex: 0,
+            phase: 'command', // command, execution, reward
+            rank: rank,
+            log: []
+        };
+
+        this.showScreen('battle');
+        // 前のバトルの敵・味方の表示を確実にリセットし、描画バグを防ぐ
+        document.getElementById('enemy-area').innerHTML = '';
+        document.getElementById('ally-area').innerHTML = '';
+        // ボタンの無効化を解除（2ndバトル対策）
+        document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
+        this.renderBattle();
+        this.startCommandPhase();
+    }
+
+    // 戦闘の敵を生成（厳選防止のため分離）
+    generateBattleEnemies(rank) {
         const config = this.state.currentAct === 1 ? MAP_CONFIG.act1 : MAP_CONFIG.act2;
         let enemies = [];
         let multiplier = 1.0;
@@ -1891,24 +1965,7 @@ class Game {
             }
         });
 
-        this.state.battle = {
-            enemies: enemies,
-            turn: 1,
-            commands: [],
-            currentCharIndex: 0,
-            phase: 'command', // command, execution, reward
-            rank: rank,
-            log: []
-        };
-
-        this.showScreen('battle');
-        // 前のバトルの敵・味方の表示を確実にリセットし、描画バグを防ぐ
-        document.getElementById('enemy-area').innerHTML = '';
-        document.getElementById('ally-area').innerHTML = '';
-        // ボタンの無効化を解除（2ndバトル対策）
-        document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
-        this.renderBattle();
-        this.startCommandPhase();
+        return enemies;
     }
 
     // 敵生成（難易度対応）
@@ -4508,7 +4565,18 @@ class Game {
 
     // イベント画面表示
     showEventScreen() {
-        const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+        let event;
+
+        // 厳選防止：保存済みのeventDataがあればそれを使用
+        if (this.state.currentNode.eventData) {
+            event = this.state.currentNode.eventData;
+        } else {
+            // イベントを新規選択
+            event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+            // 選択したイベントをノードに保存してセーブ（厳選防止）
+            this.state.currentNode.eventData = event;
+            this.saveGame();
+        }
         this.state.currentEvent = event;
 
         this.showScreen('event');
