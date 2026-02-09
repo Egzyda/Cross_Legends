@@ -1736,5 +1736,40 @@ const CHARACTERS = {
         },
         skills: [],
         excludeSkills: []
+    },
+    sumire: {
+        id: 'sumire',
+        name: '平安名すみれ',
+        displayName: '平安名すみれ',
+        stats: {
+            hp: 150,
+            mp: 130,
+            physicalAttack: 40,
+            magicAttack: 145,
+            physicalDefense: 70,
+            magicDefense: 70,
+            speed: 100,
+            luck: 5
+        },
+        type: 'debuffer',
+        uniqueSkill: {
+            id: 'just_woo',
+            displayName: 'Just woo!!',
+            type: 'magic_attack',
+            target: 'all_enemies',
+            power: 90,
+            mpCost: 50,
+            effects: [
+                { type: 'debuff', stat: 'physicalAttack', value: -0.15, duration: 3 },
+                { type: 'debuff', stat: 'magicAttack', value: -0.15, duration: 3 }
+            ],
+            description: '全体魔法攻撃（威力90%）＋攻撃-15% (3T)',
+        },
+        image: {
+            full: 'img/sumire_full.png',
+            face: 'img/sumire_face.png'
+        },
+        skills: [],
+        excludeSkills: ['magic_storm']
     }
 };

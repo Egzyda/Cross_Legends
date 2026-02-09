@@ -2353,8 +2353,17 @@ class Game {
             const actionText = cmd ? (cmd.actionName.includes('→') ? cmd.actionName.split('→')[0] : cmd.actionName) : (char.currentHp <= 0 ? '戦闘不能' : '');
             const targetText = (cmd && cmd.actionName.includes('→')) ? '→' + cmd.actionName.split('→')[1] : '';
 
-            const actionAttr = actionText.length > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
-            const targetAttr = targetText.length > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
+            // 半角文字を0.5文字分としてカウントする
+            const getStrWidth = (str) => {
+                let width = 0;
+                for (let i = 0; i < str.length; i++) {
+                    width += (str.charCodeAt(i) <= 127) ? 0.6 : 1;
+                }
+                return width;
+            };
+
+            const actionAttr = getStrWidth(actionText) > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
+            const targetAttr = getStrWidth(targetText) > 8 ? 'textLength="90" lengthAdjust="spacingAndGlyphs"' : '';
 
             slot.innerHTML = `
                 <div class="cmd-name">${char.displayName}</div>
@@ -3359,7 +3368,7 @@ class Game {
                     await this.showAttackEffect(actor, target, skill, damageType, i);
                     const damage = this.calculateDamage(actor, target, damageType, skill.power || skill.basePower || 100, skill.critBonus);
                     this.applyDamage(target, damage);
-                    this.addLog(`${target.displayName}に${damage.value}ダメージ！`);
+                    this.addLog(`${target.displayName}に${damage.value}ダメージ！${damage.critical ? '（Critical）' : ''}`);
 
                     // 反撃チェック（属性不問・生存確認）
                     await this.processCounter(target, actor);

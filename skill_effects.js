@@ -746,6 +746,7 @@ class SkillEffectManager {
         else if (skillId === 'don_pishhari') { this._playSparkles(vfx, 'gold', 'twin'); } // Atsumu
         else if (skillId === 'assassination') { this._playCritSlash(vfx, 'crimson'); } // Yor
         else if (skillId === 'fireball') { this._playStorm(vfx, 'red', 'explosion'); } // Mario
+        else if (skillId === 'just_woo') { this._playGalaxySpotlight(vfx); } // Sumire
 
         // === 汎用エフェクト ===
         else if (skillId === 'defense_boost' || skillId === 'iron_wall' || skill && skill.type === 'buff') {
@@ -776,38 +777,48 @@ class SkillEffectManager {
         }
 
         // ダメージ発生タイミング：演出強化に合わせて調整
-        const vfxDuration =
-            (skillId === 'taunt' && actor.id === 'keke') ? 1300 :
-                (skillId === 'ultra_attack' && actor.id === 'sky') ? 1200 :
-                    (skillId === 'daten_bind') ? 1500 : // 堕天龍鳳凰縛: 1.5s
-                        (skillId === 'heal' && actor.id === 'josuke') ? 1200 : // クレイジーD: 1.2s
-                            (skillId === 'aura_sphere') ? 800 : // はどうだん: 1.3s -> 0.8s
-                                (skillId === 'scarlet_storm') ? 1200 : // スカーレットストーム: 1.2s
-                                    (skillId === 'fusion_crust') ? 1400 : // フュージョンクラスト: 1.4s
-                                        (skillId === 'doshatto') ? 1000 : // ドシャット: 1.0s
-                                            (skillId === 'delorieran') ? 1100 : // デロリエラン: 1.1s
-                                                (skillId === 'ice_wall') ? 1200 : // 穿天氷壁: 1.2s
-                                                    (skillId === 'erasure') ? 1200 : // 抹消: 1.2s
-                                                        (skillId === 'solitude_rain') ? 1300 : // Solitude Rain: 1.3s
-                                                            (skillId === 'raikiri') ? 600 : // 雷切: 0.6s
-                                                                (skillId === 'star_platinum') ? 100 : // スタープラチナ: 0.1s
-                                                                    (skillId === 'divine_departure') ? 1200 : // 神避: 1.2s
-                                                                        (skillId === 'gmax') ? 1600 : // キョダイマックス: 1.6s
-                                                                            (skillId === 'koikaze') ? 1100 : // こいかぜ: 1.1s
-                                                                                (skillId === 'inhale') ? 1000 : // 吸い込み: 1.0s
-                                                                                    (skillId === 'shiny_tornado') ? 1200 : // シャイニートルネード: 1.2s
-                                                                                        (skillId === 'burst_stream') ? 1800 : // 滅びの爆裂疾風弾: 1.8s
-                                                                                            (skillId === 'pineapple_stake') ? 1100 : // 鳳梨磔: 1.1s
-                                                                                                (skillId === 'big_light') ? 1000 : // ビッグライト: 1.0s
-                                                                                                    (skillId === 'judrajim') ? 800 : // ジュドラジルム (Raikiri base): 0.8s
-                                                                                                        (skillId === 'zukyuun_bazooka') ? 1800 : // Match Burst Stream duration
-                                                                                                            (skillId === 'rasengan' || skillId === 'saijin_serve' || skillId === 'saikyou_no_omo') ? 800 : // 1300 -> 800
-                                                                                                                (skillId === 'teppen_strike' || skillId === 'edelstein' || skillId === 'flame_alchemy' || skillId === 'fireball') ? 1200 :
-                                                                                                                    (skillId === 'dark_slash' || skillId === 'mentan_ken') ? 1200 :
-                                                                                                                        (skillId === 'sand_coffin' || skillId === 'shadow_possession') ? 1500 :
-                                                                                                                            (skillId === 'starburst_stream') ? 400 : // Individual hit duration
-                                                                                                                                1000;
-        1000;
+        // ダメージ発生タイミング：演出強化に合わせて調整
+        const DURATION_MAP = {
+            'taunt': (actor.id === 'keke') ? 1300 : 1000,
+            'ultra_attack': (actor.id === 'sky') ? 1200 : 1000,
+            'daten_bind': 1500,
+            'heal': (actor.id === 'josuke') ? 1200 : 1000,
+            'aura_sphere': 800,
+            'scarlet_storm': 1200,
+            'fusion_crust': 1400,
+            'doshatto': 1000,
+            'delorieran': 1100,
+            'ice_wall': 1200,
+            'erasure': 1200,
+            'solitude_rain': 1300,
+            'raikiri': 600,
+            'star_platinum': 100,
+            'divine_departure': 1200,
+            'gmax': 1600,
+            'koikaze': 1100,
+            'inhale': 1000,
+            'shiny_tornado': 1200,
+            'burst_stream': 1800,
+            'just_woo': 1400, // Just woo!!: 1.4s
+            'pineapple_stake': 1100,
+            'big_light': 1000,
+            'judrajim': 800,
+            'zukyuun_bazooka': 1800,
+            'rasengan': 800,
+            'saijin_serve': 800,
+            'saikyou_no_omo': 800,
+            'teppen_strike': 1200,
+            'edelstein': 1200,
+            'flame_alchemy': 1200,
+            'fireball': 1200,
+            'dark_slash': 1200,
+            'mentan_ken': 1200,
+            'sand_coffin': 1500,
+            'shadow_possession': 1500,
+            'starburst_stream': 400
+        };
+
+        const vfxDuration = DURATION_MAP[skillId] || 1000;
 
         // ダメージタイミング：基本50%だが、技によっては微調整
         let damageTiming = vfxDuration * 0.5;
@@ -819,6 +830,7 @@ class SkillEffectManager {
         if (skillId === 'heal' && actor.id === 'josuke') damageTiming = 600; // 50%地点で回復
         if (skillId === 'star_platinum') damageTiming = 0; // 即時ダメージ表示
         if (skillId === 'starburst_stream') damageTiming = 0; // Synchronize damage with hit appearance
+        if (skillId === 'just_woo') damageTiming = 1200; // Synchronize with screen flash
 
         // エフェクト消去は裏側で行い（500msの余韻を追加）、ダメージ処理には早めに完了を報告する
         // Fade out before removal
@@ -1546,6 +1558,71 @@ class SkillEffectManager {
             screen.classList.add('screen-shake');
             setTimeout(() => screen.classList.remove('screen-shake'), 300);
         }
+
+        vfx.appendChild(el);
+    }
+
+    _playGalaxySpotlight(vfx) {
+        const el = document.createElement('div'); el.className = 'vfx-galaxy-spotlight';
+
+        // 1. Spotlight Beam (Targeting - Pale Green)
+        const spotlight = document.createElement('div');
+        spotlight.className = 'vfx-spotlight-beam';
+        el.appendChild(spotlight);
+
+        // 2. Galaxy Spiral (Charge)
+        const spiral = document.createElement('div');
+        spiral.className = 'vfx-galaxy-spiral';
+        el.appendChild(spiral);
+
+        // 3. Galaxy Stars (Particles - Increased count & variety)
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.className = 'vfx-galaxy-star';
+            const size = 3 + Math.random() * 8;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+
+            // Random delay for burst effect
+            const delay = 0.8 + Math.random() * 0.4;
+            star.style.setProperty('--delay', `${delay}s`);
+
+            // Spread further
+            star.style.setProperty('--x', `${(Math.random() - 0.5) * 600}px`);
+            star.style.setProperty('--y', `${(Math.random() - 0.5) * 600}px`);
+
+            // Rotation for dynamic movement
+            star.style.setProperty('--rot', `${Math.random() * 720 - 360}deg`);
+
+            // Sumire Colors: Pale Green, Purple, White
+            const colorType = Math.random();
+            if (colorType > 0.6) {
+                star.style.backgroundColor = '#86efac'; // Pale Green
+                star.style.boxShadow = '0 0 6px #86efac';
+            } else if (colorType > 0.3) {
+                star.style.backgroundColor = '#a855f7'; // Purple
+                star.style.boxShadow = '0 0 6px #a855f7';
+            } else {
+                star.style.backgroundColor = '#ffffff'; // White
+                star.style.boxShadow = '0 0 8px #ffffff';
+            }
+
+            el.appendChild(star);
+        }
+
+        // 4. Shockwave (Attack Impact)
+        const shockwave = document.createElement('div');
+        shockwave.className = 'vfx-galaxy-shockwave';
+        el.appendChild(shockwave);
+
+        // 5. Screen Flash (Finish)
+        setTimeout(() => {
+            const screen = document.getElementById('battle-screen');
+            if (screen) {
+                screen.classList.add('void-invert');
+                setTimeout(() => screen.classList.remove('void-invert'), 200);
+            }
+        }, 1200); // Sychronized with shockwave impact
 
         vfx.appendChild(el);
     }
